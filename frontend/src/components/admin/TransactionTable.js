@@ -14,10 +14,10 @@ const TableHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.4rem 1.5rem;
+  padding: 0.5rem 1.5rem;
   background-color: #A0C172;
   color: ${colors.text.light};
-  font-family: ${fonts.secondary};
+  font-family: 'Istok Web', sans-serif;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -25,7 +25,7 @@ const TableHeader = styled.div`
   h2 {
     font-size: 1.3rem;
     margin: 0;
-    font-weight: 600;
+    font-weight: 700;
   }
 `;
 
@@ -90,13 +90,14 @@ const Table = styled.table`
   overflow: hidden;
 `;
 
-const Th = styled.th`
-  padding: 0.8rem;
-  text-align: left;
+const TableHeaderCell = styled.th`
+  padding: 0.6rem;
+  text-align: center;
+  color: black;
   background-color: ${colors.primary.green1};
-  color: ${colors.text.dark};
-  font-weight: 500;
-  font-size: 1rem;
+  font-family: 'Istok Web', sans-serif;
+  ${typography.body1};
+  font-weight: 700;
   position: sticky;
   top: 0;
   z-index: 1;
@@ -108,11 +109,12 @@ const Th = styled.th`
   }
 `;
 
-const Td = styled.td`
-  padding: 1rem;
+const TableCell = styled.td`
+  padding: 0.6rem;
   text-align: center;
+  font-weight: 700;
   color: ${colors.text.dark};
-  font-family: ${fonts.secondary};
+  font-family: 'Istok Web', sans-serif;
   ${typography.body1};
   border-bottom: 2px solid #B1CF86;
   border-right: 2px solid #B1CF86;
@@ -263,23 +265,23 @@ const TransactionTable = () => {
         <Table>
           <thead>
             <tr>
-              <Th>SL</Th>
-              <Th>Name</Th>
-              <Th>Date/Time</Th>
-              <Th>Amount</Th>
-              <Th>Method</Th>
-              <Th>TrxID</Th>
+              <TableHeaderCell>SL</TableHeaderCell>
+              <TableHeaderCell>Name</TableHeaderCell>
+              <TableHeaderCell>Date/Time</TableHeaderCell>
+              <TableHeaderCell>Amount</TableHeaderCell>
+              <TableHeaderCell>Method</TableHeaderCell>
+              <TableHeaderCell>TrxID</TableHeaderCell>
             </tr>
           </thead>
           <tbody>
             {currentTransactions.map((transaction, index) => (
               <TableRow key={transaction.id}>
-                <Td>{transaction.id}</Td>
-                <Td>{transaction.name}</Td>
-                <Td>{transaction.date}</Td>
-                <Td>{transaction.amount}</Td>
-                <Td>{transaction.method}</Td>
-                <Td>{transaction.trxId}</Td>
+                <TableCell>{transaction.id}</TableCell>
+                <TableCell>{transaction.name}</TableCell>
+                <TableCell>{transaction.date}</TableCell>
+                <TableCell>{transaction.amount}</TableCell>
+                <TableCell>{transaction.method}</TableCell>
+                <TableCell>{transaction.trxId}</TableCell>
               </TableRow>
             ))}
           </tbody>
