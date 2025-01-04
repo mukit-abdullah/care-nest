@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import Header from '../components/Header';
+import { useNavigate } from 'react-router-dom';
 
 const PageContainer = styled.div`
   background-color: #0A2A22;
@@ -49,41 +50,52 @@ const Input = styled.input`
   border-radius: 10px;
   background-color: #D9FFB3;
   color: #0A2A22;
-  font-size: 1.1rem;
-
+  font-size: 1rem;
+  
   &::placeholder {
     color: #0A2A22;
     opacity: 0.7;
   }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px #B4D434;
-  }
 `;
 
 const LoginButton = styled.button`
-  padding: 15px 40px;
   background-color: #B4D434;
   color: #0A2A22;
+  padding: 15px 40px;
   border: none;
-  border-radius: 25px;
+  border-radius: 10px;
   font-size: 1.2rem;
-  font-weight: bold;
   cursor: pointer;
-  transition: transform 0.2s ease, background-color 0.2s ease;
-  margin-top: 20px;
+  transition: background-color 0.3s;
 
   &:hover {
-    background-color: #9FBF2F;
-    transform: scale(1.02);
+    background-color: #9CBF2D;
   }
 `;
 
+const ErrorMessage = styled.div`
+  color: #ff6b6b;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+`;
+
 const LoginPage = () => {
+  const navigate = useNavigate();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Add login logic here
+    
+    // For demo purposes, using simple validation
+    // In a real application, you would validate against a backend
+    if (username === 'admin' && password === 'admin123') {
+      // Navigate to admin dashboard
+      navigate('/admin');
+    } else {
+      setError('Invalid username or password');
+    }
   };
 
   return (
@@ -93,12 +105,15 @@ const LoginPage = () => {
         <LoginContainer>
           <Title>Admin</Title>
           <Subtitle>Log in</Subtitle>
+          {error && <ErrorMessage>{error}</ErrorMessage>}
           <form onSubmit={handleSubmit}>
             <FormGroup>
               <Label>Username:</Label>
               <Input 
                 type="text" 
                 placeholder="Enter Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </FormGroup>
@@ -107,6 +122,8 @@ const LoginPage = () => {
               <Input 
                 type="password" 
                 placeholder="Enter Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </FormGroup>

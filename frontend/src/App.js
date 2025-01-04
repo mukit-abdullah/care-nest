@@ -17,6 +17,8 @@ import PersonalCarePage from './pages/PersonalCarePage';
 import ActivitiesPage from './pages/ActivitiesPage';
 import DonationPage from './pages/DonationPage';
 import LoginPage from './pages/LoginPage';
+import DashboardPage from './pages/admin/DashboardPage';
+import GlobalStyles from './theme/GlobalStyles';
 
 const AppContainer = styled.div`
   background-color: #0A2A22;
@@ -46,6 +48,7 @@ const HomePage = () => (
 function App() {
   return (
     <Router>
+      <GlobalStyles />
       <AppContainer>
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -56,6 +59,7 @@ function App() {
           <Route path="/activities" element={<ActivitiesPage />} />
           <Route path="/donation" element={<DonationPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/admin" element={<DashboardPage />} />
         </Routes>
       </AppContainer>
     </Router>
