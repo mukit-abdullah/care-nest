@@ -1,116 +1,91 @@
 # CareNest - Old Age Home Management System
 
-CareNest is a comprehensive web application designed to manage and streamline operations for old age homes. It provides an intuitive interface for managing residents, services, activities, and donations.
+CareNest is a comprehensive web application designed to manage and streamline operations in old age homes. Built with React for the frontend and Node.js/Express for the backend, it offers a modern and intuitive interface for administrators and staff.
 
 ## Features
 
-- **Resident Management**
-  - Track resident information
-  - Medical history
-  - Personal care requirements
-  - Family contacts
+### Admin Dashboard
+- Resident management with photo display
+- Quick stats overview (total residents, rooms, staff)
+- Add/Edit/Delete resident information
+- User-friendly interface with modern design
 
-- **Service Management**
-  - Accommodation services
-  - Medical care services
-  - Personal care services
-  - Recreational activities
+### Meal Management
+- Track different meal categories:
+  - Vegetarian
+  - Non-Vegetarian
+  - Vegan
+- Monitor resident dietary preferences
+- Daily meal count tracking
+- Special meal type tracking (Spicy/Non-Spicy, Hard/Soft)
 
-- **Activity Management**
-  - Schedule activities
-  - Track participation
-  - Manage event calendars
-
-- **Donation System**
-  - Online donation processing
-  - Multiple payment methods (Bkash, Taptap Send, Bank Transfer)
-  - Donation tracking
-
-- **User Interface**
-  - Modern, responsive design
-  - Easy navigation
-  - Mobile-friendly layout
+### Transaction Management
+- Financial transaction tracking
+- Payment history
+- Expense management
 
 ## Technology Stack
 
 ### Frontend
 - React.js
-- Styled Components
-- React Router
-- React Icons
+- Styled Components for styling
+- React Router for navigation
+- Modern UI/UX with responsive design
 
 ### Backend
 - Node.js
 - Express.js
-- MongoDB
-- Mongoose
+- MongoDB for database
+- JWT for authentication
 
 ## Getting Started
 
-### Prerequisites
-- Node.js (v14 or higher)
-- npm or yarn
-- MongoDB
-
-### Installation
-
 1. Clone the repository
 ```bash
-git clone https://github.com/mukit-abdullah/care-nest.git
-cd care-nest
+git clone [repository-url]
 ```
 
-2. Install dependencies for backend
+2. Install dependencies
 ```bash
-cd backend
+# Install frontend dependencies
+cd frontend
+npm install
+
+# Install backend dependencies
+cd ../backend
 npm install
 ```
 
-3. Install dependencies for frontend
+3. Start the development servers
 ```bash
-cd ../frontend
-npm install
-```
-
-4. Create a .env file in the backend directory with your MongoDB connection string
-```env
-MONGODB_URI=your_mongodb_connection_string
-PORT=5000
-```
-
-5. Start the backend server
-```bash
-cd backend
-npm start
-```
-
-6. Start the frontend development server
-```bash
+# Start frontend
 cd frontend
 npm start
-```
 
-The application will be available at `http://localhost:3000`
+# Start backend
+cd ../backend
+npm start
+```
 
 ## Project Structure
-
 ```
-care-nest/
-├── backend/
-│   ├── models/
-│   ├── routes/
-│   └── server.js
+CareNest/
 ├── frontend/
-│   ├── public/
-│   └── src/
-│       ├── components/
-│       ├── pages/
-│       └── utils/
-└── README.md
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── theme/
+│   │   └── App.js
+│   └── package.json
+└── backend/
+    ├── src/
+    │   ├── routes/
+    │   ├── models/
+    │   └── controllers/
+    └── package.json
 ```
 
 ## Contributing
-
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
@@ -118,11 +93,8 @@ care-nest/
 5. Open a Pull Request
 
 ## License
-
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Contact
-
-Mukit Abdullah - [GitHub](https://github.com/mukit-abdullah)
-
-Project Link: [https://github.com/mukit-abdullah/care-nest](https://github.com/mukit-abdullah/care-nest)
+## Acknowledgments
+- Thanks to all contributors who have helped shape CareNest
+- Special thanks to the open-source community for the tools and libraries used
