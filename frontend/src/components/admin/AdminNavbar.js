@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import logo from '../../assets/CareNestLogo.png';
 import colors from '../../theme/colors';
 import { typography, fonts } from '../../theme/typography';
@@ -17,18 +17,14 @@ const NavbarContainer = styled.nav`
   z-index: 1000;
 `;
 
-const LeftSection = styled.div`
+const LogoSection = styled.div`
   display: flex;
   align-items: center;
   gap: 2rem;
 `;
 
-const Logo = styled.div`
-  display: flex;
-  align-items: center;
-  img {
-    height: 50px;
-  }
+const Logo = styled.img`
+  height: 50px;
 `;
 
 const UserInfo = styled.div`
@@ -75,25 +71,28 @@ const NavLink = styled(Link)`
 `;
 
 const AdminNavbar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Add logout logic here
+    navigate('/login');
+  };
+
   return (
     <NavbarContainer>
-      <LeftSection>
-        <Logo>
-          <img src={logo} alt="CareNest Logo" />
-        </Logo>
+      <LogoSection>
+        <Logo src={logo} alt="CareNest Logo" />
         <UserInfo>
-          <span className="user-name">Admin User</span>
-          <div className="profile-icon">
-            <span>👤</span>
-          </div>
+          <span className="user-name">User_Name</span>
+          <span className="profile-icon">👤</span>
         </UserInfo>
-      </LeftSection>
+      </LogoSection>
 
       <NavLinks>
         <NavLink to="/admin/dashboard">Dashboard</NavLink>
         <NavLink to="/admin/meal">Meal</NavLink>
         <NavLink to="/admin/transaction">Transaction</NavLink>
-        <NavLink to="/logout">Log Out</NavLink>
+        <NavLink onClick={handleLogout}>Log Out</NavLink>
       </NavLinks>
     </NavbarContainer>
   );

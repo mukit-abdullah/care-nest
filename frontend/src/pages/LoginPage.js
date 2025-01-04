@@ -92,7 +92,7 @@ const LoginPage = () => {
     // In a real application, you would validate against a backend
     if (username === 'admin' && password === 'admin123') {
       // Navigate to admin dashboard
-      navigate('/admin');
+      navigate('/admin/dashboard');
     } else {
       setError('Invalid username or password');
     }

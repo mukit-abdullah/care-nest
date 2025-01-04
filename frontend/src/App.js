@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -18,6 +18,8 @@ import ActivitiesPage from './pages/ActivitiesPage';
 import DonationPage from './pages/DonationPage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/admin/DashboardPage';
+import MealPage from './pages/admin/MealPage';
+import TransactionPage from './pages/admin/TransactionPage';
 import GlobalStyles from './theme/GlobalStyles';
 
 const AppContainer = styled.div`
@@ -51,7 +53,7 @@ function App() {
       <GlobalStyles />
       <AppContainer>
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/accommodation" element={<AccommodationPage />} />
           <Route path="/medical-care" element={<MedicalCarePage />} />
@@ -59,7 +61,9 @@ function App() {
           <Route path="/activities" element={<ActivitiesPage />} />
           <Route path="/donation" element={<DonationPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/admin" element={<DashboardPage />} />
+          <Route path="/admin/dashboard" element={<DashboardPage />} />
+          <Route path="/admin/meal" element={<MealPage />} />
+          <Route path="/admin/transaction" element={<TransactionPage />} />
         </Routes>
       </AppContainer>
     </Router>

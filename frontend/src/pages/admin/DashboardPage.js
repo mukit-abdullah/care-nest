@@ -11,7 +11,7 @@ const DashboardContainer = styled.div`
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  background-color: ${colors.background.light};
+  background-color: #0F1914;
   position: relative;
 `;
 
@@ -68,19 +68,41 @@ const AddButton = styled.button`
   }
 `;
 
+const TableCell = styled.td`
+  padding: 1rem;
+  text-align: ${props => props.align || 'left'};
+  color: #FFFFFF;
+  font-family: 'Istok Web';
+  
+  ${props => props.isPhoto && `
+    width: 80px;
+    height: 80px;
+    padding: 0.5rem;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+  `}
+`;
+
 const DashboardPage = () => {
   return (
-    <DashboardContainer>
+    <>
       <AdminNavbar />
-      <Content>
-        <Title>Admin Dashboard</Title>
-        <StatsWrapper>
-          <DashboardStats />
-        </StatsWrapper>
-        <ResidentsTable />
-      </Content>
-      <AddButton onClick={() => {/* Add your navigation logic here */}}>+</AddButton>
-    </DashboardContainer>
+      <DashboardContainer>
+        <Content>
+          <Title>Admin Dashboard</Title>
+          <StatsWrapper>
+            <DashboardStats />
+          </StatsWrapper>
+          <ResidentsTable />
+        </Content>
+        <AddButton onClick={() => {/* Add your navigation logic here */}}>+</AddButton>
+      </DashboardContainer>
+    </>
   );
 };
 
