@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import Header from '../components/Header';
+import LoginHeader from '../components/LoginHeader';
 import { useNavigate } from 'react-router-dom';
 
 const PageContainer = styled.div`
@@ -83,29 +83,28 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // For demo purposes, using simple validation
-    // In a real application, you would validate against a backend
-    if (username === 'admin' && password === 'admin123') {
+    // Accept any input for now
+    if (username && password) {
+      // Set auth token (we'll implement proper auth later)
+      localStorage.setItem('authToken', 'temp-token');
+      localStorage.setItem('userData', username);
+      
       // Navigate to admin dashboard
       navigate('/admin/dashboard');
-    } else {
-      setError('Invalid username or password');
     }
   };
 
   return (
     <>
-      <Header />
+      <LoginHeader />
       <PageContainer>
         <LoginContainer>
           <Title>Admin</Title>
           <Subtitle>Log in</Subtitle>
-          {error && <ErrorMessage>{error}</ErrorMessage>}
           <form onSubmit={handleSubmit}>
             <FormGroup>
               <Label>Username:</Label>

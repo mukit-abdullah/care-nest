@@ -70,18 +70,39 @@ const NavLink = styled(Link)`
   }
 `;
 
+const LogoutButton = styled.button`
+  color: #D2E6B5;
+  text-decoration: none;
+  font-family: ${fonts.secondary};
+  font-size: 0.9rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(210, 230, 181, 0.1);
+  }
+`;
+
 const AdminNavbar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Add logout logic here
-    navigate('/login');
+    // Clear admin authentication
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userData');
+    
+    // Navigate to home page (visitor view)
+    navigate('/', { replace: true });
   };
 
   return (
     <NavbarContainer>
       <LogoSection>
-        <Logo src={logo} alt="CareNest Logo" />
+        <Logo src={logo} alt="CareNest Logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }} />
         <UserInfo>
           <span className="user-name">User_Name</span>
           <span className="profile-icon">👤</span>
@@ -92,7 +113,7 @@ const AdminNavbar = () => {
         <NavLink to="/admin/dashboard">Dashboard</NavLink>
         <NavLink to="/admin/meal">Meal</NavLink>
         <NavLink to="/admin/transaction">Transaction</NavLink>
-        <NavLink onClick={handleLogout}>Log Out</NavLink>
+        <LogoutButton onClick={handleLogout}>Log Out</LogoutButton>
       </NavLinks>
     </NavbarContainer>
   );

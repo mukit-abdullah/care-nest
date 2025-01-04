@@ -1,21 +1,30 @@
 import React from 'react';
 import styled from 'styled-components';
-import { colors } from '../../theme/colors';
-import { typography, fonts } from '../../theme/typography';
 import AdminNavbar from '../../components/admin/AdminNavbar';
+import TransactionTable from '../../components/admin/TransactionTable';
+import { colors } from '../../theme/colors';
+import { fonts } from '../../theme/typography';
 
 const PageContainer = styled.div`
   min-height: 100vh;
-  background-color: ${colors.background.light};
-  padding: 2rem;
+  background-color: #0F1914;
+`;
+
+const Content = styled.div`
+  padding-top: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 `;
 
 const Title = styled.h1`
   color: ${colors.primary.green5};
   font-family: ${fonts.primary};
   font-size: 2rem;
+  padding: 2rem;
   text-align: center;
-  margin-bottom: 2rem;
+  width: 100%;
 `;
 
 const TransactionPage = () => {
@@ -23,8 +32,10 @@ const TransactionPage = () => {
     <>
       <AdminNavbar />
       <PageContainer>
-        <Title>Transactions</Title>
-        {/* Transaction content will go here */}
+        <Content>
+          <Title>Transaction</Title>
+          <TransactionTable />
+        </Content>
       </PageContainer>
     </>
   );

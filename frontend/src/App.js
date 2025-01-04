@@ -47,13 +47,25 @@ const HomePage = () => (
   </>
 );
 
+// Protected Route component for admin routes
+const ProtectedRoute = ({ children }) => {
+  const isAuthenticated = localStorage.getItem('authToken');
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return children;
+};
+
 function App() {
   return (
     <Router>
       <GlobalStyles />
       <AppContainer>
         <Routes>
-          <Route path="/" element={<Navigate to="/login" />} />
+          {/* Public Routes */}
+          <Route path="/" element={<HomePage />} />
           <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/accommodation" element={<AccommodationPage />} />
           <Route path="/medical-care" element={<MedicalCarePage />} />
@@ -61,9 +73,32 @@ function App() {
           <Route path="/activities" element={<ActivitiesPage />} />
           <Route path="/donation" element={<DonationPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/admin/dashboard" element={<DashboardPage />} />
-          <Route path="/admin/meal" element={<MealPage />} />
-          <Route path="/admin/transaction" element={<TransactionPage />} />
+
+          {/* Protected Admin Routes */}
+          <Route 
+            path="/admin/dashboard" 
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/meal" 
+            element={
+              <ProtectedRoute>
+                <MealPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/transaction" 
+            element={
+              <ProtectedRoute>
+                <TransactionPage />
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
       </AppContainer>
     </Router>

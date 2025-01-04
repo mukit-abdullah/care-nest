@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import colors from '../../theme/colors';
 import { typography, fonts } from '../../theme/typography';
+import { FaSearch } from 'react-icons/fa';
 
 const TableContainer = styled.div`
   width: 80%;
@@ -133,15 +134,6 @@ const TableRow = styled.tr`
   }
 `;
 
-const ResidentImage = styled.img`
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin: 0 auto;
-  display: block;
-`;
-
 const PaginationContainer = styled.div`
   display: flex;
   justify-content: space-between;
@@ -183,52 +175,79 @@ const PageButton = styled.button`
   }
 `;
 
-const AvailabilityCheckbox = styled.input`
-  width: 20px;
-  height: 20px;
-`;
-
-const ResidentsTable = () => {
+const TransactionTable = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   // Sample data - replace with actual data from database
-  const residents = [
+  const transactions = [
     {
-      id: '001',
-      photo: 'path_to_photo',
-      name: 'Shanta Banu',
-      dob: '08.06.1965',
-      roomNo: '01',
-      emergencyContact: '01716742116',
-      available: true
+      id: 1,
+      name: 'Rahat Rahman',
+      date: '08.06.2024 6:45 pm',
+      amount: '10,000',
+      method: 'Bkash',
+      trxId: 'SD8T61YFD'
     },
-    // Add more sample data here
+    {
+      id: 2,
+      name: 'Sadman Hossain',
+      date: '12.06.2024 8:43 pm',
+      amount: '15,000',
+      method: 'Bkash',
+      trxId: 'URNY6K1S8'
+    },
+    {
+      id: 3,
+      name: 'Arnab Banik',
+      date: '16.11.2024 3:15 pm',
+      amount: '20,000',
+      method: 'Bkash',
+      trxId: 'WX7PL0V2Z'
+    },
+    {
+      id: 4,
+      name: 'Kashem Mia',
+      date: '28.08.2024 8:39 pm',
+      amount: '2',
+      method: 'Bkash',
+      trxId: 'BB80LHS3G'
+    },
+    {
+      id: 5,
+      name: 'Mukit Abdullah',
+      date: '28.08.2024 7:46 am',
+      amount: '40,000',
+      method: 'Bkash',
+      trxId: 'BB80LHS3G'
+    }
   ];
 
-  // Filter residents based on search term
-  const filteredResidents = residents.filter(resident =>
-    resident.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    resident.id.includes(searchTerm) ||
-    resident.roomNo.includes(searchTerm)
+  // Filter transactions based on search term
+  const filteredTransactions = transactions.filter(transaction =>
+    transaction.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    transaction.trxId.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Calculate pagination
+  // Get current transactions
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentResidents = filteredResidents.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredResidents.length / itemsPerPage);
+  const currentTransactions = filteredTransactions.slice(indexOfFirstItem, indexOfLastItem);
 
   // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const pageCount = Math.ceil(filteredTransactions.length / itemsPerPage);
+
   return (
     <TableContainer>
       <TableHeader>
-        <h2>Residents</h2>
+        <h2>Transaction History</h2>
         <SearchSection>
-          <SearchIcon>🔍</SearchIcon>
+          <SearchIcon>
+            <FaSearch />
+          </SearchIcon>
           <SearchBar>
             <input
               type="text"
@@ -246,56 +265,49 @@ const ResidentsTable = () => {
             <tr>
               <Th>SL</Th>
               <Th>Name</Th>
-              <Th>Age</Th>
-              <Th>Room</Th>
-              <Th>Status</Th>
+              <Th>Date/Time</Th>
+              <Th>Amount</Th>
+              <Th>Method</Th>
+              <Th>TrxID</Th>
             </tr>
           </thead>
           <tbody>
-            {currentResidents.map((resident, index) => (
-              <TableRow 
-                key={resident.id}
-              >
-                <Td>{index + 1}</Td>
-                <Td>{resident.name}</Td>
-                <Td>{resident.dob}</Td>
-                <Td>{resident.roomNo}</Td>
-                <Td>
-                  <AvailabilityCheckbox 
-                    type="checkbox" 
-                    checked={resident.available}
-                    readOnly
-                  />
-                </Td>
+            {currentTransactions.map((transaction, index) => (
+              <TableRow key={transaction.id}>
+                <Td>{transaction.id}</Td>
+                <Td>{transaction.name}</Td>
+                <Td>{transaction.date}</Td>
+                <Td>{transaction.amount}</Td>
+                <Td>{transaction.method}</Td>
+                <Td>{transaction.trxId}</Td>
               </TableRow>
             ))}
           </tbody>
         </Table>
       </TableWrapper>
-
       <PaginationContainer>
         <PageInfo>
-          Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredResidents.length)} of {filteredResidents.length} residents
+          Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredTransactions.length)} of {filteredTransactions.length} entries
         </PageInfo>
         <PageButtons>
-          <PageButton 
+          <PageButton
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
           >
             Previous
           </PageButton>
-          {[...Array(totalPages)].map((_, index) => (
+          {[...Array(pageCount)].map((_, i) => (
             <PageButton
-              key={index + 1}
-              onClick={() => paginate(index + 1)}
-              active={currentPage === index + 1}
+              key={i + 1}
+              onClick={() => paginate(i + 1)}
+              active={currentPage === i + 1}
             >
-              {index + 1}
+              {i + 1}
             </PageButton>
           ))}
-          <PageButton 
+          <PageButton
             onClick={() => paginate(currentPage + 1)}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === pageCount}
           >
             Next
           </PageButton>
@@ -305,4 +317,4 @@ const ResidentsTable = () => {
   );
 };
 
-export default ResidentsTable;
+export default TransactionTable;
