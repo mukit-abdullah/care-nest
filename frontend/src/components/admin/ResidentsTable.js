@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import colors from '../../theme/colors';
 import { typography, fonts } from '../../theme/typography';
+import { useNavigate } from 'react-router-dom';
 
 const TableContainer = styled.div`
   width: 80%;
@@ -231,9 +232,14 @@ const residents = [
 ];
 
 const ResidentsTable = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  const handleRowClick = (id) => {
+    navigate('/admin/info/personal');
+  };
 
   // Filter residents based on search term
   const filteredResidents = residents.filter(resident =>
@@ -283,7 +289,7 @@ const ResidentsTable = () => {
           </thead>
           <tbody>
             {currentResidents.map((resident, index) => (
-              <TableRow key={resident.id}>
+              <TableRow key={resident.id} onClick={() => handleRowClick(resident.id)}>
                 <TableCell>{indexOfFirstItem + index + 1}</TableCell>
                 <TableCell>{resident.photo}</TableCell>
                 <TableCell>{resident.name}</TableCell>

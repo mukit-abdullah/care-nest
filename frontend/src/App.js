@@ -26,6 +26,8 @@ import DietPage from './pages/admin/ResidentRegistration/DietPage';
 import RoomPage from './pages/admin/ResidentRegistration/RoomPage';
 import GuardianPage from './pages/admin/ResidentRegistration/GuardianPage';
 import FinancialPage from './pages/admin/ResidentRegistration/FinancialPage';
+import PersonalInfoPage from './pages/admin/ResidentInfo/PersonalInfoPage';
+import MedicalInfoPage from './pages/admin/ResidentInfo/MedicalInfoPage';
 import GlobalStyles from './theme/GlobalStyles';
 
 const AppContainer = styled.div`
@@ -150,6 +152,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <TransactionPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/info/personal" 
+            element={
+              <ProtectedRoute>
+                <PersonalInfoPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/info/medical" 
+            element={
+              <ProtectedRoute>
+                <MedicalInfoPage />
               </ProtectedRoute>
             } 
           />
