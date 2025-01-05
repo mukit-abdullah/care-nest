@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 const ContactSection = styled.section`
   padding: 80px 20px;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: #0F1914;
 `;
 
 const Container = styled.div`
@@ -19,10 +19,10 @@ const Container = styled.div`
 `;
 
 const Title = styled.h2`
-  font-size: 2.5rem;
-  color: #FFD700;
+  font-size: 3.5rem;
+  color: #D2E6B5;
   margin-bottom: 30px;
-  font-family: 'Playfair Display', serif;
+  font-family: 'istok web';
   grid-column: 1 / -1;
   text-align: center;
 `;

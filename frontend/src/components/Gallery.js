@@ -4,15 +4,15 @@ import { useNavigate } from 'react-router-dom';
 
 const GallerySection = styled.section`
   padding: 80px 20px;
-  background-color: #0A2A22;
+  background-color: #0F1914;
 `;
 
 const Title = styled.h2`
   text-align: center;
-  font-size: 2.5rem;
-  color: #FFD700;
+  font-size: 3.5rem;
+  color: #D2E6B5;
   margin-bottom: 50px;
-  font-family: 'Playfair Display', serif;
+  font-family: 'istok web';
 `;
 
 const GalleryGrid = styled.div`
@@ -42,19 +42,22 @@ const Image = styled.img`
 `;
 
 const ViewMoreButton = styled.button`
+ 
   display: block;
   margin: 40px auto 0;
-  padding: 12px 30px;
-  background-color: #FFD700;
-  color: #0A2A22;
+  padding: 10px 25px;
+  background-color: #B1CF86;
+  font-weight: bold;
+  color: #black;
   border: none;
-  border-radius: 5px;
-  font-size: 1.1rem;
+  width: 10rem;
+  border-radius: 20px;
+  font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
 
   &:hover {
-    background-color: #FFC000;
+    background-color: #9DBF70;
     transform: translateY(-2px);
   }
 `;
@@ -75,7 +78,7 @@ const Gallery = () => {
 
   return (
     <GallerySection id="gallery">
-      <Title>Our Gallery</Title>
+      <Title>Gallery</Title>
       <GalleryGrid>
         {galleryImages.slice(0, 4).map((image, index) => (
           <GalleryItem key={index}>

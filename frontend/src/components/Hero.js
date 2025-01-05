@@ -1,43 +1,58 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const HeroSection = styled.section`
-  height: 100vh;
-  background: linear-gradient(rgba(10, 42, 34, 0.7), rgba(10, 42, 34, 0.7)),
-              url('/images/hero-bg.jpg') no-repeat center center;
-  background-size: cover;
+const HeroContainer = styled.div`
+  min-height: 100vh;
+  background-color: #0F1914;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   text-align: center;
-  padding: 0 20px;
+  padding-bottom: 8rem;
 `;
 
 const HeroContent = styled.div`
   max-width: 800px;
+  text-align: center;
 `;
 
-const Title = styled.h1`
-  font-size: 3.5rem;
-  color: #FFD700;
-  margin-bottom: 1rem;
-  font-family: 'Playfair Display', serif;
-`;
-
-const Subtitle = styled.p`
+const WelcomeText = styled.div`
+  font-family: 'Istok Web';
+  color: #FFFFFF;
   font-size: 1.5rem;
-  color: #ffffff;
-  margin-bottom: 2rem;
+`;
+
+const BrandName = styled.div`
+  font-family: 'Istok Web';
+  color: #B1CF86;
+  font-size: 8rem;
+  margin: 0.5rem 0 2rem;
+`;
+
+const SubtitleTop = styled.div`
+  font-family: 'Istok Web';
+  color: #FFFFFF;
+  font-size: 1.3rem;
+  margin-bottom: 0.3rem;
+`;
+
+const SubtitleBottom = styled.div`
+  font-family: 'Istok Web';
+  color: #FFFFFF;
+  font-size: 1.3rem;
 `;
 
 const Hero = () => {
   return (
-    <HeroSection>
+    <HeroContainer>
       <HeroContent>
-        <Title>Welcome to CareNest</Title>
-        <Subtitle>A Place Where Every Senior Feels at Home</Subtitle>
+        <WelcomeText>Welcome to</WelcomeText>
+        <BrandName>Care Nest</BrandName>
+        <SubtitleTop>A Place of Comfort, Care, and Community for Your</SubtitleTop>
+        <SubtitleBottom>Golden Years.</SubtitleBottom>
       </HeroContent>
-    </HeroSection>
+    </HeroContainer>
   );
 };
 

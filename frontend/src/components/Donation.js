@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 const DonationSection = styled.section`
   padding: 80px 20px;
-  background-color: #0A2A22;
+  background-color: #0F1914;
 `;
 
 const Container = styled.div`
@@ -14,8 +14,8 @@ const Container = styled.div`
 `;
 
 const Title = styled.h2`
-  font-size: 2.5rem;
-  color: #FFD700;
+  font-size: 3.5rem;
+  color: #D2E6B5;
   margin-bottom: 30px;
   font-family: 'Playfair Display', serif;
 `;
@@ -31,12 +31,12 @@ const Description = styled.p`
 `;
 
 const DonateButton = styled.button`
-  padding: 15px 40px;
-  background-color: #FFD700;
-  color: #0A2A22;
+  padding: 10px 25px;
+  background-color: #D2E6B5;
+  color: black;
   border: none;
-  border-radius: 5px;
-  font-size: 1.2rem;
+  border-radius: 20px;
+  font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s ease;
