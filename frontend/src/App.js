@@ -28,10 +28,14 @@ import GuardianPage from './pages/admin/ResidentRegistration/GuardianPage';
 import FinancialPage from './pages/admin/ResidentRegistration/FinancialPage';
 import PersonalInfoPage from './pages/admin/ResidentInfo/PersonalInfoPage';
 import MedicalInfoPage from './pages/admin/ResidentInfo/MedicalInfoPage';
+import DietInfoPage from './pages/admin/ResidentInfo/DietInfoPage';
+import RoomInfoPage from './pages/admin/ResidentInfo/RoomInfoPage';
+import GuardianInfoPage from './pages/admin/ResidentInfo/GuardianInfoPage';
+import FinancialInfoPage from './pages/admin/ResidentInfo/FinancialInfoPage';
 import GlobalStyles from './theme/GlobalStyles';
 
 const AppContainer = styled.div`
-  background-color: #0A2A22;
+  background-color: #0F1914;
   color: #ffffff;
 `;
 
@@ -168,6 +172,38 @@ function App() {
             element={
               <ProtectedRoute>
                 <MedicalInfoPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/info/diet" 
+            element={
+              <ProtectedRoute>
+                <DietInfoPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/info/room" 
+            element={
+              <ProtectedRoute>
+                <RoomInfoPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/info/guardian" 
+            element={
+              <ProtectedRoute>
+                <GuardianInfoPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/info/financial" 
+            element={
+              <ProtectedRoute>
+                <FinancialInfoPage />
               </ProtectedRoute>
             } 
           />

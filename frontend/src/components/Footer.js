@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 
 const FooterContainer = styled.footer`
-  background-color: #061812;
+  background-color: black;
   color: #ffffff;
   padding: 60px 20px 20px;
 `;

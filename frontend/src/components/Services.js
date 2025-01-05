@@ -4,15 +4,16 @@ import { useNavigate } from 'react-router-dom';
 
 const ServicesSection = styled.section`
   padding: 80px 20px;
-  background-color: #0A2A22;
+  background-color: #0F1914;
 `;
 
 const SectionTitle = styled.h2`
   text-align: center;
-  font-size: 2.5rem;
-  color: #FFD700;
+  font-size: 4.5rem;
+  color: #D2E6B5;
   margin-bottom: 50px;
-  font-family: 'Playfair Display', serif;
+  font-family: 'istok web';
+  
 `;
 
 const ServicesGrid = styled.div`
@@ -24,11 +25,16 @@ const ServicesGrid = styled.div`
 `;
 
 const ServiceCard = styled.div`
-  background: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 0;
   border-radius: 10px;
-  padding: 20px;
   text-align: center;
   transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  justify-content: center;
+  align-items: center;
 
   &:hover {
     transform: translateY(-5px);
@@ -39,35 +45,38 @@ const ServiceImage = styled.img`
   width: 100%;
   height: 200px;
   object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 15px;
+  margin-bottom: 1.5rem;
 `;
 
 const ServiceTitle = styled.h3`
-  color: #FFD700;
-  margin-bottom: 10px;
+  color: white;
   font-size: 1.5rem;
+  margin-bottom: 1rem;
+  padding: 0 1.5rem;
 `;
 
 const ServiceDescription = styled.p`
   color: #ffffff;
-  font-size: 1rem;
+  margin-bottom: 1.5rem;
   line-height: 1.6;
+  padding: 0 1.5rem;
 `;
 
 const Button = styled.button`
-  background-color: #FFD700;
+  background-color: #B1CF86;
   color: #0A2A22;
   border: none;
   padding: 10px 20px;
-  border-radius: 5px;
-  margin-top: 15px;
+  border-radius: 20px;
+  width: 10rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  font-weight: bold;
+  margin: 0 1.5rem 1.5rem;
+  transition: background-color 0.3s ease;
+  text-align: center;
 
   &:hover {
-    background-color: #FFC000;
-    transform: translateY(-2px);
+    background-color: #9DBF70;
   }
 `;
 
@@ -116,9 +125,7 @@ const Services = () => {
             <ServiceImage src={service.image} alt={service.title} />
             <ServiceTitle>{service.title}</ServiceTitle>
             <ServiceDescription>{service.description}</ServiceDescription>
-            <Button onClick={() => handleInquire(service)}>
-              Inquire More
-            </Button>
+            <Button onClick={() => handleInquire(service)}>Inquire More</Button>
           </ServiceCard>
         ))}
       </ServicesGrid>

@@ -3,15 +3,15 @@ import styled from 'styled-components';
 
 const TestimonialSection = styled.section`
   padding: 80px 20px;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: #0F1914;
 `;
 
 const Title = styled.h2`
   text-align: center;
-  font-size: 2.5rem;
-  color: #FFD700;
+  font-size: 3.5rem;
+  color: #D2E6B5;
   margin-bottom: 50px;
-  font-family: 'Playfair Display', serif;
+  font-family: 'istok web';
 `;
 
 const TestimonialCard = styled.div`
@@ -33,7 +33,7 @@ const Quote = styled.p`
 `;
 
 const Author = styled.p`
-  color: #FFD700;
+  color: #D2E6B5;
   text-align: center;
   font-weight: bold;
   font-size: 1.1rem;
@@ -64,7 +64,7 @@ const LeafDecoration = styled.div`
 const Testimonial = () => {
   return (
     <TestimonialSection id="testimonial">
-      <Title>What People Say</Title>
+      <Title>Testimonial</Title>
       <TestimonialCard>
         <LeafDecoration className="top-left" />
         <LeafDecoration className="bottom-right" />

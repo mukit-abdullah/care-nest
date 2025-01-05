@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../assets/CareNestLogo.png';
 
 const HeaderContainer = styled.header`
-  background-color: rgba(10, 42, 34, 0.95);
+  background-color: #0F1914;
   padding: 15px 40px;
   position: fixed;
   width: 100%;

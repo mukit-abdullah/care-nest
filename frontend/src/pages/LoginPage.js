@@ -4,7 +4,7 @@ import LoginHeader from '../components/LoginHeader';
 import { useNavigate } from 'react-router-dom';
 
 const PageContainer = styled.div`
-  background-color: #0A2A22;
+  background-color: #0F1914;
   color: #ffffff;
   min-height: 100vh;
   padding-top: 80px;
@@ -59,12 +59,13 @@ const Input = styled.input`
 `;
 
 const LoginButton = styled.button`
-  background-color: #B4D434;
+  background-color: #D2E6B5;
   color: #0A2A22;
-  padding: 15px 40px;
+  padding: 10px 25px;
   border: none;
-  border-radius: 10px;
-  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 20px;
+  font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s;
 

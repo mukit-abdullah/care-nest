@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate, useLocation } from 'react-router-dom';
+import logo from '../assets/CareNestLogo.png';
 
 const HeaderContainer = styled.header`
-  background-color: rgba(10, 42, 34, 0.95);
+  background-color: black;
   padding: 15px 40px;
   position: fixed;
   width: 100%;
@@ -16,22 +17,9 @@ const HeaderContainer = styled.header`
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 `;
 
-const Logo = styled.div`
-  color: #FFD700;
-  font-family: 'Playfair Display', serif;
-  font-size: 2rem;
-  font-weight: 700;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
+const Logo = styled.img`
+  height: 50px;
   cursor: pointer;
-  
-  span {
-    color: #ffffff;
-    font-size: 1rem;
-    margin-left: 10px;
-    font-weight: 400;
-  }
 `;
 
 const Nav = styled.nav`
@@ -63,7 +51,7 @@ const NavLink = styled.div`
   cursor: pointer;
 
   &:hover {
-    color: #FFD700;
+    color: #8EB15C;
   }
 
   &::after {
@@ -73,7 +61,7 @@ const NavLink = styled.div`
     height: 2px;
     bottom: 0;
     left: 50%;
-    background-color: #FFD700;
+    background-color: #8EB15C;
     transition: all 0.3s ease;
     transform: translateX(-50%);
   }
@@ -136,10 +124,11 @@ const Header = () => {
 
   return (
     <HeaderContainer>
-      <Logo onClick={handleLogoClick}>
-        CareNest
-        <span>Old Age Home</span>
-      </Logo>
+      <Logo 
+        src={logo} 
+        alt="CareNest Logo" 
+        onClick={handleLogoClick}
+      />
       <MobileMenuButton onClick={() => setIsMenuOpen(!isMenuOpen)}>
         <i className="fas fa-bars"></i>
       </MobileMenuButton>
