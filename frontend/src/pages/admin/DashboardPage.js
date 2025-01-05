@@ -5,6 +5,7 @@ import DashboardStats from '../../components/admin/DashboardStats';
 import ResidentsTable from '../../components/admin/ResidentsTable';
 import colors from '../../theme/colors';
 import { typography, fonts } from '../../theme/typography';
+import { useNavigate } from 'react-router-dom';
 
 const DashboardContainer = styled.div`
   display: flex;
@@ -89,6 +90,7 @@ const TableCell = styled.td`
 `;
 
 const DashboardPage = () => {
+  const navigate = useNavigate();
   return (
     <>
       <AdminNavbar />
@@ -100,7 +102,7 @@ const DashboardPage = () => {
           </StatsWrapper>
           <ResidentsTable />
         </Content>
-        <AddButton onClick={() => {/* Add your navigation logic here */}}>+</AddButton>
+        <AddButton onClick={() => navigate('/admin/registration/personal')}>+</AddButton>
       </DashboardContainer>
     </>
   );

@@ -20,6 +20,12 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/admin/DashboardPage';
 import MealPage from './pages/admin/MealPage';
 import TransactionPage from './pages/admin/TransactionPage';
+import PersonalPage from './pages/admin/ResidentRegistration/PersonalPage';
+import MedicalPage from './pages/admin/ResidentRegistration/MedicalPage';
+import DietPage from './pages/admin/ResidentRegistration/DietPage';
+import RoomPage from './pages/admin/ResidentRegistration/RoomPage';
+import GuardianPage from './pages/admin/ResidentRegistration/GuardianPage';
+import FinancialPage from './pages/admin/ResidentRegistration/FinancialPage';
 import GlobalStyles from './theme/GlobalStyles';
 
 const AppContainer = styled.div`
@@ -80,6 +86,54 @@ function App() {
             element={
               <ProtectedRoute>
                 <DashboardPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/registration/personal" 
+            element={
+              <ProtectedRoute>
+                <PersonalPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/registration/medical" 
+            element={
+              <ProtectedRoute>
+                <MedicalPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/registration/diet" 
+            element={
+              <ProtectedRoute>
+                <DietPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/registration/room" 
+            element={
+              <ProtectedRoute>
+                <RoomPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/registration/guardian" 
+            element={
+              <ProtectedRoute>
+                <GuardianPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/registration/financial" 
+            element={
+              <ProtectedRoute>
+                <FinancialPage />
               </ProtectedRoute>
             } 
           />
