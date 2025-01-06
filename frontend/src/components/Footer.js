@@ -83,7 +83,7 @@ const LoginLink = styled.span`
   transition: color 0.3s ease;
 
   &:hover {
-    color: #FFC000;
+    color: #B1CF86;
   }
 `;
 
