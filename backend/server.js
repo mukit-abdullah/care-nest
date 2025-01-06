@@ -1,51 +1,86 @@
 const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const { MONGODB_URI, PORT } = require('./config');
+const morgan = require('morgan');
+const colors = require('colors');
+const cors = require('cors');
+const connectDB = require('./config/db');
+const errorHandler = require('./middleware/error');
 
-// Import routes
-const residentsRouter = require('./routes/residents');
-const servicesRouter = require('./routes/services');
+// Route files
+const adminRoutes = require('./routes/admin');
+const residentRoutes = require('./routes/resident');
+const roomRoutes = require('./routes/room');
+const guardianRoutes = require('./routes/guardian');
+const medicalRecordRoutes = require('./routes/medicalRecord');
+const dietRoutes = require('./routes/diet');
+const financialRecordRoutes = require('./routes/financialRecord');
 
+// Load env vars
 dotenv.config();
+
+// Connect to database
+connectDB();
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// Body parser
 app.use(express.json());
 
-// Connect to MongoDB
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('Could not connect to MongoDB:', err));
+// Dev logging middleware
+if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('dev'));
+}
 
-// Routes
-app.use('/api/residents', residentsRouter);
-app.use('/api/services', servicesRouter);
+// Enable CORS
+app.use(cors());
 
-// Basic route
-app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Welcome to CareNest API',
-    endpoints: {
-      residents: '/api/residents',
-      services: '/api/services'
-    }
-  });
+// Mount routers
+app.use('/api/admin', adminRoutes);
+app.use('/api/residents', residentRoutes);
+app.use('/api/rooms', roomRoutes);
+app.use('/api/guardians', guardianRoutes);
+app.use('/api/medical-records', medicalRecordRoutes);
+app.use('/api/diets', dietRoutes);
+app.use('/api/financial-records', financialRecordRoutes);
+
+// Debug route
+app.get('/debug/routes', (req, res) => {
+    const routes = [];
+    app._router.stack.forEach((middleware) => {
+        if (middleware.route) {
+            routes.push({
+                path: middleware.route.path,
+                methods: Object.keys(middleware.route.methods)
+            });
+        } else if (middleware.name === 'router') {
+            middleware.handle.stack.forEach((handler) => {
+                if (handler.route) {
+                    routes.push({
+                        path: handler.route.path,
+                        methods: Object.keys(handler.route.methods)
+                    });
+                }
+            });
+        }
+    });
+    res.json(routes);
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ 
-    message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined
-  });
-});
+// Error handler
+app.use(errorHandler);
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+const PORT = process.env.PORT || 5000;
+
+const server = app.listen(
+    PORT,
+    console.log(
+        `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold
+    )
+);
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err, promise) => {
+    console.log(`Error: ${err.message}`.red);
+    // Close server & exit process
+    server.close(() => process.exit(1));
 });
