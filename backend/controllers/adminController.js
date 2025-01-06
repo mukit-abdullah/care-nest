@@ -73,15 +73,15 @@ exports.registerAdmin = async (req, res) => {
 // @access  Public
 exports.loginAdmin = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { username, password } = req.body;
 
-        // Find admin by email
-        const admin = await Admin.findOne({ email }).select('+password');
+        // Find admin by username
+        const admin = await Admin.findOne({ username }).select('+password');
         
-        if (!admin || !(await admin.comparePassword(password))) {
+        if (!admin || !(await admin.matchPassword(password))) {
             return res.status(401).json({
                 success: false,
-                message: 'Invalid email or password'
+                message: 'Invalid username or password'
             });
         }
 
@@ -105,6 +105,7 @@ exports.loginAdmin = async (req, res) => {
                 username: admin.username,
                 email: admin.email,
                 role: admin.role,
+                status: admin.status,
                 token: generateToken(admin._id)
             }
         });

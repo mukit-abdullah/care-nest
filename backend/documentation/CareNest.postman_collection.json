@@ -1,0 +1,336 @@
+{
+	"info": {
+		"_postman_id": "carenest-api-collection",
+		"name": "CareNest API",
+		"description": "Collection for testing CareNest API endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Register Admin",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin123\",\n    \"email\": \"admin@carenest.com\",\n    \"password\": \"password123\",\n    \"role\": \"admin\",\n    \"contact_number\": \"1234567890\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/admin/register",
+							"host": ["{{BASE_URL}}"],
+							"path": ["admin", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login Admin",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@carenest.com\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/admin/login",
+							"host": ["{{BASE_URL}}"],
+							"path": ["admin", "login"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Residents",
+			"item": [
+				{
+					"name": "Create Resident",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Doe\",\n    \"date_of_birth\": \"1950-01-15\",\n    \"gender\": \"Male\",\n    \"photo_url\": \"url_to_photo\",\n    \"blood_group\": \"A+\",\n    \"personal_contact_number\": \"1234567890\",\n    \"emergency_contact_name\": \"Jane Doe\",\n    \"emergency_contact_number\": \"0987654321\",\n    \"address\": \"123 Main St\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/residents",
+							"host": ["{{BASE_URL}}"],
+							"path": ["residents"]
+						}
+					}
+				},
+				{
+					"name": "Get All Residents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/residents",
+							"host": ["{{BASE_URL}}"],
+							"path": ["residents"]
+						}
+					}
+				},
+				{
+					"name": "Get Single Resident",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/residents/:id",
+							"host": ["{{BASE_URL}}"],
+							"path": ["residents", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "resident_id"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Resident",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Doe Updated\",\n    \"personal_contact_number\": \"9876543210\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/residents/:id",
+							"host": ["{{BASE_URL}}"],
+							"path": ["residents", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "resident_id"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Resident",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/residents/:id",
+							"host": ["{{BASE_URL}}"],
+							"path": ["residents", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "resident_id"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Rooms",
+			"item": [
+				{
+					"name": "Create Room",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"room_number\": \"101\",\n    \"room_type\": \"single\",\n    \"special_facilities\": [\"Wheelchair Access\", \"Emergency Bell\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/rooms",
+							"host": ["{{BASE_URL}}"],
+							"path": ["rooms"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Guardians",
+			"item": [
+				{
+					"name": "Create Guardian",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"resident_id\": \"resident_id\",\n    \"name\": \"Jane Doe\",\n    \"relationship\": \"Daughter\",\n    \"contact_number\": \"1234567890\",\n    \"address\": \"123 Main St\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/guardians",
+							"host": ["{{BASE_URL}}"],
+							"path": ["guardians"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Medical Records",
+			"item": [
+				{
+					"name": "Create Medical Record",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"resident_id\": \"resident_id\",\n    \"medical_history\": \"History of hypertension\",\n    \"medical_files_url\": [\"url1\", \"url2\"],\n    \"current_medication\": [\"Medicine1\", \"Medicine2\"],\n    \"physician_name\": \"Dr. Smith\",\n    \"physician_contact_number\": \"1234567890\",\n    \"special_needs\": \"Regular monitoring\",\n    \"insurance_details\": \"Insurance info\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/medical-records",
+							"host": ["{{BASE_URL}}"],
+							"path": ["medical-records"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Diets",
+			"item": [
+				{
+					"name": "Create Diet",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"resident_id\": \"resident_id\",\n    \"dietary_preference\": \"Vegetarian\",\n    \"food_category\": \"Non-Spicy\",\n    \"food_texture\": \"Soft\",\n    \"food_allergies\": [\"Peanuts\", \"Shellfish\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/diets",
+							"host": ["{{BASE_URL}}"],
+							"path": ["diets"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Financial Records",
+			"item": [
+				{
+					"name": "Create Financial Record",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"resident_id\": \"resident_id\",\n    \"payment_preference\": \"Sponsored\",\n    \"account_number\": \"ACC123456\",\n    \"payment_details\": \"Monthly payment via bank transfer\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/financial-records",
+							"host": ["{{BASE_URL}}"],
+							"path": ["financial-records"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
