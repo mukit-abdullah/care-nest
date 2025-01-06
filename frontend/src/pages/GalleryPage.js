@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import Header from '../components/Header';
 
 const GalleryPageContainer = styled.div`
-  background-color: #0A2A22;
+  background-color: #0F1914;
   min-height: 100vh;
   padding-top: 80px;
 `;

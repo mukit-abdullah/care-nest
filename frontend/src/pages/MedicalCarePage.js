@@ -4,7 +4,7 @@ import Header from '../components/Header';
 import { FaBrain, FaBell, FaHeartbeat, FaNotesMedical } from 'react-icons/fa';
 
 const PageContainer = styled.div`
-  background-color: #0A2A22;
+  background-color: #0F1914;
   color: #ffffff;
   min-height: 100vh;
 `;
