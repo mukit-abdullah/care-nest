@@ -25,23 +25,25 @@ const Logo = styled.img`
 `;
 
 const Title = styled.h1`
-  font-family: 'Playfair Display', serif;
-  font-size: 2.5rem;
-  color: #ffffff;
+  font-family: ''istok-web';
+  font-size: 3.5 rem;
+  color: #D2E6B5;
   margin-bottom: 20px;
 `;
 
 const OrganizationName = styled.h2`
-  font-family: 'Playfair Display', serif;
-  font-size: 3.5rem;
-  color: #B4D434;
+  font-family: 'istok-web';
+  font-size:  20rem;
+  color: #D2E6B5;
   margin-bottom: 30px;
+  font-weight: bold;
 `;
 
 const Subtitle = styled.h3`
-  font-size: 1.5rem;
+  font-size: 1 rem;
   color: #ffffff;
-  margin-bottom: 50px;
+  margin-bottom: 70px;
+  margin-top: 10px
 `;
 
 const DonationOptions = styled.div`
@@ -58,18 +60,19 @@ const DonationButton = styled.button`
   justify-content: center;
   gap: 15px;
   padding: 20px;
-  background-color: #B4D434;
+  background-color: #8EB15C;
   border: none;
   border-radius: 50px;
-  color: #0A2A22;
+  color: #ffffff;
   font-size: 1.2rem;
+  font-family: 'istok-web';
   font-weight: bold;
   cursor: pointer;
   transition: transform 0.2s ease, background-color 0.2s ease;
 
   &:hover {
     transform: scale(1.02);
-    background-color: #9FBF2F;
+    background-color: #D2E6B5;
   }
 
   svg {
@@ -83,12 +86,12 @@ const BkashText = styled.span`
 `;
 
 const TaptapText = styled.span`
-  color: #0A2A22;
+  color: #334f0a;
   font-weight: bold;
 `;
 
 const BankText = styled.span`
-  color: #0A2A22;
+  color: #000000;
   font-weight: bold;
 `;
 

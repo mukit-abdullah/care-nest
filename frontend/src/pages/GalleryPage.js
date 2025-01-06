@@ -10,8 +10,8 @@ const GalleryPageContainer = styled.div`
 
 const Title = styled.h1`
   text-align: center;
-  font-size: 3rem;
-  color: #FFD700;
+  font-size: 3.5rem;
+  color: #D2E6B5;
   margin: 40px 0;
   font-family: 'Playfair Display', serif;
 `;

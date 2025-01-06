@@ -29,28 +29,28 @@ const ContentSection = styled.section`
 `;
 
 const Title = styled.h1`
-  font-family: 'Playfair Display', serif;
-  font-size: 3rem;
-  color: #FFD700;
+  font-family: 'istok-web';
+  font-size: 3.5rem;
+  color: #D2E5B6;
   text-align: center;
-  margin: 40px 0;
+  margin-bottom: 30px;
 `;
 
 const Description = styled.p`
   text-align: center;
   font-size: 1.1rem;
   line-height: 1.8;
-  max-width: 800px;
+  max-width: 950px;
   margin: 0 auto 60px;
   color: #ffffff;
 `;
 
-const ServicesTitle = styled.h2`
-  font-family: 'Playfair Display', serif;
-  font-size: 2.5rem;
-  color: #FFD700;
+const SectionTitle = styled.h2`
+  font-family: 'istok-web';
+  font-size: 3.5rem;
+  color: #B1CF86;
   text-align: center;
-  margin: 60px 0 40px;
+  margin: 60px 0 30px;
 `;
 
 const ServicesGrid = styled.div`
@@ -77,16 +77,23 @@ const IconWrapper = styled.div`
   margin-bottom: 15px;
 `;
 
-const ServiceName = styled.h3`
-  color: #ADFF93;
-  font-size: 1.2rem;
-  margin: 0;
+const ServiceTitle = styled.h3`
+  font-family: 'istok-web';
+  font-size: 1.8rem;
+  color: #B1CF86;
+  margin-bottom: 15px;
+`;
+
+const ServiceDescription = styled.p`
+  color: #ffffff;
+  line-height: 1.8;
+  margin-bottom: 20px;
 `;
 
 const DoctorsTitle = styled.h2`
-  font-family: 'Playfair Display', serif;
-  font-size: 2.5rem;
-  color: #FFD700;
+  font-family: 'istok-web';
+  font-size: 3.5rem;
+  color: #B1CF86;
   text-align: center;
   margin: 80px 0 60px;
 `;
@@ -109,9 +116,9 @@ const DoctorInfo = styled.div`
 `;
 
 const DoctorName = styled.h3`
-  font-family: 'Playfair Display', serif;
+  font-family: 'istok-web';
   font-size: 2rem;
-  color: #FFD700;
+  color: #B1CF86;
   margin-bottom: 20px;
 `;
 
@@ -146,31 +153,43 @@ const MedicalCarePage = () => {
             we focus on preventive care and wellness programs, promoting a healthy lifestyle and enhancing the overall quality of life for our residents.
           </Description>
 
-          <ServicesTitle>Medical Services At Care Nest</ServicesTitle>
+          <SectionTitle>Medical Services At Care Nest</SectionTitle>
           <ServicesGrid>
             <ServiceCard>
               <IconWrapper>
                 <FaBrain />
               </IconWrapper>
-              <ServiceName>Psychiatry Department</ServiceName>
+              <ServiceTitle>Psychiatry Department</ServiceTitle>
+              <ServiceDescription>
+                Our psychiatry department provides comprehensive mental health services, including diagnosis, treatment, and counseling for various mental health conditions.
+              </ServiceDescription>
             </ServiceCard>
             <ServiceCard>
               <IconWrapper>
                 <FaBell />
               </IconWrapper>
-              <ServiceName>Emergency Department</ServiceName>
+              <ServiceTitle>Emergency Department</ServiceTitle>
+              <ServiceDescription>
+                Our emergency department is equipped to handle medical emergencies, providing timely and effective care to patients in need.
+              </ServiceDescription>
             </ServiceCard>
             <ServiceCard>
               <IconWrapper>
                 <FaHeartbeat />
               </IconWrapper>
-              <ServiceName>Cardiology Department</ServiceName>
+              <ServiceTitle>Cardiology Department</ServiceTitle>
+              <ServiceDescription>
+                Our cardiology department offers specialized care for heart conditions, including diagnosis, treatment, and management of cardiovascular diseases.
+              </ServiceDescription>
             </ServiceCard>
             <ServiceCard>
               <IconWrapper>
                 <FaNotesMedical />
               </IconWrapper>
-              <ServiceName>Neurology Department</ServiceName>
+              <ServiceTitle>Neurology Department</ServiceTitle>
+              <ServiceDescription>
+                Our neurology department provides comprehensive care for neurological conditions, including diagnosis, treatment, and management of brain and nervous system disorders.
+              </ServiceDescription>
             </ServiceCard>
           </ServicesGrid>
 

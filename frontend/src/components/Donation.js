@@ -42,7 +42,7 @@ const DonateButton = styled.button`
   transition: background-color 0.3s ease;
 
   &:hover {
-    background-color: #FFC000;
+    background-color: #B1CF86;
   }
 `;
 

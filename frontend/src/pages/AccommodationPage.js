@@ -29,9 +29,9 @@ const ContentSection = styled.section`
 `;
 
 const Title = styled.h1`
-  font-family: 'Playfair Display', serif;
-  font-size: 3rem;
-  color: #FFD700;
+  font-family: 'istok-web';
+  font-size: 3.5rem;
+  color: #D2E5B6;
   text-align: center;
   margin-bottom: 30px;
 `;
@@ -40,15 +40,15 @@ const Description = styled.p`
   text-align: center;
   font-size: 1.1rem;
   line-height: 1.8;
-  max-width: 800px;
+  max-width: 950px;
   margin: 0 auto 60px;
   color: #ffffff;
 `;
 
 const SectionTitle = styled.h2`
-  font-family: 'Playfair Display', serif;
-  font-size: 2.5rem;
-  color: #FFD700;
+  font-family: 'istok-web';
+  font-size: 3.5rem;
+  color: #B1CF86;
   text-align: center;
   margin: 60px 0 30px;
 `;
@@ -77,15 +77,15 @@ const RoomContent = styled.div`
 `;
 
 const RoomTitle = styled.h3`
-  font-family: 'Playfair Display', serif;
+  font-family: 'istok-web';
   font-size: 1.8rem;
-  color: #FFD700;
+  color: #B1CF86;
   margin-bottom: 15px;
 `;
 
 const RoomDescription = styled.p`
   color: #ffffff;
-  line-height: 1.6;
+  line-height: 1.8;
   margin-bottom: 20px;
 `;
 

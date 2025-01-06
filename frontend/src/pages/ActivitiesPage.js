@@ -28,23 +28,32 @@ const ContentSection = styled.section`
 `;
 
 const Title = styled.h1`
-  font-family: 'Playfair Display', serif;
-  font-size: 3rem;
-  color: #FFD700;
+  font-family: 'istok-web';
+  font-size: 3.5rem;
+  color: #D2E5B6;
   text-align: center;
-  margin: 40px 0;
+  margin-bottom: 30px;
+`;
+
+const Description = styled.p`
+  text-align: center;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  max-width: 950px;
+  margin: 0 auto 60px;
+  color: #ffffff;
+`;
+
+const SectionTitle = styled.h2`
+  font-family: 'istok-web';
+  font-size: 3.5rem;
+  color: #B1CF86;
+  text-align: center;
+  margin: 60px 0 30px;
 `;
 
 const EventsSection = styled.section`
   margin: 60px 0;
-`;
-
-const EventsTitle = styled.h2`
-  font-family: 'Playfair Display', serif;
-  font-size: 2.5rem;
-  color: #FFD700;
-  text-align: center;
-  margin-bottom: 40px;
 `;
 
 const EventsGrid = styled.div`
@@ -75,29 +84,21 @@ const EventContent = styled.div`
   padding: 25px;
 `;
 
-const EventTitle = styled.h3`
-  font-family: 'Playfair Display', serif;
+const ActivityTitle = styled.h3`
+  font-family: 'istok-web';
   font-size: 1.8rem;
-  color: #FFD700;
+  color: #B1CF86;
   margin-bottom: 15px;
 `;
 
-const EventDescription = styled.p`
+const ActivityDescription = styled.p`
   color: #ffffff;
   line-height: 1.8;
-  font-size: 1.1rem;
+  margin-bottom: 20px;
 `;
 
 const RecreationalSection = styled.section`
   margin: 80px 0;
-`;
-
-const RecreationalTitle = styled.h2`
-  font-family: 'Playfair Display', serif;
-  font-size: 2.5rem;
-  color: #FFD700;
-  text-align: center;
-  margin-bottom: 40px;
 `;
 
 const RecreationalImages = styled.div`
@@ -143,60 +144,60 @@ const ActivitiesPage = () => {
           <Title>Interactive Activities</Title>
 
           <EventsSection>
-            <EventsTitle>Events</EventsTitle>
+            <SectionTitle>Events</SectionTitle>
             <EventsGrid>
               <EventCard>
                 <EventImage src="/images/indoor-games.jpg" alt="Indoor Games" />
                 <EventContent>
-                  <EventTitle>Indoor Games</EventTitle>
-                  <EventDescription>
+                  <ActivityTitle>Indoor Games</ActivityTitle>
+                  <ActivityDescription>
                     Indoor games at our care home offer residents enjoyable activities that stimulate 
                     mental agility and social interaction. They provide a fun way to pass time and 
                     foster a sense of camaraderie among residents.
-                  </EventDescription>
+                  </ActivityDescription>
                 </EventContent>
               </EventCard>
 
               <EventCard>
                 <EventImage src="/images/yoga.jpg" alt="Yoga Session" />
                 <EventContent>
-                  <EventTitle>Yoga</EventTitle>
-                  <EventDescription>
+                  <ActivityTitle>Yoga</ActivityTitle>
+                  <ActivityDescription>
                     Yoga at our care home offers residents gentle exercises and relaxation techniques 
                     to enhance flexibility, strength, and mental well-being. It promotes physical health 
                     and inner peace in a supportive and calming environment.
-                  </EventDescription>
+                  </ActivityDescription>
                 </EventContent>
               </EventCard>
 
               <EventCard>
                 <EventImage src="/images/gardening.jpg" alt="Gardening Activity" />
                 <EventContent>
-                  <EventTitle>Gardening</EventTitle>
-                  <EventDescription>
+                  <ActivityTitle>Gardening</ActivityTitle>
+                  <ActivityDescription>
                     Gardening at our care home allows residents to connect with nature, engage in 
                     therapeutic activities, and enjoy the satisfaction of nurturing plants. It provides 
                     a peaceful and meaningful way.
-                  </EventDescription>
+                  </ActivityDescription>
                 </EventContent>
               </EventCard>
 
               <EventCard>
                 <EventImage src="/images/morning-walk.jpg" alt="Morning Walk" />
                 <EventContent>
-                  <EventTitle>Morning Walk</EventTitle>
-                  <EventDescription>
+                  <ActivityTitle>Morning Walk</ActivityTitle>
+                  <ActivityDescription>
                     Morning walks at our care home provide residents with a refreshing start to their day, 
                     promoting physical activity and enhancing overall well-being. It's a simple yet effective 
                     way to encourage movement and enjoyment of the outdoors in a safe place.
-                  </EventDescription>
+                  </ActivityDescription>
                 </EventContent>
               </EventCard>
             </EventsGrid>
           </EventsSection>
 
           <RecreationalSection>
-            <RecreationalTitle>Recreational Activities</RecreationalTitle>
+            <SectionTitle>Recreational Activities</SectionTitle>
             <RecreationalImages>
               <RecreationalImage 
                 src="/images/recreational1.jpg" 
