@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FaEdit } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -141,6 +141,18 @@ const Tab = styled.button`
 
 const PersonalInfoPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { residentId } = location.state || { residentId: null };
+
+  const handleEdit = () => {
+    navigate('/admin/registration/personal', { 
+      state: { 
+        isEditMode: true,
+        residentId,
+        returnPath: '/admin/info/personal'
+      } 
+    });
+  };
 
   // Dummy data
   const personalInfo = {
@@ -155,9 +167,7 @@ const PersonalInfoPage = () => {
     profilePicture: "profile1.jpg"
   };
 
-  const handleEdit = () => {
-    navigate('/admin/registration/personal');
-  };
+  const currentResidentId = 1; // Assuming you have the resident ID
 
   return (
     <PageContainer>

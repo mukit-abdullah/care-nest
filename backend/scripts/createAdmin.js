@@ -25,7 +25,7 @@ const connectDB = async () => {
 const adminData = {
     username: 'mukit',
     email: 'mukit@carenest.com',
-    password: 'mukit55555',
+    password: '',//write password here, dont save, gitgub finds it
     role: 'admin',
     contact_number: '01812345678',
     status: 'active'

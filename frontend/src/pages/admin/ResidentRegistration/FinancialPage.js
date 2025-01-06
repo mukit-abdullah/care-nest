@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -159,6 +159,17 @@ const SaveButton = styled.button`
 
 const FinancialPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { residentId, returnPath } = location.state || {};
+
+  const handleSave = () => {
+    // Save all resident information here
+    console.log('Saving financial information...', residentId);
+    // Navigate back to the info page or resident list
+    navigate(returnPath || '/admin/dashboard', {
+      state: { residentId }
+    });
+  };
 
   return (
     <PageContainer>
@@ -218,7 +229,12 @@ const FinancialPage = () => {
             />
           </FormGroup>
 
-          <SaveButton>Save</SaveButton>
+          <FormGroup>
+            <Label>Additional Notes:</Label>
+            <Input as="textarea" rows="3" placeholder="Any additional financial notes" />
+          </FormGroup>
+
+          <SaveButton onClick={handleSave}>Save</SaveButton>
         </FormContainer>
       </MainContent>
     </PageContainer>

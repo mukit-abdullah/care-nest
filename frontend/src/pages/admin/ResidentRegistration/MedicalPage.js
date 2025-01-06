@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -173,6 +173,27 @@ const SaveButton = styled.button`
 
 const MedicalPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isEditMode, residentId, returnPath } = location.state || {};
+
+  const handleNext = () => {
+    navigate('/admin/registration/diet', { 
+      state: { 
+        isEditMode,
+        residentId,
+        returnPath
+      } 
+    });
+  };
+
+  const handleSave = () => {
+    // Save logic here
+    console.log('Saving medical information...', residentId);
+    // Navigate back to the info page
+    navigate(returnPath || '/admin/residents/medical', {
+      state: { residentId }
+    });
+  };
 
   return (
     <PageContainer>
@@ -235,7 +256,14 @@ const MedicalPage = () => {
             <TextArea placeholder="Enter any special needs or requirements" />
           </FormGroup>
 
-          <SaveButton>Save</SaveButton>
+          <FormGroup>
+            <Label>Additional Notes:</Label>
+            <Input as="textarea" rows="3" placeholder="Any additional medical notes" />
+          </FormGroup>
+
+          <SaveButton onClick={isEditMode ? handleSave : handleNext}>
+            {isEditMode ? 'Save' : 'Next'}
+          </SaveButton>
         </FormContainer>
       </MainContent>
     </PageContainer>

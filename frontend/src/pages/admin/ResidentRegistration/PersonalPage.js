@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -181,6 +181,27 @@ const SaveButton = styled.button`
 
 const PersonalPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isEditMode, residentId, returnPath } = location.state || {};
+
+  const handleNext = () => {
+    navigate('/admin/registration/medical', { 
+      state: { 
+        isEditMode,
+        residentId,
+        returnPath: returnPath
+      } 
+    });
+  };
+
+  const handleSave = () => {
+    // Save logic here
+    console.log('Saving personal information...', residentId);
+    // Navigate back to the info page
+    navigate(returnPath || '/admin/info/personal', {
+      state: { residentId }
+    });
+  };
 
   return (
     <PageContainer>
@@ -254,7 +275,9 @@ const PersonalPage = () => {
             </UploadButton>
           </FormGroup>
 
-          <SaveButton>Save</SaveButton>
+          <SaveButton onClick={isEditMode ? handleSave : handleNext}>
+            {isEditMode ? 'Save' : 'Next'}
+          </SaveButton>
         </FormContainer>
       </MainContent>
     </PageContainer>

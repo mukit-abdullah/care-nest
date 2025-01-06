@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FaEdit, FaFilePdf } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -168,6 +168,18 @@ const Tab = styled.button`
 
 const MedicalInfoPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { residentId } = location.state || { residentId: null };
+
+  const handleEdit = () => {
+    navigate('/admin/registration/medical', { 
+      state: { 
+        isEditMode: true,
+        residentId,
+        returnPath: '/admin/info/medical'
+      } 
+    });
+  };
 
   // Dummy data
   const medicalInfo = {
@@ -187,10 +199,6 @@ const MedicalInfoPage = () => {
       "Coverage_Details.pdf",
       "Claims_History.pdf"
     ]
-  };
-
-  const handleEdit = () => {
-    navigate('/admin/registration/medical');
   };
 
   return (

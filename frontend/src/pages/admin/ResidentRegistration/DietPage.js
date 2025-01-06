@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -159,6 +159,27 @@ const SaveButton = styled.button`
 
 const DietPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isEditMode, residentId, returnPath } = location.state || {};
+
+  const handleNext = () => {
+    navigate('/admin/registration/room', { 
+      state: { 
+        isEditMode,
+        residentId,
+        returnPath
+      } 
+    });
+  };
+
+  const handleSave = () => {
+    // Save logic here
+    console.log('Saving diet information...', residentId);
+    // Navigate back to the info page
+    navigate(returnPath || '/admin/info/diet', {
+      state: { residentId }
+    });
+  };
 
   return (
     <PageContainer>
@@ -267,7 +288,14 @@ const DietPage = () => {
             />
           </FormGroup>
 
-          <SaveButton>Save</SaveButton>
+          <FormGroup>
+            <Label>Additional Notes:</Label>
+            <Input as="textarea" rows="3" placeholder="Any additional dietary notes" />
+          </FormGroup>
+
+          <SaveButton onClick={isEditMode ? handleSave : handleNext}>
+            {isEditMode ? 'Save' : 'Next'}
+          </SaveButton>
         </FormContainer>
       </MainContent>
     </PageContainer>

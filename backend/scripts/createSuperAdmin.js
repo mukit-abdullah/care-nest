@@ -25,7 +25,7 @@ const connectDB = async () => {
 const superAdminData = {
     username: 'sadmin',
     email: 'superadmin@carenest.com',
-    password: 'admin55555',  // This will be hashed by the model
+    password: '',  // This will be hashed by the model, add password before run.
     role: 'super_admin',
     contact_number: '01712345678',
     status: 'active'
