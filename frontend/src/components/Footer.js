@@ -19,7 +19,11 @@ const FooterContent = styled.div`
 
 const FooterSection = styled.div`
   h3 {
-    color: #FFD700;
+    color: #D2E6B5;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    font-family: 'istok web';
+  }
     margin-bottom: 20px;
     font-size: 1.2rem;
   }
@@ -34,13 +38,13 @@ const FooterSection = styled.div`
   }
 
   a {
-    color: #ffffff;
+    color: #D2E6B5;
     text-decoration: none;
     transition: color 0.3s ease;
     cursor: pointer;
 
     &:hover {
-      color: #FFD700;
+      color: #B1CF86;
     }
   }
 `;
@@ -51,7 +55,7 @@ const SocialLinks = styled.div`
   margin-top: 15px;
 
   a {
-    color: #FFD700;
+    color: #B1CF86;
     font-size: 1.5rem;
     transition: transform 0.3s ease;
 
@@ -74,7 +78,7 @@ const Copyright = styled.div`
 `;
 
 const LoginLink = styled.span`
-  color: #FFD700;
+  color: #D2E6B5;
   cursor: pointer;
   transition: color 0.3s ease;
 
