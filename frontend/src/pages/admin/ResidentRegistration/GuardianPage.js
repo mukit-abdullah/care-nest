@@ -161,11 +161,11 @@ const GuardianPage = () => {
   const { isEditMode, residentId, returnPath } = location.state || {};
   const { residentData, updateResidentData } = useResidentRegistration();
 
-  // Initialize form with context data or default values
+  // Initialize form with context data
   const [formData, setFormData] = useState({
     guardian_name: residentData.guardian_name || '',
     guardian_relationship: residentData.guardian_relationship || '',
-    guardian_contact: residentData.guardian_contact || '',
+    guardian_contact_number: residentData.guardian_contact_number || '',
     guardian_address: residentData.guardian_address || ''
   });
 
@@ -174,36 +174,25 @@ const GuardianPage = () => {
     setFormData({
       guardian_name: residentData.guardian_name || '',
       guardian_relationship: residentData.guardian_relationship || '',
-      guardian_contact: residentData.guardian_contact || '',
+      guardian_contact_number: residentData.guardian_contact_number || '',
       guardian_address: residentData.guardian_address || ''
     });
   }, [residentData]);
 
   const [errors, setErrors] = useState({});
 
-  // Handle error state from navigation
-  useEffect(() => {
-    if (location.state?.errorField) {
-      const newErrors = {};
-      if (!formData.guardian_name) {
-        newErrors.guardian_name = 'Guardian Name is required';
-      }
-      if (!formData.guardian_relationship) {
-        newErrors.guardian_relationship = 'Guardian Relationship is required';
-      }
-      if (!formData.guardian_contact) {
-        newErrors.guardian_contact = 'Guardian Contact is required';
-      }
-      setErrors(newErrors);
-    }
-  }, [location.state, formData]);
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
+    const updatedData = {
+      ...formData,
       [name]: value
-    }));
+    };
+    
+    setFormData(updatedData);
+    // Update context immediately on each change
+    updateResidentData('guardian', updatedData);
+
+    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -212,51 +201,23 @@ const GuardianPage = () => {
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
+  const handleSubmit = (e) => {
+    e.preventDefault();
     
-    if (!formData.guardian_name) {
-      newErrors.guardian_name = 'Guardian Name is required';
+    // No validation needed since fields are optional
+    
+    // Navigate based on mode
+    if (isEditMode && returnPath) {
+      navigate(returnPath, { state: { residentId } });
+    } else {
+      navigate('/admin/registration/financial', { state: { residentId } });
     }
-    if (!formData.guardian_relationship) {
-      newErrors.guardian_relationship = 'Guardian Relationship is required';
-    }
-    if (!formData.guardian_contact) {
-      newErrors.guardian_contact = 'Guardian Contact is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
-  // Always save data before navigation
-  const saveDataBeforeNavigation = () => {
+  const handleTabClick = (path) => {
+    // Save current data before navigation
     updateResidentData('guardian', formData);
-  };
-
-  const handleNext = () => {
-    if (validateForm()) {
-      saveDataBeforeNavigation();
-      navigate('/admin/registration/financial', {
-        state: { isEditMode, residentId, returnPath }
-      });
-    }
-  };
-
-  const handleSave = () => {
-    if (validateForm()) {
-      saveDataBeforeNavigation();
-      if (returnPath) {
-        navigate(returnPath);
-      }
-    }
-  };
-
-  const handleTabChange = (path) => {
-    saveDataBeforeNavigation();
-    navigate(`/admin/registration/${path}`, {
-      state: { isEditMode, residentId, returnPath }
-    });
+    navigate(path);
   };
 
   return (
@@ -264,71 +225,72 @@ const GuardianPage = () => {
       <AdminNavbar />
       <TopSection>
         <TopContent>
-          <Title>Resident Registration</Title>
+          <Title>{isEditMode ? 'Edit Guardian Information' : 'Guardian Registration'}</Title>
           
-          <NavigationTabs>
-            <Tab onClick={() => handleTabChange('personal')}>Personal</Tab>
-            <Tab onClick={() => handleTabChange('medical')}>Medical</Tab>
-            <Tab onClick={() => handleTabChange('diet')}>Diet</Tab>
-            <Tab onClick={() => handleTabChange('room')}>Room</Tab>
-            <Tab active>Guardian</Tab>
-            <Tab onClick={() => handleTabChange('financial')}>Financial</Tab>
-          </NavigationTabs>
+          {!isEditMode && (
+            <NavigationTabs>
+              <Tab onClick={() => handleTabClick('/admin/registration/personal')}>Personal</Tab>
+              <Tab onClick={() => handleTabClick('/admin/registration/medical')}>Medical</Tab>
+              <Tab onClick={() => handleTabClick('/admin/registration/diet')}>Diet</Tab>
+              <Tab onClick={() => handleTabClick('/admin/registration/room')}>Room</Tab>
+              <Tab active>Guardian</Tab>
+              <Tab onClick={() => handleTabClick('/admin/registration/financial')}>Financial</Tab>
+            </NavigationTabs>
+          )}
         </TopContent>
       </TopSection>
       
       <MainContent>
         <FormContainer>
-          <FormGroup>
-            <Label>Guardian Name:</Label>
-            <Input 
-              type="text" 
-              name="guardian_name"
-              value={formData.guardian_name}
-              onChange={handleInputChange}
-              placeholder="Enter guardian's full name" 
-            />
-            {errors.guardian_name && <ErrorText>{errors.guardian_name}</ErrorText>}
-          </FormGroup>
+          <form onSubmit={handleSubmit}>
+            <FormGroup>
+              <Label>Guardian Name</Label>
+              <Input
+                type="text"
+                name="guardian_name"
+                value={formData.guardian_name}
+                onChange={handleInputChange}
+                placeholder="Enter guardian's name"
+              />
+            </FormGroup>
 
-          <FormGroup>
-            <Label>Guardian Relationship:</Label>
-            <Input 
-              type="text" 
-              name="guardian_relationship"
-              value={formData.guardian_relationship}
-              onChange={handleInputChange}
-              placeholder="Enter relationship (e.g., Son, Daughter, Spouse)" 
-            />
-            {errors.guardian_relationship && <ErrorText>{errors.guardian_relationship}</ErrorText>}
-          </FormGroup>
+            <FormGroup>
+              <Label>Relationship to Resident</Label>
+              <Input
+                type="text"
+                name="guardian_relationship"
+                value={formData.guardian_relationship}
+                onChange={handleInputChange}
+                placeholder="Enter relationship to resident"
+              />
+            </FormGroup>
 
-          <FormGroup>
-            <Label>Guardian Contact:</Label>
-            <Input 
-              type="text" 
-              name="guardian_contact"
-              value={formData.guardian_contact}
-              onChange={handleInputChange}
-              placeholder="Enter guardian's contact number" 
-            />
-            {errors.guardian_contact && <ErrorText>{errors.guardian_contact}</ErrorText>}
-          </FormGroup>
+            <FormGroup>
+              <Label>Guardian Contact Number</Label>
+              <Input
+                type="text"
+                name="guardian_contact_number"
+                value={formData.guardian_contact_number}
+                onChange={handleInputChange}
+                placeholder="Enter guardian's contact number"
+              />
+            </FormGroup>
 
-          <FormGroup>
-            <Label>Guardian Address:</Label>
-            <TextArea 
-              name="guardian_address"
-              value={formData.guardian_address}
-              onChange={handleInputChange}
-              placeholder="Enter guardian's full address" 
-              rows="2"
-            />
-          </FormGroup>
+            <FormGroup>
+              <Label>Guardian Address</Label>
+              <TextArea
+                name="guardian_address"
+                value={formData.guardian_address}
+                onChange={handleInputChange}
+                placeholder="Enter guardian's address"
+                rows={4}
+              />
+            </FormGroup>
 
-          <SaveButton onClick={isEditMode ? handleSave : handleNext}>
-            {isEditMode ? 'Save' : 'Next'}
-          </SaveButton>
+            <SaveButton type="submit">
+              {isEditMode ? 'Save Changes' : 'Next'}
+            </SaveButton>
+          </form>
         </FormContainer>
       </MainContent>
     </PageContainer>

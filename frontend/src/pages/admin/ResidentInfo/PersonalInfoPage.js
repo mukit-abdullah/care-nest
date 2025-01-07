@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FaEdit } from 'react-icons/fa';
+import axios from 'axios';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -142,32 +143,98 @@ const Tab = styled.button`
 const PersonalInfoPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { residentId } = location.state || { residentId: null };
+  // Try to get residentId from location state first, then fallback to localStorage
+  const residentId = location.state?.residentId || localStorage.getItem('currentResidentId');
+  const [resident, setResident] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Store residentId in localStorage when it changes
+  useEffect(() => {
+    if (location.state?.residentId) {
+      localStorage.setItem('currentResidentId', location.state.residentId);
+    }
+  }, [location.state?.residentId]);
+
+  useEffect(() => {
+    const fetchResidentData = async () => {
+      console.log('\n=== Starting Resident Info Page Data Load ===');
+      console.log('1. Location Object:', location);
+      console.log('2. Location State:', location.state);
+      console.log('3. Resident ID:', residentId);
+      
+      if (!residentId) {
+        console.log('❌ No resident ID found, using fallback data');
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        console.log('4. Fetching resident data...');
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`http://localhost:5000/api/residents/${residentId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        console.log('5. API Response:', response.data);
+
+        if (response.data.success) {
+          const residentData = response.data.data;
+          
+          console.log('6. Resident Data Details:');
+          console.log('   - Name:', residentData.resident.name);
+          console.log('   - Date of Birth:', residentData.resident.date_of_birth);
+          console.log('   - Gender:', residentData.resident.gender);
+          console.log('   - Room Number:', residentData.room.room_number);
+          console.log('   - Contact:', residentData.resident.personal_contact_number);
+          console.log('   - Emergency Contact:', residentData.resident.emergency_contact_number);
+          console.log('   - Address:', residentData.resident.address);
+          console.log('   - Status:', residentData.resident.status);
+          
+          setResident(residentData);
+        } else {
+          console.log('❌ API request succeeded but returned error:', response.data.message);
+        }
+      } catch (error) {
+        console.log('❌ Error fetching resident data:');
+        console.log('   Error message:', error.message);
+        console.log('   Error details:', error);
+      } finally {
+        setLoading(false);
+        console.log('=== End of Data Load ===\n');
+      }
+    };
+
+    fetchResidentData();
+  }, [residentId, location]);
 
   const handleEdit = () => {
-    navigate('/admin/registration/personal', { 
-      state: { 
-        isEditMode: true,
-        residentId,
-        returnPath: '/admin/info/personal'
-      } 
-    });
+    console.log('\n=== Edit Navigation ===');
+    const editState = { 
+      isEditMode: true,
+      residentId: residentId,
+      returnPath: '/admin/info/personal'
+    };
+    console.log('Navigating to edit with state:', editState);
+    
+    navigate('/admin/registration/personal', { state: editState });
   };
 
-  // Dummy data
-  const personalInfo = {
-    fullName: "Shanta Banu",
-    roomNo: "001",
-    gender: "Female",
-    dateOfBirth: "08.06.1965",
-    contactNumber: "01789346258",
-    emergencyContactName: "Bekrom Roy",
-    emergencyContactNumber: "01716742116",
-    address: "Aziz Sarkar Villa, Abul Kashem Road, Dhaka-1212",
+  // Use resident data if available, otherwise use dummy data
+  const personalInfo = resident || {
+    fullName: "N/A",
+    roomNo: "-1",
+    gender: "N/A",
+    dateOfBirth: "00.00.9999",
+    contactNumber: "",
+    emergencyContactName: "N/A",
+    emergencyContactNumber: "",
+    address: "N/A",
     profilePicture: "profile1.jpg"
   };
 
-  const currentResidentId = 1; // Assuming you have the resident ID
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <PageContainer>
@@ -178,11 +245,21 @@ const PersonalInfoPage = () => {
           
           <NavigationTabs>
             <Tab active>Personal</Tab>
-            <Tab onClick={() => navigate('/admin/info/medical')}>Medical</Tab>
-            <Tab onClick={() => navigate('/admin/info/diet')}>Diet</Tab>
-            <Tab onClick={() => navigate('/admin/info/room')}>Room</Tab>
-            <Tab onClick={() => navigate('/admin/info/guardian')}>Guardian</Tab>
-            <Tab onClick={() => navigate('/admin/info/financial')}>Financial</Tab>
+            <Tab onClick={() => navigate('/admin/info/medical', { 
+              state: { residentId: residentId } 
+            })}>Medical</Tab>
+            <Tab onClick={() => navigate('/admin/info/diet', { 
+              state: { residentId: residentId } 
+            })}>Diet</Tab>
+            <Tab onClick={() => navigate('/admin/info/room', { 
+              state: { residentId: residentId } 
+            })}>Room</Tab>
+            <Tab onClick={() => navigate('/admin/info/guardian', { 
+              state: { residentId: residentId } 
+            })}>Guardian</Tab>
+            <Tab onClick={() => navigate('/admin/info/financial', { 
+              state: { residentId: residentId } 
+            })}>Financial</Tab>
           </NavigationTabs>
         </TopContent>
         <ActionBar>
@@ -194,47 +271,56 @@ const PersonalInfoPage = () => {
         <InfoContainer>
           <InfoGroup>
             <Label>Full Name: </Label>
-            <Value>{personalInfo.fullName}</Value>
+            <Value>{resident?.resident.name || personalInfo.fullName}</Value>
           </InfoGroup>
 
           <InfoGroup>
             <Label>Room No: </Label>
-            <Value>{personalInfo.roomNo}</Value>
+            <Value>{resident?.room.room_number || personalInfo.roomNo}</Value>
           </InfoGroup>
 
           <InfoGroup>
             <Label>Gender: </Label>
-            <Value>{personalInfo.gender}</Value>
+            <Value>{resident?.resident.gender || personalInfo.gender}</Value>
           </InfoGroup>
 
           <InfoGroup>
             <Label>Date of Birth: </Label>
-            <Value>{personalInfo.dateOfBirth}</Value>
+            <Value>
+              {resident?.resident.date_of_birth 
+                ? new Date(resident.resident.date_of_birth).toLocaleDateString('en-GB', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                  })
+                : personalInfo.dateOfBirth
+              }
+            </Value>
           </InfoGroup>
 
           <InfoGroup>
             <Label>Contact Number: </Label>
-            <Value>{personalInfo.contactNumber}</Value>
-          </InfoGroup>
-
-          <InfoGroup>
-            <Label>Emergency Contact Name: </Label>
-            <Value>{personalInfo.emergencyContactName}</Value>
+            <Value>{resident?.resident.personal_contact_number || personalInfo.contactNumber}</Value>
           </InfoGroup>
 
           <InfoGroup>
             <Label>Emergency Contact Number: </Label>
-            <Value>{personalInfo.emergencyContactNumber}</Value>
+            <Value>{resident?.resident.emergency_contact_number || personalInfo.emergencyContactNumber}</Value>
           </InfoGroup>
 
           <InfoGroup>
             <Label>Address: </Label>
-            <Value>{personalInfo.address}</Value>
+            <Value>{resident?.resident.address || personalInfo.address}</Value>
+          </InfoGroup>
+
+          <InfoGroup>
+            <Label>Status: </Label>
+            <Value>{resident?.resident.status || 'N/A'}</Value>
           </InfoGroup>
         </InfoContainer>
         <ImageContainer>
           <img 
-            src={personalInfo.profilePicture} 
+            src={resident?.resident.photo_url || personalInfo.profilePicture} 
             alt="Profile" 
             style={{ 
               maxWidth: '100%', 

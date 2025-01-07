@@ -22,8 +22,7 @@ const adminSchema = new mongoose.Schema({
         required: true
     },
     contact_number: {
-        type: String,
-        required: true
+        type: String
     },
     status: {
         type: String,

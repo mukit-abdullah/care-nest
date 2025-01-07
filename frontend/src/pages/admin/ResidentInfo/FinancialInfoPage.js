@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FaEdit, FaCircle } from 'react-icons/fa';
+import axios from 'axios';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -147,13 +148,56 @@ const Tab = styled.button`
 const FinancialInfoPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { residentId } = location.state || { residentId: null };
+  const residentId = location.state?.residentId || localStorage.getItem('currentResidentId');
+  const [resident, setResident] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Dummy data
+  useEffect(() => {
+    if (location.state?.residentId) {
+      localStorage.setItem('currentResidentId', location.state.residentId);
+    }
+  }, [location.state?.residentId]);
+
+  useEffect(() => {
+    const fetchResidentData = async () => {
+      console.log('\n=== Starting Financial Info Page Data Load ===');
+      console.log('1. Resident ID:', residentId);
+      
+      if (!residentId) {
+        console.log('❌ No resident ID found, using fallback data');
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        console.log('2. Fetching resident data...');
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`http://localhost:5000/api/residents/${residentId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        console.log('3. API Response:', response.data);
+
+        if (response.data.success) {
+          const residentData = response.data.data;
+          console.log('4. Financial Data:', residentData.financialRecord);
+          setResident(residentData);
+        }
+      } catch (error) {
+        console.error('Error fetching resident:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResidentData();
+  }, [residentId]);
+
+  // Fallback data if no resident data is available
   const financialInfo = {
-    paymentPreference: "Sponsored",
-    sponsorDetails: "ABC Corporation Ltd., Corporate Sponsorship Program",
-    accountNumber: "1234-5678-9012-3456"
+    payment_preference: "N/A",
+    account_number: "N/A",
+    payment_details: "N/A"
   };
 
   const handleEdit = () => {
@@ -166,6 +210,10 @@ const FinancialInfoPage = () => {
     });
   };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <PageContainer>
       <AdminNavbar />
@@ -174,11 +222,21 @@ const FinancialInfoPage = () => {
           <Title>Resident Info</Title>
           
           <NavigationTabs>
-            <Tab onClick={() => navigate('/admin/info/personal')}>Personal</Tab>
-            <Tab onClick={() => navigate('/admin/info/medical')}>Medical</Tab>
-            <Tab onClick={() => navigate('/admin/info/diet')}>Diet</Tab>
-            <Tab onClick={() => navigate('/admin/info/room')}>Room</Tab>
-            <Tab onClick={() => navigate('/admin/info/guardian')}>Guardian</Tab>
+            <Tab onClick={() => navigate('/admin/info/personal', { 
+              state: { residentId } 
+            })}>Personal</Tab>
+            <Tab onClick={() => navigate('/admin/info/medical', { 
+              state: { residentId } 
+            })}>Medical</Tab>
+            <Tab onClick={() => navigate('/admin/info/diet', { 
+              state: { residentId } 
+            })}>Diet</Tab>
+            <Tab onClick={() => navigate('/admin/info/room', { 
+              state: { residentId } 
+            })}>Room</Tab>
+            <Tab onClick={() => navigate('/admin/info/guardian', { 
+              state: { residentId } 
+            })}>Guardian</Tab>
             <Tab active>Financial</Tab>
           </NavigationTabs>
         </TopContent>
@@ -192,25 +250,25 @@ const FinancialInfoPage = () => {
           <InfoGroup>
             <Label>Payment Preference: </Label>
             <RadioGroup>
-              <RadioItem isSelected={financialInfo.paymentPreference === "Sponsored"}>
-                <RadioIcon isSelected={financialInfo.paymentPreference === "Sponsored"} />
+              <RadioItem isSelected={resident?.financialRecord?.payment_preference === "Sponsored"}>
+                <RadioIcon isSelected={resident?.financialRecord?.payment_preference === "Sponsored"} />
                 Sponsored
               </RadioItem>
-              <RadioItem isSelected={financialInfo.paymentPreference === "Subscription"}>
-                <RadioIcon isSelected={financialInfo.paymentPreference === "Subscription"} />
+              <RadioItem isSelected={resident?.financialRecord?.payment_preference === "Subscription"}>
+                <RadioIcon isSelected={resident?.financialRecord?.payment_preference === "Subscription"} />
                 Subscription
               </RadioItem>
             </RadioGroup>
           </InfoGroup>
 
           <InfoGroup>
-            <Label>Sponsor Details: </Label>
-            <Value>{financialInfo.sponsorDetails}</Value>
+            <Label>Account Number: </Label>
+            <Value>{resident?.financialRecord?.account_number || financialInfo.account_number}</Value>
           </InfoGroup>
 
           <InfoGroup>
-            <Label>Account Number: </Label>
-            <Value>{financialInfo.accountNumber}</Value>
+            <Label>Payment Details: </Label>
+            <Value>{resident?.financialRecord?.payment_details || financialInfo.payment_details}</Value>
           </InfoGroup>
         </InfoContainer>
       </MainContent>

@@ -7,17 +7,15 @@ const guardianSchema = new mongoose.Schema({
         required: true
     },
     name: {
-        type: String,
-        required: true
-    },
-    relationship: {
-        type: String,
-        required: true
-    },
-    contact_number: {
         type: String
     },
-    address: {
+    relationship: {
+        type: String
+    },
+    guardian_contact_number: {
+        type: String
+    },
+    guardian_address: {
         type: String
     }
 }, {

@@ -31,7 +31,11 @@ const medicalRecordSchema = new mongoose.Schema({
     },
     insurance_details: {
         type: String
-    }
+    },
+    insurance_files_url: {
+        type: [String],
+        default: []
+    },
 }, {
     timestamps: true
 });
