@@ -18,11 +18,13 @@ const initialResidentData = {
     blood_group: '',
     medical_history: '',
     medical_files: [],
+    medical_files_url: '',
     current_medication: '',
     physician_name: '',
     physician_contact_number: '',
     special_needs: '',
     insurance_details: '',
+    insurance_files_url: '',
 
     // Diet Information
     dietary_preference: '',
@@ -72,8 +74,19 @@ export const ResidentRegistrationProvider = ({ children }) => {
             const updatedData = { ...prev };
             
             // If section is provided, update only that section
-            if (section) {
-                // Convert camelCase keys to snake_case if needed
+            if (section === 'medical') {
+                // Handle medical section specifically
+                updatedData.blood_group = data.blood_group || prev.blood_group;
+                updatedData.medical_history = data.medical_history || prev.medical_history;
+                updatedData.medical_files_url = data.medical_files_url || prev.medical_files_url;
+                updatedData.current_medication = data.current_medication || prev.current_medication;
+                updatedData.physician_name = data.physician_name || prev.physician_name;
+                updatedData.physician_contact_number = data.physician_contact_number || prev.physician_contact_number;
+                updatedData.special_needs = data.special_needs || prev.special_needs;
+                updatedData.insurance_details = data.insurance_details || prev.insurance_details;
+                
+            } else if (section) {
+                // For other sections, update normally
                 Object.keys(data).forEach(key => {
                     const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
                     updatedData[snakeKey] = data[key];
@@ -100,13 +113,10 @@ export const ResidentRegistrationProvider = ({ children }) => {
             date_of_birth: 'Date of Birth',
             contact_number: 'Contact Number',
 
-            // Medical Information
-            blood_group: 'Blood Group',
-            medical_history: 'Medical History',
-
             // Diet Information
             dietary_preference: 'Dietary Preference',
             food_category: 'Food Category',
+            food_texture: 'Food Texture',
 
             // Room Information
             room_type: 'Room Type',

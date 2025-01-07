@@ -299,7 +299,7 @@ const MedicalInfoPage = () => {
 
           <InfoGroup>
             <Label>Primary Physician Contact: </Label>
-            <Value>{resident?.medicalRecord?.physician_contact || medicalInfo.primaryPhysicianContact}</Value>
+            <Value>{resident?.medicalRecord?.physician_contact_number || medicalInfo.primaryPhysicianContact}</Value>
           </InfoGroup>
 
           <InfoGroup>
@@ -325,26 +325,6 @@ const MedicalInfoPage = () => {
                     </FileItem>
                   ))
                 : medicalInfo.medicalFiles.map((file, index) => (
-                    <FileItem key={index}>
-                      <FaFilePdf />
-                      {file}
-                    </FileItem>
-                  ))
-              }
-            </FileList>
-          </FileSection>
-          
-          <FileSection>
-            <SectionTitle>Medical Insurance Details:</SectionTitle>
-            <FileList>
-              {resident?.medicalRecord?.insurance_files_url?.length > 0
-                ? resident.medicalRecord.insurance_files_url.map((file, index) => (
-                    <FileItem key={index}>
-                      <FaFilePdf />
-                      {file}
-                    </FileItem>
-                  ))
-                : medicalInfo.insuranceFiles.map((file, index) => (
                     <FileItem key={index}>
                       <FaFilePdf />
                       {file}

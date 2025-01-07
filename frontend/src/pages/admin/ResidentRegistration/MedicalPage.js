@@ -214,8 +214,22 @@ const MedicalPage = () => {
       [name]: value
     };
     setFormData(updatedData);
-    // Update context immediately
-    updateResidentData('medical', updatedData);
+    
+    // Format data for backend
+    const medicalData = {
+      blood_group: updatedData.blood_group,
+      medical_history: updatedData.medical_history,
+      medical_files_url: updatedData.medical_files_url,
+      current_medication: updatedData.current_medication,
+      physician_name: updatedData.physician_name,
+      physician_contact_number: updatedData.physician_contact_number,
+      special_needs: updatedData.special_needs,
+      insurance_details: updatedData.insurance_details,
+      insurance_files_url: updatedData.insurance_files_url
+    };
+    
+    // Update context
+    updateResidentData('medical', medicalData);
   };
 
   const handleFileChange = (e) => {
@@ -225,8 +239,22 @@ const MedicalPage = () => {
       [e.target.name]: [...(formData[e.target.name] || []), ...files]
     };
     setFormData(updatedData);
-    // Update context immediately
-    updateResidentData('medical', updatedData);
+    
+    // Format data for backend
+    const medicalData = {
+      blood_group: updatedData.blood_group,
+      medical_history: updatedData.medical_history,
+      medical_files_url: updatedData.medical_files_url,
+      current_medication: updatedData.current_medication,
+      physician_name: updatedData.physician_name,
+      physician_contact_number: updatedData.physician_contact_number,
+      special_needs: updatedData.special_needs,
+      insurance_details: updatedData.insurance_details,
+      insurance_files_url: updatedData.insurance_files_url
+    };
+    
+    // Update context
+    updateResidentData('medical', medicalData);
   };
 
   const handleSubmit = async (e) => {

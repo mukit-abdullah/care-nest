@@ -247,7 +247,7 @@ const GuardianInfoPage = () => {
 
           <InfoGroup>
             <Label>Guardian Address: </Label>
-            <Value>{resident?.guardian?.address || guardianInfo.guardian_address}</Value>
+            <Value>{resident?.guardian?.guardian_address || guardianInfo.guardian_address}</Value>
           </InfoGroup>
         </InfoContainer>
       </MainContent>
