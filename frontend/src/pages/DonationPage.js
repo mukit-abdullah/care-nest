@@ -5,7 +5,7 @@ import { FaUniversity, FaMoneyBillWave } from 'react-icons/fa';
 import { GiPenguin } from 'react-icons/gi';
 
 const PageContainer = styled.div`
-  background-color: #0A2A22;
+  background-color: #0F1914;
   color: #ffffff;
   min-height: 100vh;
   padding-top: 80px;

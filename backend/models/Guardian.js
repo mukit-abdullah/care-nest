@@ -15,12 +15,10 @@ const guardianSchema = new mongoose.Schema({
         required: true
     },
     contact_number: {
-        type: String,
-        required: true
+        type: String
     },
     address: {
-        type: String,
-        required: true
+        type: String
     }
 }, {
     timestamps: true

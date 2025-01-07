@@ -21,6 +21,8 @@ const dietSchema = new mongoose.Schema({
         enum: ['Hard', 'Soft'],
         required: true
     },
+    special_diet_needs: String,
+    additional_notes: String,
     food_allergies: [String]
 }, {
     timestamps: true

@@ -73,19 +73,22 @@ exports.registerAdmin = async (req, res) => {
 // @access  Public
 exports.loginAdmin = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { username, password } = req.body;
+        console.log('Login attempt for:', username);
 
-        // Find admin by email
-        const admin = await Admin.findOne({ email }).select('+password');
+        // Find admin by username
+        const admin = await Admin.findOne({ username }).select('+password');
+        console.log('Found admin:', admin ? { ...admin.toObject(), password: '[HIDDEN]' } : null);
         
-        if (!admin || !(await admin.comparePassword(password))) {
+        if (!admin || !(await admin.matchPassword(password))) {
             return res.status(401).json({
                 success: false,
-                message: 'Invalid email or password'
+                message: 'Invalid username or password'
             });
         }
 
         // Check if admin is active
+        console.log('Admin status:', admin.status);
         if (admin.status !== 'active') {
             return res.status(401).json({
                 success: false,
@@ -94,21 +97,26 @@ exports.loginAdmin = async (req, res) => {
         }
 
         // Update last login
-        admin.lastLogin = Date.now();
-        admin.loginAttempts = 0;
+        admin.last_login = Date.now();
         await admin.save();
+
+        // Prepare response data
+        const responseData = {
+            _id: admin._id,
+            username: admin.username,
+            email: admin.email,
+            role: admin.role,
+            status: admin.status,
+            token: generateToken(admin._id)
+        };
+        console.log('Login successful, response data:', { ...responseData, token: '[HIDDEN]' });
 
         res.json({
             success: true,
-            data: {
-                _id: admin._id,
-                username: admin.username,
-                email: admin.email,
-                role: admin.role,
-                token: generateToken(admin._id)
-            }
+            data: responseData
         });
     } catch (error) {
+        console.error('Login error:', error);
         res.status(400).json({
             success: false,
             message: error.message

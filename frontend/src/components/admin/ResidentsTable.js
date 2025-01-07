@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import colors from '../../theme/colors';
 import { typography, fonts } from '../../theme/typography';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+
+
 
 const TableContainer = styled.div`
   width: 80%;
@@ -235,14 +239,67 @@ const ResidentsTable = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [residentData, setResidentData] = useState(residents);
   const itemsPerPage = 5;
+  useEffect(() => { 
+    const fetchResidents = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        // First get residents
+        const residentsResponse = await axios.get('http://localhost:5000/api/residents', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (residentsResponse.data.success) {
+          // Then get rooms
+          const roomsResponse = await axios.get('http://localhost:5000/api/rooms', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+
+          console.log('Rooms data:', roomsResponse.data.data);
+          console.log('Residents data:', residentsResponse.data.data);
+
+          // Create room mapping using resident_id
+          const roomMap = {};
+          if (roomsResponse.data.success) {
+            roomsResponse.data.data.forEach(room => {
+              if (room.resident_id && room.resident_id._id) {
+                roomMap[room.resident_id._id.toString()] = room.room_number;
+              }
+            });
+          }
+          console.log('Room map:', roomMap);
+
+          const formattedResidents = residentsResponse.data.data.map(resident => {
+            const residentId = resident._id.toString();
+            console.log('Looking up room for resident:', residentId);
+            console.log('Found room:', roomMap[residentId]);
+            return {
+              id: residentId,
+              photo: <div className="photo-placeholder">Photo</div>,
+              name: resident.name,
+              dob: resident.date_of_birth || 'N/A',
+              roomNo: roomMap[residentId] || 'Not Assigned',
+              emergencyContact: resident.emergency_contact_number || 'N/A',
+              available: resident.status === 'active'
+            };
+          });
+          setResidentData(formattedResidents);
+        }
+      } catch (error) {
+        console.error('Error fetching residents:', error);
+      }
+    };
+    fetchResidents();
+
+  }, []);
 
   const handleRowClick = (id) => {
     navigate('/admin/info/personal');
   };
 
   // Filter residents based on search term
-  const filteredResidents = residents.filter(resident =>
+  const filteredResidents = residentData.filter(resident =>
     resident.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     resident.id.includes(searchTerm) ||
     resident.roomNo.includes(searchTerm) ||

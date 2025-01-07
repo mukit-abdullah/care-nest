@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import logo from '../../assets/CareNestLogo.png';
 import colors from '../../theme/colors';
 import { typography, fonts } from '../../theme/typography';
+import { useAdmin } from '../../context/AdminContext';
 
 const NavbarContainer = styled.nav`
   background-color: ${colors.navbarBg};
@@ -89,11 +90,12 @@ const LogoutButton = styled.button`
 
 const AdminNavbar = () => {
   const navigate = useNavigate();
+  const { adminData, updateAdminData } = useAdmin();
 
   const handleLogout = () => {
     // Clear admin authentication
     localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
+    updateAdminData(null); // This will also clear localStorage userData
     
     // Navigate to home page (visitor view)
     navigate('/', { replace: true });
@@ -104,7 +106,7 @@ const AdminNavbar = () => {
       <LogoSection>
         <Logo src={logo} alt="CareNest Logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }} />
         <UserInfo>
-          <span className="user-name">User_Name</span>
+          <span className="user-name">{adminData?.username || 'Admin'}</span>
           <span className="profile-icon">👤</span>
         </UserInfo>
       </LogoSection>

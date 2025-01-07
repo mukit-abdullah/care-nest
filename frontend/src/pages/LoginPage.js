@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import LoginHeader from '../components/LoginHeader';
 import { useNavigate } from 'react-router-dom';
+import { loginAdmin } from '../services/authService';
+import { useAdmin } from '../context/AdminContext';
 
 const PageContainer = styled.div`
   background-color: #0F1914;
@@ -72,6 +74,11 @@ const LoginButton = styled.button`
   &:hover {
     background-color: #9CBF2D;
   }
+
+  &:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
 `;
 
 const ErrorMessage = styled.div`
@@ -82,20 +89,44 @@ const ErrorMessage = styled.div`
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { updateAdminData } = useAdmin();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Accept any input for now
-    if (username && password) {
-      // Set auth token (we'll implement proper auth later)
-      localStorage.setItem('authToken', 'temp-token');
-      localStorage.setItem('userData', username);
+    if (!username || !password) {
+      setError('Please enter both username and password');
+      return;
+    }
+
+    setError('');
+    setLoading(true);
+
+    try {
+      console.log('Attempting login...');
+      const response = await loginAdmin(username, password);
+      console.log('Login response:', response);
       
-      // Navigate to admin dashboard
-      navigate('/admin/dashboard');
+      if (response.success && response.data) {
+        console.log('Login successful, updating admin data...');
+        updateAdminData(response.data);
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        console.error('Invalid response format:', response);
+        throw new Error('Invalid response from server');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(typeof err === 'string' ? err : 'Login failed. Please check your credentials.');
+      // Clear any existing auth data on error
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -106,6 +137,7 @@ const LoginPage = () => {
         <LoginContainer>
           <Title>Admin</Title>
           <Subtitle>Log in</Subtitle>
+          {error && <ErrorMessage>{error}</ErrorMessage>}
           <form onSubmit={handleSubmit}>
             <FormGroup>
               <Label>Username:</Label>
@@ -113,8 +145,9 @@ const LoginPage = () => {
                 type="text" 
                 placeholder="Enter Username"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => setUsername(e.target.value.trim())}
                 required
+                disabled={loading}
               />
             </FormGroup>
             <FormGroup>
@@ -125,9 +158,12 @@ const LoginPage = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={loading}
               />
             </FormGroup>
-            <LoginButton type="submit">Log in</LoginButton>
+            <LoginButton type="submit" disabled={loading || !username || !password}>
+              {loading ? 'Logging in...' : 'Log in'}
+            </LoginButton>
           </form>
         </LoginContainer>
       </PageContainer>

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FaEdit } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -128,6 +128,8 @@ const Tab = styled.button`
 
 const GuardianInfoPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { residentId } = location.state || { residentId: null };
 
   // Dummy data
   const guardianInfo = {
@@ -138,7 +140,13 @@ const GuardianInfoPage = () => {
   };
 
   const handleEdit = () => {
-    navigate('/admin/registration/guardian');
+    navigate('/admin/registration/guardian', { 
+      state: { 
+        isEditMode: true,
+        residentId,
+        returnPath: '/admin/info/guardian'
+      } 
+    });
   };
 
   return (

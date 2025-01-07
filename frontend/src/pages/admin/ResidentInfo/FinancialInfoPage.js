@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FaEdit, FaCircle } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -146,6 +146,8 @@ const Tab = styled.button`
 
 const FinancialInfoPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { residentId } = location.state || { residentId: null };
 
   // Dummy data
   const financialInfo = {
@@ -155,7 +157,13 @@ const FinancialInfoPage = () => {
   };
 
   const handleEdit = () => {
-    navigate('/admin/registration/financial');
+    navigate('/admin/registration/financial', { 
+      state: { 
+        isEditMode: true,
+        residentId,
+        returnPath: '/admin/info/financial'
+      } 
+    });
   };
 
   return (

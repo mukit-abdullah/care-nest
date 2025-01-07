@@ -1,5 +1,6 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import styled from 'styled-components';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -33,6 +34,8 @@ import RoomInfoPage from './pages/admin/ResidentInfo/RoomInfoPage';
 import GuardianInfoPage from './pages/admin/ResidentInfo/GuardianInfoPage';
 import FinancialInfoPage from './pages/admin/ResidentInfo/FinancialInfoPage';
 import GlobalStyles from './theme/GlobalStyles';
+import { AdminProvider } from './context/AdminContext';
+import { ResidentRegistrationProvider } from './context/ResidentRegistrationContext';
 
 const AppContainer = styled.div`
   background-color: #0F1914;
@@ -61,12 +64,85 @@ const HomePage = () => (
 
 // Protected Route component for admin routes
 const ProtectedRoute = ({ children }) => {
-  const isAuthenticated = localStorage.getItem('authToken');
-  
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        const userData = localStorage.getItem('userData');
+        
+        if (!token || !userData) {
+          throw new Error('No token found');
+        }
+
+        // Parse user data
+        const user = JSON.parse(userData);
+        
+        // Check if user has admin role
+        if (user.role !== 'admin' && user.role !== 'super_admin') {
+          throw new Error('Not authorized');
+        }
+
+        // Verify token with backend
+        const response = await axios.get('http://localhost:5000/api/admin/profile', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!response.data.success) {
+          throw new Error('Token invalid');
+        }
+
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        // Clear storage and redirect to login
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+        setIsAuthenticated(false);
+        navigate('/login', { replace: true });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [navigate]);
+
+  if (isLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        backgroundColor: '#0F1914',
+        color: '#B4D434'
+      }}>
+        Loading...
+      </div>
+    );
+  }
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  
+
+  return children;
+};
+
+// Route guard for login page
+const LoginRoute = ({ children }) => {
+  const token = localStorage.getItem('authToken');
+  const userData = localStorage.getItem('userData');
+
+  if (token && userData) {
+    // If already logged in, redirect to dashboard
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
   return children;
 };
 
@@ -75,142 +151,68 @@ function App() {
     <Router>
       <GlobalStyles />
       <AppContainer>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/gallery" element={<GalleryPage />} />
-          <Route path="/accommodation" element={<AccommodationPage />} />
-          <Route path="/medical-care" element={<MedicalCarePage />} />
-          <Route path="/personal-care" element={<PersonalCarePage />} />
-          <Route path="/activities" element={<ActivitiesPage />} />
-          <Route path="/donation" element={<DonationPage />} />
-          <Route path="/login" element={<LoginPage />} />
+        <AdminProvider>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/gallery" element={<GalleryPage />} />
+            <Route path="/accommodation" element={<AccommodationPage />} />
+            <Route path="/medical-care" element={<MedicalCarePage />} />
+            <Route path="/personal-care" element={<PersonalCarePage />} />
+            <Route path="/activities" element={<ActivitiesPage />} />
+            <Route path="/donation" element={<DonationPage />} />
+            
+            {/* Login Route - Protected from logged in users */}
+            <Route 
+              path="/login" 
+              element={
+                <LoginRoute>
+                  <LoginPage />
+                </LoginRoute>
+              } 
+            />
 
-          {/* Protected Admin Routes */}
-          <Route 
-            path="/admin/dashboard" 
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/registration/personal" 
-            element={
-              <ProtectedRoute>
-                <PersonalPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/registration/medical" 
-            element={
-              <ProtectedRoute>
-                <MedicalPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/registration/diet" 
-            element={
-              <ProtectedRoute>
-                <DietPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/registration/room" 
-            element={
-              <ProtectedRoute>
-                <RoomPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/registration/guardian" 
-            element={
-              <ProtectedRoute>
-                <GuardianPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/registration/financial" 
-            element={
-              <ProtectedRoute>
-                <FinancialPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/meal" 
-            element={
-              <ProtectedRoute>
-                <MealPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/transaction" 
-            element={
-              <ProtectedRoute>
-                <TransactionPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/info/personal" 
-            element={
-              <ProtectedRoute>
-                <PersonalInfoPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/info/medical" 
-            element={
-              <ProtectedRoute>
-                <MedicalInfoPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/info/diet" 
-            element={
-              <ProtectedRoute>
-                <DietInfoPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/info/room" 
-            element={
-              <ProtectedRoute>
-                <RoomInfoPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/info/guardian" 
-            element={
-              <ProtectedRoute>
-                <GuardianInfoPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin/info/financial" 
-            element={
-              <ProtectedRoute>
-                <FinancialInfoPage />
-              </ProtectedRoute>
-            } 
-          />
-        </Routes>
+            {/* Protected Admin Routes */}
+            <Route path="/admin/*" element={<ProtectedRoute><AdminRoutes /></ProtectedRoute>} />
+
+            {/* Catch all route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AdminProvider>
       </AppContainer>
     </Router>
   );
 }
+
+// Admin routes component
+const AdminRoutes = () => {
+  return (
+    <AdminProvider>
+      <ResidentRegistrationProvider>
+        <Routes>
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="meal" element={<MealPage />} />
+          <Route path="transaction" element={<TransactionPage />} />
+          <Route path="registration">
+            <Route path="personal" element={<PersonalPage />} />
+            <Route path="medical" element={<MedicalPage />} />
+            <Route path="diet" element={<DietPage />} />
+            <Route path="room" element={<RoomPage />} />
+            <Route path="guardian" element={<GuardianPage />} />
+            <Route path="financial" element={<FinancialPage />} />
+          </Route>
+          <Route path="info">
+            <Route path="personal" element={<PersonalInfoPage />} />
+            <Route path="medical" element={<MedicalInfoPage />} />
+            <Route path="diet" element={<DietInfoPage />} />
+            <Route path="room" element={<RoomInfoPage />} />
+            <Route path="guardian" element={<GuardianInfoPage />} />
+            <Route path="financial" element={<FinancialInfoPage />} />
+          </Route>
+        </Routes>
+      </ResidentRegistrationProvider>
+    </AdminProvider>
+  );
+};
 
 export default App;

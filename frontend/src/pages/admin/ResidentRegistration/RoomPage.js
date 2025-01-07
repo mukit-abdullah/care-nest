@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
+import { useResidentRegistration } from '../../../context/ResidentRegistrationContext';
+import AdminNavbar from '../../../components/admin/AdminNavbar';
 import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
-import AdminNavbar from '../../../components/admin/AdminNavbar';
-import { useNavigate } from 'react-router-dom';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -55,6 +56,8 @@ const FormContainer = styled.div`
 
 const FormGroup = styled.div`
   margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Label = styled.label`
@@ -89,8 +92,6 @@ const TextArea = styled.textarea`
   color: #0F1914;
   font-family: ${fonts.secondary};
   font-size: 1rem;
-  min-height: 100px;
-  resize: vertical;
 
   &:focus {
     outline: 2px solid #B1CF86;
@@ -174,8 +175,151 @@ const SaveButton = styled.button`
   }
 `;
 
+const ErrorText = styled.span`
+  color: #d32f2f;
+  font-size: 0.8rem;
+  margin-bottom: 0.25rem;
+  display: block;
+`;
+
+const ErrorAlert = styled.div`
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ef9a9a;
+`;
+
+const RequiredFieldsList = styled.ul`
+  list-style-type: none;
+  padding: 0;
+  margin: 0.5rem 0 0 0;
+
+  li {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+    &:before {
+      content: "•";
+      color: #c62828;
+      font-weight: bold;
+      display: inline-block;
+      width: 1em;
+      margin-left: 0.5em;
+    }
+  }
+`;
+
 const RoomPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isEditMode, residentId, returnPath } = location.state || {};
+  const { residentData, updateResidentData } = useResidentRegistration();
+
+  const [errors, setErrors] = useState({});
+
+  // Initialize form with context data
+  const [formData, setFormData] = useState({
+    room_type: residentData.room_type || '',
+    room_number: residentData.room_number || '',
+    special_facilities: residentData.special_facilities || []
+  });
+
+  // Update form data when context data changes
+  useEffect(() => {
+    setFormData({
+      room_type: residentData.room_type || '',
+      room_number: residentData.room_number || '',
+      special_facilities: residentData.special_facilities || []
+    });
+  }, [residentData]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  // Handle error state from navigation and validate all required fields
+  useEffect(() => {
+    if (location.state?.errorField) {
+      const newErrors = {};
+      
+      // Check all required fields
+      if (!formData.room_type) {
+        newErrors.room_type = 'Room Type is required';
+      }
+      if (!formData.room_number) {
+        newErrors.room_number = 'Room Number is required';
+      }
+
+      setErrors(newErrors);
+    }
+  }, [location.state, formData]);
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.room_type) {
+      newErrors.room_type = 'Room type is required';
+    }
+    
+    if (!formData.room_number) {
+      newErrors.room_number = 'Room number is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const saveDataBeforeNavigation = () => {
+    updateResidentData('room', {
+      room_type: formData.room_type,
+      room_number: formData.room_number,
+      special_facilities: formData.special_facilities
+    });
+  };
+
+  const handleTabChange = (path) => {
+    saveDataBeforeNavigation();
+    navigate(path, { 
+      state: { 
+        isEditMode, 
+        residentId, 
+        returnPath 
+      } 
+    });
+  };
+
+  const handleNext = () => {
+    if (validateForm()) {
+      saveDataBeforeNavigation();
+      navigate('/admin/registration/guardian', { 
+        state: { 
+          isEditMode, 
+          residentId, 
+          returnPath
+        } 
+      });
+    }
+  };
+
+  const handleSave = () => {
+    if (validateForm()) {
+      saveDataBeforeNavigation();
+      navigate(returnPath || '/admin/info/room', {
+        state: { residentId }
+      });
+    }
+  };
 
   return (
     <PageContainer>
@@ -184,13 +328,24 @@ const RoomPage = () => {
         <TopContent>
           <Title>Resident Registration</Title>
           
+          {errors.alert && (
+            <ErrorAlert>
+              <strong>Please complete the following required fields:</strong>
+              <RequiredFieldsList>
+                {errors.alert.map((error, index) => (
+                  <li key={index}>{error.replace('- ', '')}</li>
+                ))}
+              </RequiredFieldsList>
+            </ErrorAlert>
+          )}
+
           <NavigationTabs>
-            <Tab onClick={() => navigate('/admin/registration/personal')}>Personal</Tab>
-            <Tab onClick={() => navigate('/admin/registration/medical')}>Medical</Tab>
-            <Tab onClick={() => navigate('/admin/registration/diet')}>Diet</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/personal')}>Personal</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/medical')}>Medical</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/diet')}>Diet</Tab>
             <Tab active>Room</Tab>
-            <Tab onClick={() => navigate('/admin/registration/guardian')}>Guardian</Tab>
-            <Tab onClick={() => navigate('/admin/registration/financial')}>Financial</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/guardian')}>Guardian</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/financial')}>Financial</Tab>
           </NavigationTabs>
         </TopContent>
       </TopSection>
@@ -198,21 +353,26 @@ const RoomPage = () => {
       <MainContent>
         <FormContainer>
           <FormGroup>
-            <Label>Room Preferences:</Label>
+            <Label>Room Type:</Label>
+            {errors.room_type && <ErrorText>{errors.room_type}</ErrorText>}
             <RadioGroup>
               <RadioLabel>
                 <RadioInput 
                   type="radio" 
-                  name="roomType" 
-                  value="private" 
+                  name="room_type" 
+                  value="single"
+                  checked={formData.room_type === 'single'}
+                  onChange={handleInputChange}
                 />
-                Private
+                Single
               </RadioLabel>
               <RadioLabel>
                 <RadioInput 
                   type="radio" 
-                  name="roomType" 
-                  value="shared" 
+                  name="room_type" 
+                  value="shared"
+                  checked={formData.room_type === 'shared'}
+                  onChange={handleInputChange}
                 />
                 Shared
               </RadioLabel>
@@ -220,21 +380,31 @@ const RoomPage = () => {
           </FormGroup>
 
           <FormGroup>
-            <Label>Room No:</Label>
+            <Label>Room Number:</Label>
+            {errors.room_number && <ErrorText>{errors.room_number}</ErrorText>}
             <Input 
               type="text" 
+              name="room_number"
+              value={formData.room_number}
+              onChange={handleInputChange}
               placeholder="Enter room number" 
             />
           </FormGroup>
 
           <FormGroup>
-            <Label>Specific Facility Request:</Label>
+            <Label>Special Facilities:</Label>
             <TextArea 
-              placeholder="Enter any specific facility requests or requirements" 
+              name="special_facilities"
+              value={formData.special_facilities}
+              onChange={handleInputChange}
+              placeholder="Enter special facilities (optional)" 
+              rows="2"
             />
           </FormGroup>
 
-          <SaveButton>Save</SaveButton>
+          <SaveButton onClick={isEditMode ? handleSave : handleNext}>
+            {isEditMode ? 'Save' : 'Next'}
+          </SaveButton>
         </FormContainer>
       </MainContent>
     </PageContainer>
