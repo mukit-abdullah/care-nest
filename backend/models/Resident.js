@@ -16,26 +16,25 @@ const residentSchema = new mongoose.Schema({
     },
     gender: {
         type: String,
-        enum: ['Male', 'Female', 'Other'],
+        enum: ['Male', 'Female'],
         required: true
     },
     photo_url: String,
-    blood_group: String,
     personal_contact_number: {
         type: String,
-        required: true
+        
     },
     emergency_contact_name: {
         type: String,
-        required: true
+        
     },
     emergency_contact_number: {
         type: String,
-        required: true
+        
     },
     address: {
         type: String,
-        required: true
+        
     },
     admission_date: {
         type: Date,

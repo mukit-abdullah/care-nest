@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useResidentRegistration } from '../../../context/ResidentRegistrationContext';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -66,6 +67,21 @@ const Label = styled.label`
 `;
 
 const Input = styled.input`
+  width: 100%;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 5px;
+  background-color: #D2E6B5;
+  color: #0F1914;
+  font-family: ${fonts.secondary};
+  font-size: 1rem;
+
+  &:focus {
+    outline: 2px solid #B1CF86;
+  }
+`;
+
+const TextArea = styled.textarea`
   width: 100%;
   padding: 0.8rem;
   border: none;
@@ -157,27 +173,138 @@ const SaveButton = styled.button`
   }
 `;
 
+const ErrorText = styled.span`
+  color: #ff6b6b;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+`;
+
 const DietPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isEditMode, residentId, returnPath } = location.state || {};
+  const { residentData, updateResidentData } = useResidentRegistration();
 
-  const handleNext = () => {
-    navigate('/admin/registration/room', { 
-      state: { 
-        isEditMode,
-        residentId,
-        returnPath
-      } 
+  const [errors, setErrors] = useState({});
+
+  // Initialize form with context data
+  const [formData, setFormData] = useState({
+    dietary_preference: residentData.dietary_preference || '',
+    food_category: residentData.food_category || '',
+    food_texture: residentData.food_texture || '',
+    food_allergies: residentData.food_allergies || '',
+    special_diet_needs: residentData.special_diet_needs || '',
+    additional_notes: residentData.additional_notes || ''
+  });
+
+  // Handle error state from navigation and validate all required fields
+  useEffect(() => {
+    if (location.state?.errorField) {
+      const newErrors = {};
+      
+      // Check all required fields
+      if (!formData.dietary_preference) {
+        newErrors.dietary_preference = 'Dietary Preference is required';
+      }
+      if (!formData.food_category) {
+        newErrors.food_category = 'Food Category is required';
+      }
+      if (!formData.food_texture) {
+        newErrors.food_texture = 'Food Texture is required';
+      }
+
+      setErrors(newErrors);
+    }
+  }, [location.state, formData]);
+
+  // Update form data when context data changes
+  useEffect(() => {
+    setFormData({
+      dietary_preference: residentData.dietary_preference || '',
+      food_category: residentData.food_category || '',
+      food_texture: residentData.food_texture || '',
+      food_allergies: residentData.food_allergies || '',
+      special_diet_needs: residentData.special_diet_needs || '',
+      additional_notes: residentData.additional_notes || ''
+    });
+  }, [residentData]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.dietary_preference) {
+      newErrors.dietary_preference = 'Dietary preference is required';
+    }
+    
+    if (!formData.food_category) {
+      newErrors.food_category = 'Food category is required';
+    }
+
+    if (!formData.food_texture) {
+      newErrors.food_texture = 'Food texture is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Always save data before navigation
+  const saveDataBeforeNavigation = () => {
+    updateResidentData('diet', {
+      dietary_preference: formData.dietary_preference,
+      food_category: formData.food_category,
+      food_texture: formData.food_texture,
+      food_allergies: formData.food_allergies,
+      special_diet_needs: formData.special_diet_needs,
+      additional_notes: formData.additional_notes
     });
   };
 
+  const handleNext = () => {
+    if (validateForm()) {
+      saveDataBeforeNavigation();
+      navigate('/admin/registration/room', { 
+        state: { 
+          isEditMode,
+          residentId,
+          returnPath
+        } 
+      });
+    }
+  };
+
   const handleSave = () => {
-    // Save logic here
-    console.log('Saving diet information...', residentId);
-    // Navigate back to the info page
-    navigate(returnPath || '/admin/info/diet', {
-      state: { residentId }
+    if (validateForm()) {
+      saveDataBeforeNavigation();
+      navigate(returnPath || '/admin/info/diet', {
+        state: { residentId }
+      });
+    }
+  };
+
+  // Handle navigation tab changes - no validation needed
+  const handleTabChange = (path) => {
+    saveDataBeforeNavigation();
+    navigate(path, {
+      state: {
+        isEditMode,
+        residentId,
+        returnPath
+      }
     });
   };
 
@@ -189,12 +316,12 @@ const DietPage = () => {
           <Title>Resident Registration</Title>
           
           <NavigationTabs>
-            <Tab onClick={() => navigate('/admin/registration/personal')}>Personal</Tab>
-            <Tab onClick={() => navigate('/admin/registration/medical')}>Medical</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/personal')}>Personal</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/medical')}>Medical</Tab>
             <Tab active>Diet</Tab>
-            <Tab onClick={() => navigate('/admin/registration/room')}>Room</Tab>
-            <Tab onClick={() => navigate('/admin/registration/guardian')}>Guardian</Tab>
-            <Tab onClick={() => navigate('/admin/registration/financial')}>Financial</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/room')}>Room</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/guardian')}>Guardian</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/financial')}>Financial</Tab>
           </NavigationTabs>
         </TopContent>
       </TopSection>
@@ -207,28 +334,35 @@ const DietPage = () => {
               <RadioLabel>
                 <RadioInput 
                   type="radio" 
-                  name="dietaryPreference" 
-                  value="vegetarian" 
+                  name="dietary_preference" 
+                  value="Vegetarian"
+                  checked={formData.dietary_preference === 'Vegetarian'}
+                  onChange={handleInputChange}
                 />
                 Vegetarian
               </RadioLabel>
               <RadioLabel>
                 <RadioInput 
                   type="radio" 
-                  name="dietaryPreference" 
-                  value="nonVegetarian" 
+                  name="dietary_preference" 
+                  value="Non-Vegetarian"
+                  checked={formData.dietary_preference === 'Non-Vegetarian'}
+                  onChange={handleInputChange}
                 />
                 Non-Vegetarian
               </RadioLabel>
               <RadioLabel>
                 <RadioInput 
                   type="radio" 
-                  name="dietaryPreference" 
-                  value="vegan" 
+                  name="dietary_preference" 
+                  value="Vegan"
+                  checked={formData.dietary_preference === 'Vegan'}
+                  onChange={handleInputChange}
                 />
                 Vegan
               </RadioLabel>
             </RadioGroup>
+            {errors.dietary_preference && <ErrorText>{errors.dietary_preference}</ErrorText>}
           </FormGroup>
 
           <FormGroup>
@@ -237,60 +371,85 @@ const DietPage = () => {
               <RadioLabel>
                 <RadioInput 
                   type="radio" 
-                  name="foodCategory" 
-                  value="spicy" 
+                  name="food_category" 
+                  value="Spicy"
+                  checked={formData.food_category === 'Spicy'}
+                  onChange={handleInputChange}
                 />
                 Spicy
               </RadioLabel>
               <RadioLabel>
                 <RadioInput 
                   type="radio" 
-                  name="foodCategory" 
-                  value="nonSpicy" 
+                  name="food_category" 
+                  value="Non-Spicy"
+                  checked={formData.food_category === 'Non-Spicy'}
+                  onChange={handleInputChange}
                 />
                 Non-Spicy
               </RadioLabel>
             </RadioGroup>
-            <RadioGroup style={{ marginTop: '1rem' }}>
+            {errors.food_category && <ErrorText>{errors.food_category}</ErrorText>}
+          </FormGroup>
+
+          <FormGroup>
+            <Label>Food Texture:</Label>
+            <RadioGroup>
               <RadioLabel>
                 <RadioInput 
                   type="radio" 
-                  name="foodTexture" 
-                  value="hard" 
+                  name="food_texture" 
+                  value="Hard"
+                  checked={formData.food_texture === 'Hard'}
+                  onChange={handleInputChange}
                 />
                 Hard
               </RadioLabel>
               <RadioLabel>
                 <RadioInput 
                   type="radio" 
-                  name="foodTexture" 
-                  value="soft" 
+                  name="food_texture" 
+                  value="Soft"
+                  checked={formData.food_texture === 'Soft'}
+                  onChange={handleInputChange}
                 />
                 Soft
               </RadioLabel>
             </RadioGroup>
+            {errors.food_texture && <ErrorText>{errors.food_texture}</ErrorText>}
           </FormGroup>
 
           <FormGroup>
             <Label>Food Allergies:</Label>
-            <Input 
-              type="text" 
-              placeholder="Enter any food allergies" 
+            <TextArea 
+              name="food_allergies"
+              value={formData.food_allergies}
+              onChange={handleInputChange}
+              placeholder="Enter any food allergies (optional)" 
+              rows="2"
             />
           </FormGroup>
 
           <FormGroup>
             <Label>Special Diet Needs:</Label>
-            <Input 
-              as="textarea" 
-              rows="3" 
-              placeholder="Enter any special dietary requirements" 
+            <TextArea 
+              name="special_diet_needs"
+              value={formData.special_diet_needs}
+              onChange={handleInputChange}
+              placeholder="Enter any special diet needs (optional)" 
+              rows="2"
             />
           </FormGroup>
 
           <FormGroup>
             <Label>Additional Notes:</Label>
-            <Input as="textarea" rows="3" placeholder="Any additional dietary notes" />
+            <TextArea 
+              name="additional_notes"
+              value={formData.additional_notes}
+              onChange={handleInputChange}
+              placeholder="Enter any additional notes about dietary requirements (optional)" 
+              rows="2"
+            />
           </FormGroup>
 
           <SaveButton onClick={isEditMode ? handleSave : handleNext}>

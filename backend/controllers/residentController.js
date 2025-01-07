@@ -4,6 +4,7 @@ const Guardian = require('../models/Guardian');
 const MedicalRecord = require('../models/MedicalRecord');
 const Diet = require('../models/Diet');
 const FinancialRecord = require('../models/FinancialRecord');
+const mongoose = require('mongoose');
 
 // Create new resident with all related information
 exports.createResident = async (req, res) => {
@@ -17,50 +18,101 @@ exports.createResident = async (req, res) => {
             financialData
         } = req.body;
 
+        // Check if room is available first
+        if (roomData) {
+            const existingRoom = await Room.findOne({
+                room_number: roomData.room_number,
+                room_type: roomData.room_type
+            });
+
+            if (existingRoom) {
+                // For single rooms, check if it's already occupied
+                if (roomData.room_type.toLowerCase() === 'single' && existingRoom.resident_id) {
+                    throw new Error(`Room ${roomData.room_number} is already occupied. Single rooms can only have one resident.`);
+                }
+            }
+        }
+
         // Add admin reference to resident data
         residentData.created_by = req.admin.id;
 
-        // Create resident
-        const resident = await Resident.create(residentData);
+        let createdRecords = {};
+        
+        try {
+            // Step 1: Create resident
+            createdRecords.resident = await Resident.create(residentData);
 
-        // Create room and link resident
-        if (roomData) {
-            roomData.resident_id = resident._id;
-            await Room.create(roomData);
+            // Step 2: Create room if provided
+            if (roomData) {
+                roomData.resident_id = createdRecords.resident._id;
+                createdRecords.room = await Room.create(roomData);
+            }
+
+            // Step 3: Create guardian if provided
+            if (guardianData) {
+                guardianData.resident_id = createdRecords.resident._id;
+                createdRecords.guardian = await Guardian.create(guardianData);
+            }
+
+            // Step 4: Create medical record if provided
+            if (medicalData) {
+                medicalData.resident_id = createdRecords.resident._id;
+                createdRecords.medical = await MedicalRecord.create(medicalData);
+            }
+
+            // Step 5: Create diet if provided
+            if (dietData) {
+                dietData.resident_id = createdRecords.resident._id;
+                createdRecords.diet = await Diet.create(dietData);
+            }
+
+            // Step 6: Create financial record if provided
+            if (financialData) {
+                financialData.resident_id = createdRecords.resident._id;
+                createdRecords.financial = await FinancialRecord.create(financialData);
+            }
+
+            // If we get here, all creations were successful
+            res.status(201).json({
+                success: true,
+                data: createdRecords
+            });
+
+        } catch (error) {
+            // If any creation fails after resident is created, clean up
+            console.error('Error during record creation:', error);
+            
+            // Clean up any created records
+            const cleanup = async () => {
+                if (createdRecords.resident) {
+                    await Resident.findByIdAndDelete(createdRecords.resident._id);
+                }
+                if (createdRecords.room) {
+                    await Room.findByIdAndDelete(createdRecords.room._id);
+                }
+                if (createdRecords.guardian) {
+                    await Guardian.findByIdAndDelete(createdRecords.guardian._id);
+                }
+                if (createdRecords.medical) {
+                    await MedicalRecord.findByIdAndDelete(createdRecords.medical._id);
+                }
+                if (createdRecords.diet) {
+                    await Diet.findByIdAndDelete(createdRecords.diet._id);
+                }
+                if (createdRecords.financial) {
+                    await FinancialRecord.findByIdAndDelete(createdRecords.financial._id);
+                }
+            };
+
+            await cleanup();
+            throw new Error(`Failed to create resident records: ${error.message}`);
         }
 
-        // Create guardian
-        if (guardianData) {
-            guardianData.resident_id = resident._id;
-            await Guardian.create(guardianData);
-        }
-
-        // Create medical record
-        if (medicalData) {
-            medicalData.resident_id = resident._id;
-            await MedicalRecord.create(medicalData);
-        }
-
-        // Create diet plan
-        if (dietData) {
-            dietData.resident_id = resident._id;
-            await Diet.create(dietData);
-        }
-
-        // Create financial record
-        if (financialData) {
-            financialData.resident_id = resident._id;
-            await FinancialRecord.create(financialData);
-        }
-
-        res.status(201).json({
-            success: true,
-            data: resident
-        });
     } catch (error) {
+        console.error('Resident creation error:', error);
         res.status(400).json({
             success: false,
-            message: error.message
+            message: error.message || 'Failed to create resident'
         });
     }
 };

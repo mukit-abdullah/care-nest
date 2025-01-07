@@ -6,21 +6,29 @@ const medicalRecordSchema = new mongoose.Schema({
         ref: 'Resident',
         required: true
     },
-    medical_history: {
-        type: String,
-        required: true
+    blood_group: {
+        type: String
     },
-    medical_files_url: [String],
-    current_medication: [String],
+    medical_history: {
+        type: String
+    },
+    medical_files_url: {
+        type: [String],
+        default: []
+    },
+    current_medication: {
+        type: [String],
+        default: []
+    },
     physician_name: {
-        type: String,
-        required: true
+        type: String
     },
     physician_contact_number: {
-        type: String,
-        required: true
+        type: String
     },
-    special_needs: String,
+    special_needs: {
+        type: String
+    },
     insurance_details: {
         type: String
     }

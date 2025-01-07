@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import LoginHeader from '../components/LoginHeader';
 import { useNavigate } from 'react-router-dom';
 import { loginAdmin } from '../services/authService';
+import { useAdmin } from '../context/AdminContext';
 
 const PageContainer = styled.div`
   background-color: #0F1914;
@@ -88,6 +89,7 @@ const ErrorMessage = styled.div`
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { updateAdminData } = useAdmin();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -105,11 +107,24 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      await loginAdmin(username, password);
-      navigate('/admin/dashboard', { replace: true });
+      console.log('Attempting login...');
+      const response = await loginAdmin(username, password);
+      console.log('Login response:', response);
+      
+      if (response.success && response.data) {
+        console.log('Login successful, updating admin data...');
+        updateAdminData(response.data);
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        console.error('Invalid response format:', response);
+        throw new Error('Invalid response from server');
+      }
     } catch (err) {
       console.error('Login error:', err);
       setError(typeof err === 'string' ? err : 'Login failed. Please check your credentials.');
+      // Clear any existing auth data on error
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
     } finally {
       setLoading(false);
     }

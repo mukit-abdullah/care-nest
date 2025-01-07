@@ -33,7 +33,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
             return next(new ErrorResponse('Not authorized to access this route', 401));
         }
 
-        if (!req.user.isActive) {
+        if (req.user.status !== 'active') {
             return next(new ErrorResponse('Your account has been deactivated', 401));
         }
 

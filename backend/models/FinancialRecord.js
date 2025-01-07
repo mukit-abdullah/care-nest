@@ -13,11 +13,11 @@ const financialRecordSchema = new mongoose.Schema({
     },
     account_number: {
         type: String,
-        required: true
+        
     },
     payment_details: {
         type: String,
-        required: true
+        
     }
 }, {
     timestamps: true

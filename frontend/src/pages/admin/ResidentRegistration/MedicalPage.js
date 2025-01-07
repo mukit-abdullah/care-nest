@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useResidentRegistration } from '../../../context/ResidentRegistrationContext';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -175,8 +176,66 @@ const MedicalPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isEditMode, residentId, returnPath } = location.state || {};
+  const { residentData, updateResidentData } = useResidentRegistration();
+
+  // Initialize form with context data
+  const [formData, setFormData] = useState({
+    blood_group: residentData.blood_group || '',
+    medical_history: residentData.medical_history || '',
+    medical_files: residentData.medical_files || [],
+    current_medication: residentData.current_medication || '',
+    physician_name: residentData.physician_name || '',
+    physician_contact: residentData.physician_contact || '',
+    special_needs: residentData.special_needs || '',
+    insurance_details: residentData.insurance_details || ''
+  });
+
+  // Update form data when context data changes
+  useEffect(() => {
+    setFormData({
+      blood_group: residentData.blood_group || '',
+      medical_history: residentData.medical_history || '',
+      medical_files: residentData.medical_files || [],
+      current_medication: residentData.current_medication || '',
+      physician_name: residentData.physician_name || '',
+      physician_contact: residentData.physician_contact || '',
+      special_needs: residentData.special_needs || '',
+      insurance_details: residentData.insurance_details || ''
+    });
+  }, [residentData]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    setFormData(prev => ({
+      ...prev,
+      medical_files: [...prev.medical_files, ...files]
+    }));
+  };
+
+  // Always save data before navigation
+  const saveDataBeforeNavigation = () => {
+    updateResidentData('medical', {
+      blood_group: formData.blood_group,
+      medical_history: formData.medical_history,
+      medical_files: formData.medical_files,
+      current_medication: formData.current_medication,
+      physician_name: formData.physician_name,
+      physician_contact: formData.physician_contact,
+      special_needs: formData.special_needs,
+      insurance_details: formData.insurance_details
+    });
+  };
 
   const handleNext = () => {
+    saveDataBeforeNavigation();
     navigate('/admin/registration/diet', { 
       state: { 
         isEditMode,
@@ -187,11 +246,21 @@ const MedicalPage = () => {
   };
 
   const handleSave = () => {
-    // Save logic here
-    console.log('Saving medical information...', residentId);
-    // Navigate back to the info page
-    navigate(returnPath || '/admin/residents/medical', {
+    saveDataBeforeNavigation();
+    navigate(returnPath || '/admin/info/medical', {
       state: { residentId }
+    });
+  };
+
+  // Handle navigation tab changes - no validation needed
+  const handleTabChange = (path) => {
+    saveDataBeforeNavigation();
+    navigate(path, {
+      state: {
+        isEditMode,
+        residentId,
+        returnPath
+      }
     });
   };
 
@@ -203,12 +272,12 @@ const MedicalPage = () => {
           <Title>Resident Registration</Title>
           
           <NavigationTabs>
-            <Tab onClick={() => navigate('/admin/registration/personal')}>Personal</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/personal')}>Personal</Tab>
             <Tab active>Medical</Tab>
-            <Tab onClick={() => navigate('/admin/registration/diet')}>Diet</Tab>
-            <Tab onClick={() => navigate('/admin/registration/room')}>Room</Tab>
-            <Tab onClick={() => navigate('/admin/registration/guardian')}>Guardian</Tab>
-            <Tab onClick={() => navigate('/admin/registration/financial')}>Financial</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/diet')}>Diet</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/room')}>Room</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/guardian')}>Guardian</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/financial')}>Financial</Tab>
           </NavigationTabs>
         </TopContent>
       </TopSection>
@@ -216,49 +285,97 @@ const MedicalPage = () => {
       <MainContent>
         <FormContainer>
           <FormGroup>
+            <Label>Blood Group:</Label>
+            <TextArea 
+              name="blood_group"
+              value={formData.blood_group}
+              onChange={handleInputChange}
+              placeholder="Enter Blood Group" 
+            />
+          </FormGroup>
+          
+          <FormGroup>
             <Label>Medical History:</Label>
-            <TextArea placeholder="Enter medical history" />
+            <TextArea 
+              name="medical_history"
+              value={formData.medical_history}
+              onChange={handleInputChange}
+              placeholder="Enter medical history" 
+            />
           </FormGroup>
 
           <FormGroup>
             <Label>Medical Files:</Label>
             <UploadButton>
-              <input type="file" accept=".pdf,.doc,.docx" multiple />
+              <input 
+                type="file" 
+                accept=".pdf,.doc,.docx" 
+                multiple 
+                onChange={handleFileChange}
+              />
               Upload Files
             </UploadButton>
+            {formData.medical_files.length > 0 && (
+              <div style={{ marginTop: '0.5rem' }}>
+                {formData.medical_files.map((file, index) => (
+                  <div key={index} style={{ color: '#B1CF86' }}>
+                    {file.name}
+                  </div>
+                ))}
+              </div>
+            )}
           </FormGroup>
 
           <FormGroup>
             <Label>Current Medication:</Label>
-            <TextArea placeholder="Enter current medications" />
+            <TextArea 
+              name="current_medication"
+              value={formData.current_medication}
+              onChange={handleInputChange}
+              placeholder="Enter current medications" 
+            />
           </FormGroup>
 
           <FormGroup>
             <Label>Primary Physician Name:</Label>
-            <Input type="text" placeholder="Enter physician's name" />
+            <Input 
+              type="text" 
+              name="physician_name"
+              value={formData.physician_name}
+              onChange={handleInputChange}
+              placeholder="Enter physician's name" 
+            />
           </FormGroup>
 
           <FormGroup>
             <Label>Primary Physician Number:</Label>
-            <Input type="tel" placeholder="Enter physician's contact number" />
-          </FormGroup>
-
-          <FormGroup>
-            <Label>Medical Insurance Details:</Label>
-            <UploadButton>
-              <input type="file" accept=".pdf,.doc,.docx,image/*" multiple />
-              Upload Insurance Files
-            </UploadButton>
+            <Input 
+              type="tel" 
+              name="physician_contact"
+              value={formData.physician_contact}
+              onChange={handleInputChange}
+              placeholder="Enter physician's contact number" 
+            />
           </FormGroup>
 
           <FormGroup>
             <Label>Special Needs:</Label>
-            <TextArea placeholder="Enter any special needs or requirements" />
+            <TextArea 
+              name="special_needs"
+              value={formData.special_needs}
+              onChange={handleInputChange}
+              placeholder="Enter any special needs or requirements" 
+            />
           </FormGroup>
 
           <FormGroup>
-            <Label>Additional Notes:</Label>
-            <Input as="textarea" rows="3" placeholder="Any additional medical notes" />
+            <Label>Insurance Details:</Label>
+            <TextArea 
+              name="insurance_details"
+              value={formData.insurance_details}
+              onChange={handleInputChange}
+              placeholder="Enter insurance details" 
+            />
           </FormGroup>
 
           <SaveButton onClick={isEditMode ? handleSave : handleNext}>

@@ -34,6 +34,8 @@ import RoomInfoPage from './pages/admin/ResidentInfo/RoomInfoPage';
 import GuardianInfoPage from './pages/admin/ResidentInfo/GuardianInfoPage';
 import FinancialInfoPage from './pages/admin/ResidentInfo/FinancialInfoPage';
 import GlobalStyles from './theme/GlobalStyles';
+import { AdminProvider } from './context/AdminContext';
+import { ResidentRegistrationProvider } from './context/ResidentRegistrationContext';
 
 const AppContainer = styled.div`
   background-color: #0F1914;
@@ -149,56 +151,68 @@ function App() {
     <Router>
       <GlobalStyles />
       <AppContainer>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/gallery" element={<GalleryPage />} />
-          <Route path="/accommodation" element={<AccommodationPage />} />
-          <Route path="/medical-care" element={<MedicalCarePage />} />
-          <Route path="/personal-care" element={<PersonalCarePage />} />
-          <Route path="/activities" element={<ActivitiesPage />} />
-          <Route path="/donation" element={<DonationPage />} />
-          
-          {/* Login Route - Protected from logged in users */}
-          <Route 
-            path="/login" 
-            element={
-              <LoginRoute>
-                <LoginPage />
-              </LoginRoute>
-            } 
-          />
+        <AdminProvider>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/gallery" element={<GalleryPage />} />
+            <Route path="/accommodation" element={<AccommodationPage />} />
+            <Route path="/medical-care" element={<MedicalCarePage />} />
+            <Route path="/personal-care" element={<PersonalCarePage />} />
+            <Route path="/activities" element={<ActivitiesPage />} />
+            <Route path="/donation" element={<DonationPage />} />
+            
+            {/* Login Route - Protected from logged in users */}
+            <Route 
+              path="/login" 
+              element={
+                <LoginRoute>
+                  <LoginPage />
+                </LoginRoute>
+              } 
+            />
 
-          {/* Protected Admin Routes */}
-          <Route path="/admin/*" element={<ProtectedRoute><AdminRoutes /></ProtectedRoute>} />
+            {/* Protected Admin Routes */}
+            <Route path="/admin/*" element={<ProtectedRoute><AdminRoutes /></ProtectedRoute>} />
 
-          {/* Catch all route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            {/* Catch all route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AdminProvider>
       </AppContainer>
     </Router>
   );
 }
 
 // Admin routes component
-const AdminRoutes = () => (
-  <Routes>
-    <Route path="dashboard" element={<DashboardPage />} />
-    <Route path="registration/personal" element={<PersonalPage />} />
-    <Route path="registration/medical" element={<MedicalPage />} />
-    <Route path="registration/diet" element={<DietPage />} />
-    <Route path="registration/room" element={<RoomPage />} />
-    <Route path="registration/guardian" element={<GuardianPage />} />
-    <Route path="registration/financial" element={<FinancialPage />} />
-    <Route path="meal" element={<MealPage />} />
-    <Route path="transaction" element={<TransactionPage />} />
-    <Route path="info/personal" element={<PersonalInfoPage />} />
-    <Route path="info/medical" element={<MedicalInfoPage />} />
-    <Route path="info/diet" element={<DietInfoPage />} />
-    <Route path="info/room" element={<RoomInfoPage />} />
-    <Route path="info/guardian" element={<GuardianInfoPage />} />
-    <Route path="info/financial" element={<FinancialInfoPage />} />
-  </Routes>
-);
+const AdminRoutes = () => {
+  return (
+    <AdminProvider>
+      <ResidentRegistrationProvider>
+        <Routes>
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="meal" element={<MealPage />} />
+          <Route path="transaction" element={<TransactionPage />} />
+          <Route path="registration">
+            <Route path="personal" element={<PersonalPage />} />
+            <Route path="medical" element={<MedicalPage />} />
+            <Route path="diet" element={<DietPage />} />
+            <Route path="room" element={<RoomPage />} />
+            <Route path="guardian" element={<GuardianPage />} />
+            <Route path="financial" element={<FinancialPage />} />
+          </Route>
+          <Route path="info">
+            <Route path="personal" element={<PersonalInfoPage />} />
+            <Route path="medical" element={<MedicalInfoPage />} />
+            <Route path="diet" element={<DietInfoPage />} />
+            <Route path="room" element={<RoomInfoPage />} />
+            <Route path="guardian" element={<GuardianInfoPage />} />
+            <Route path="financial" element={<FinancialInfoPage />} />
+          </Route>
+        </Routes>
+      </ResidentRegistrationProvider>
+    </AdminProvider>
+  );
+};
 
 export default App;

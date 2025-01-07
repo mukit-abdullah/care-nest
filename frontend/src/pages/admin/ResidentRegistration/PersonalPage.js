@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
+import { useResidentRegistration } from '../../../context/ResidentRegistrationContext';
+import AdminNavbar from '../../../components/admin/AdminNavbar';
 import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
-import AdminNavbar from '../../../components/admin/AdminNavbar';
-import { useNavigate, useLocation } from 'react-router-dom';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -57,6 +58,8 @@ const FormContainer = styled.div`
 
 const FormGroup = styled.div`
   margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Label = styled.label`
@@ -82,7 +85,7 @@ const Input = styled.input`
   }
 `;
 
-const GenderGroup = styled.div`
+const RadioGroup = styled.div`
   display: flex;
   gap: 2rem;
   margin-top: 0.5rem;
@@ -179,27 +182,171 @@ const SaveButton = styled.button`
   }
 `;
 
+const ErrorText = styled.span`
+  color: #d32f2f;
+  font-size: 0.8rem;
+  margin-bottom: 0.25rem;
+  display: block;
+`;
+
+const ErrorAlert = styled.div`
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ef9a9a;
+`;
+
+const RequiredFieldsList = styled.ul`
+  list-style-type: none;
+  padding: 0;
+  margin: 0.5rem 0 0 0;
+
+  li {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+    &:before {
+      content: "•";
+      color: #c62828;
+      font-weight: bold;
+      display: inline-block;
+      width: 1em;
+      margin-left: 0.5em;
+    }
+  }
+`;
+
 const PersonalPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isEditMode, residentId, returnPath } = location.state || {};
+  const { residentData, updateResidentData } = useResidentRegistration();
 
-  const handleNext = () => {
-    navigate('/admin/registration/medical', { 
-      state: { 
-        isEditMode,
-        residentId,
-        returnPath: returnPath
-      } 
+  const [errors, setErrors] = useState({});
+
+  // Initialize form with context data
+  const [formData, setFormData] = useState({
+    full_name: residentData.full_name || '',
+    gender: residentData.gender || '',
+    date_of_birth: residentData.date_of_birth || '',
+    contact_number: residentData.contact_number || '',
+    emergency_contact_name: residentData.emergency_contact_name || '',
+    emergency_contact_number: residentData.emergency_contact_number || '',
+    address: residentData.address || '',
+    profile_picture: residentData.profile_picture || null
+  });
+
+  // Handle error state from navigation and validate all required fields
+  useEffect(() => {
+    if (location.state?.errorField) {
+      const newErrors = {};
+      
+      // Check all required fields
+      if (!formData.full_name) {
+        newErrors.full_name = 'Full Name is required';
+      }
+      if (!formData.gender) {
+        newErrors.gender = 'Gender is required';
+      }
+      if (!formData.date_of_birth) {
+        newErrors.date_of_birth = 'Date of Birth is required';
+      }
+
+      setErrors(newErrors);
+    }
+  }, [location.state, formData]);
+
+  // Update form data when context data changes
+  useEffect(() => {
+    setFormData({
+      full_name: residentData.full_name || '',
+      gender: residentData.gender || '',
+      date_of_birth: residentData.date_of_birth || '',
+      contact_number: residentData.contact_number || '',
+      emergency_contact_name: residentData.emergency_contact_name || '',
+      emergency_contact_number: residentData.emergency_contact_number || '',
+      address: residentData.address || '',
+      profile_picture: residentData.profile_picture || null
+    });
+  }, [residentData]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.full_name) {
+      newErrors.full_name = 'Full Name is required';
+    }
+    
+    if (!formData.gender) {
+      newErrors.gender = 'Gender is required';
+    }
+
+    if (!formData.date_of_birth) {
+      newErrors.date_of_birth = 'Date of Birth is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const saveDataBeforeNavigation = () => {
+    updateResidentData('personal', {
+      full_name: formData.full_name,
+      gender: formData.gender,
+      date_of_birth: formData.date_of_birth,
+      contact_number: formData.contact_number,
+      emergency_contact_name: formData.emergency_contact_name,
+      emergency_contact_number: formData.emergency_contact_number,
+      address: formData.address,
+      profile_picture: formData.profile_picture
     });
   };
 
+  const handleNext = () => {
+    if (validateForm()) {
+      saveDataBeforeNavigation();
+      navigate('/admin/registration/medical', { 
+        state: { 
+          isEditMode, 
+          residentId, 
+          returnPath
+        } 
+      });
+    }
+  };
+
   const handleSave = () => {
-    // Save logic here
-    console.log('Saving personal information...', residentId);
-    // Navigate back to the info page
-    navigate(returnPath || '/admin/info/personal', {
-      state: { residentId }
+    if (validateForm()) {
+      saveDataBeforeNavigation();
+      navigate(returnPath || '/admin/info/personal', {
+        state: { residentId }
+      });
+    }
+  };
+
+  const handleTabChange = (path) => {
+    saveDataBeforeNavigation();
+    navigate(path, { 
+      state: { 
+        isEditMode, 
+        residentId, 
+        returnPath 
+      } 
     });
   };
 
@@ -210,13 +357,24 @@ const PersonalPage = () => {
         <TopContent>
           <Title>Resident Registration</Title>
           
+          {errors.alert && (
+            <ErrorAlert>
+              <strong>Please complete the following required fields:</strong>
+              <RequiredFieldsList>
+                {errors.alert.map((error, index) => (
+                  <li key={index}>{error.replace('- ', '')}</li>
+                ))}
+              </RequiredFieldsList>
+            </ErrorAlert>
+          )}
+
           <NavigationTabs>
             <Tab active>Personal</Tab>
-            <Tab onClick={() => navigate('/admin/registration/medical')}>Medical</Tab>
-            <Tab onClick={() => navigate('/admin/registration/diet')}>Diet</Tab>
-            <Tab onClick={() => navigate('/admin/registration/room')}>Room</Tab>
-            <Tab onClick={() => navigate('/admin/registration/guardian')}>Guardian</Tab>
-            <Tab onClick={() => navigate('/admin/registration/financial')}>Financial</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/medical')}>Medical</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/diet')}>Diet</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/room')}>Room</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/guardian')}>Guardian</Tab>
+            <Tab onClick={() => handleTabChange('/admin/registration/financial')}>Financial</Tab>
           </NavigationTabs>
         </TopContent>
       </TopSection>
@@ -225,54 +383,114 @@ const PersonalPage = () => {
         <FormContainer>
           <FormGroup>
             <Label>Full Name:</Label>
-            <Input type="text" placeholder="Enter resident's full name" />
+            {errors.full_name && <ErrorText>{errors.full_name}</ErrorText>}
+            <Input 
+              type="text" 
+              name="full_name"
+              value={formData.full_name}
+              onChange={handleInputChange}
+              placeholder="Enter full name" 
+            />
           </FormGroup>
 
           <FormGroup>
             <Label>Gender:</Label>
-            <GenderGroup>
+            {errors.gender && <ErrorText>{errors.gender}</ErrorText>}
+            <RadioGroup>
               <RadioLabel>
-                <RadioInput type="radio" name="gender" value="male" />
+                <RadioInput 
+                  type="radio" 
+                  name="gender" 
+                  value="male"
+                  checked={formData.gender === 'male'}
+                  onChange={handleInputChange}
+                />
                 Male
               </RadioLabel>
               <RadioLabel>
-                <RadioInput type="radio" name="gender" value="female" />
+                <RadioInput 
+                  type="radio" 
+                  name="gender" 
+                  value="female"
+                  checked={formData.gender === 'female'}
+                  onChange={handleInputChange}
+                />
                 Female
               </RadioLabel>
-            </GenderGroup>
+            </RadioGroup>
           </FormGroup>
 
           <FormGroup>
             <Label>Date of Birth:</Label>
-            <Input type="date" />
+            {errors.date_of_birth && <ErrorText>{errors.date_of_birth}</ErrorText>}
+            <Input 
+              type="date" 
+              name="date_of_birth"
+              value={formData.date_of_birth}
+              onChange={handleInputChange}
+            />
           </FormGroup>
 
           <FormGroup>
             <Label>Contact Number:</Label>
-            <Input type="tel" placeholder="Enter contact number" />
+            <Input 
+              type="tel" 
+              name="contact_number"
+              value={formData.contact_number}
+              onChange={handleInputChange}
+              placeholder="Enter contact number (optional)" 
+            />
           </FormGroup>
 
           <FormGroup>
             <Label>Emergency Contact Name:</Label>
-            <Input type="text" placeholder="Enter emergency contact name" />
+            <Input 
+              type="text" 
+              name="emergency_contact_name"
+              value={formData.emergency_contact_name}
+              onChange={handleInputChange}
+              placeholder="Enter emergency contact name (optional)" 
+            />
           </FormGroup>
 
           <FormGroup>
             <Label>Emergency Contact Number:</Label>
-            <Input type="tel" placeholder="Enter emergency contact number" />
+            <Input 
+              type="tel" 
+              name="emergency_contact_number"
+              value={formData.emergency_contact_number}
+              onChange={handleInputChange}
+              placeholder="Enter emergency contact number (optional)" 
+            />
           </FormGroup>
 
           <FormGroup>
             <Label>Address:</Label>
-            <Input as="textarea" rows="3" placeholder="Enter full address" />
+            <Input 
+              as="textarea" 
+              rows="3" 
+              name="address"
+              value={formData.address}
+              onChange={handleInputChange}
+              placeholder="Enter address (optional)" 
+            />
           </FormGroup>
 
           <FormGroup>
             <Label>Profile Picture:</Label>
-            <UploadButton>
-              <input type="file" accept="image/*" />
-              Upload a file
-            </UploadButton>
+            <Input 
+              type="file" 
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) {
+                  setFormData(prev => ({
+                    ...prev,
+                    profile_picture: file
+                  }));
+                }
+              }}
+            />
           </FormGroup>
 
           <SaveButton onClick={isEditMode ? handleSave : handleNext}>
