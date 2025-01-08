@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import colors from '../../../theme/colors';
-import { typography, fonts } from '../../../theme/typography';
+import { fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
 import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
-import { FaEdit, FaCircle } from 'react-icons/fa';
+import { FaEdit } from 'react-icons/fa';
+import { useResident } from '../../../context/ResidentContext';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -75,24 +74,6 @@ const SectionTitle = styled.h2`
   margin-bottom: 0.5rem;
 `;
 
-const RadioGroup = styled.div`
-  display: flex;
-  gap: 2rem;
-  margin-left: 8px;
-`;
-
-const RadioItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: ${props => props.isSelected ? '#B1CF86' : '#FFFFFF'};
-`;
-
-const RadioIcon = styled(FaCircle)`
-  color: ${props => props.isSelected ? '#B1CF86' : '#FFFFFF'};
-  font-size: 0.8rem;
-`;
-
 const Value = styled.span`
   font-family: ${fonts.secondary};
   font-size: 1.1rem;
@@ -106,6 +87,16 @@ const Title = styled.h1`
   text-align: center;
   color: #B1CF86;
   margin-bottom: 2rem;
+`;
+
+const SuccessMessage = styled.div`
+  background-color: rgba(177, 207, 134, 0.2);
+  color: #B1CF86;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  text-align: center;
+  border: 1px solid #B1CF86;
 `;
 
 const NavigationTabs = styled.div`
@@ -147,67 +138,16 @@ const Tab = styled.button`
 const DietInfoPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const residentId = location.state?.residentId || localStorage.getItem('currentResidentId');
-  const [resident, setResident] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (location.state?.residentId) {
-      localStorage.setItem('currentResidentId', location.state.residentId);
-    }
-  }, [location.state?.residentId]);
-
-  useEffect(() => {
-    const fetchResidentData = async () => {
-      console.log('\n=== Starting Diet Info Page Data Load ===');
-      console.log('1. Resident ID:', residentId);
-      
-      if (!residentId) {
-        console.log('❌ No resident ID found, using fallback data');
-        setLoading(false);
-        return;
-      }
-      
-      try {
-        console.log('2. Fetching resident data...');
-        const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:5000/api/residents/${residentId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
-        console.log('3. API Response:', response.data);
-
-        if (response.data.success) {
-          const residentData = response.data.data;
-          console.log('4. Diet Data:', residentData.diet);
-          setResident(residentData);
-        }
-      } catch (error) {
-        console.error('Error fetching resident:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchResidentData();
-  }, [residentId]);
-
-  // Fallback data if no resident data is available
-  const dietInfo = {
-    dietaryPreference: "N/A",
-    foodCategory: "N/A",
-    foodTexture: "N/A",
-    specialDietNeeds: "N/A",
-    additionalNotes: "N/A",
-    foodAllergies: ["N/A"]
-  };
+  const { residentData, loading } = useResident();
+  const residentId = location.state?.residentId;
 
   const handleEdit = () => {
     navigate('/admin/registration/diet', { 
       state: { 
         isEditMode: true,
         residentId,
-        returnPath: '/admin/info/diet'
+        returnPath: '/admin/info/diet',
+        dietData: residentData?.diet || null
       } 
     });
   };
@@ -222,7 +162,6 @@ const DietInfoPage = () => {
       <TopSection>
         <TopContent>
           <Title>Resident Info</Title>
-          
           <NavigationTabs>
             <Tab onClick={() => navigate('/admin/info/personal', { 
               state: { residentId } 
@@ -230,7 +169,9 @@ const DietInfoPage = () => {
             <Tab onClick={() => navigate('/admin/info/medical', { 
               state: { residentId } 
             })}>Medical</Tab>
-            <Tab active>Diet</Tab>
+            <Tab onClick={() => navigate('/admin/info/diet', { 
+              state: { residentId } 
+            })} active>Diet</Tab>
             <Tab onClick={() => navigate('/admin/info/room', { 
               state: { residentId } 
             })}>Room</Tab>
@@ -246,73 +187,41 @@ const DietInfoPage = () => {
           <EditIcon onClick={handleEdit} />
         </ActionBar>
       </TopSection>
-      
+
       <MainContent>
+        {location.state?.success && (
+          <SuccessMessage>{location.state.message}</SuccessMessage>
+        )}
+
         <InfoContainer>
           <Section>
             <SectionTitle>Dietary Preference</SectionTitle>
-            <RadioGroup>
-              <RadioItem isSelected={resident?.diet?.dietary_preference === "Vegetarian"}>
-                <RadioIcon isSelected={resident?.diet?.dietary_preference === "Vegetarian"} />
-                Vegetarian
-              </RadioItem>
-              <RadioItem isSelected={resident?.diet?.dietary_preference === "Non-Vegetarian"}>
-                <RadioIcon isSelected={resident?.diet?.dietary_preference === "Non-Vegetarian"} />
-                Non-Vegetarian
-              </RadioItem>
-              <RadioItem isSelected={resident?.diet?.dietary_preference === "Vegan"}>
-                <RadioIcon isSelected={resident?.diet?.dietary_preference === "Vegan"} />
-                Vegan
-              </RadioItem>
-            </RadioGroup>
+            <Value>{residentData?.diet?.dietary_preference || 'Not specified'}</Value>
           </Section>
 
           <Section>
             <SectionTitle>Food Category</SectionTitle>
-            <RadioGroup>
-              <RadioItem isSelected={resident?.diet?.food_category === "Spicy"}>
-                <RadioIcon isSelected={resident?.diet?.food_category === "Spicy"} />
-                Spicy
-              </RadioItem>
-              <RadioItem isSelected={resident?.diet?.food_category === "Non-Spicy"}>
-                <RadioIcon isSelected={resident?.diet?.food_category === "Non-Spicy"} />
-                Non-Spicy
-              </RadioItem>
-            </RadioGroup>
+            <Value>{residentData?.diet?.food_category || 'Not specified'}</Value>
           </Section>
 
           <Section>
             <SectionTitle>Food Texture</SectionTitle>
-            <RadioGroup>
-              <RadioItem isSelected={resident?.diet?.food_texture === "Hard"}>
-                <RadioIcon isSelected={resident?.diet?.food_texture === "Hard"} />
-                Hard
-              </RadioItem>
-              <RadioItem isSelected={resident?.diet?.food_texture === "Soft"}>
-                <RadioIcon isSelected={resident?.diet?.food_texture === "Soft"} />
-                Soft
-              </RadioItem>
-            </RadioGroup>
-          </Section>
-
-          <Section>
-            <SectionTitle>Special Diet Needs</SectionTitle>
-            <Value>{resident?.diet?.special_diet_needs || dietInfo.specialDietNeeds}</Value>
+            <Value>{residentData?.diet?.food_texture || 'Not specified'}</Value>
           </Section>
 
           <Section>
             <SectionTitle>Food Allergies</SectionTitle>
-            <Value>
-              {resident?.diet?.food_allergies?.length > 0 
-                ? resident.diet.food_allergies.join(', ')
-                : dietInfo.foodAllergies[0]
-              }
-            </Value>
+            <Value>{residentData?.diet?.food_allergies || 'None'}</Value>
+          </Section>
+
+          <Section>
+            <SectionTitle>Special Diet Needs</SectionTitle>
+            <Value>{residentData?.diet?.special_diet_needs || 'None'}</Value>
           </Section>
 
           <Section>
             <SectionTitle>Additional Notes</SectionTitle>
-            <Value>{resident?.diet?.additional_notes || dietInfo.additionalNotes}</Value>
+            <Value>{residentData?.diet?.additional_notes || 'None'}</Value>
           </Section>
         </InfoContainer>
       </MainContent>

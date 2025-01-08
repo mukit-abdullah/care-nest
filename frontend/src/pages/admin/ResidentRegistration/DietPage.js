@@ -5,6 +5,9 @@ import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useResidentRegistration } from '../../../context/ResidentRegistrationContext';
+import { useResident } from '../../../context/ResidentContext';
+import axios from 'axios';
+import { getAdminToken } from '../../../services/authService';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -184,6 +187,7 @@ const DietPage = () => {
   const location = useLocation();
   const { isEditMode, residentId, returnPath } = location.state || {};
   const { residentData, updateResidentData } = useResidentRegistration();
+  const { updateResidentSection } = useResident();
 
   const [errors, setErrors] = useState({});
 
@@ -197,27 +201,7 @@ const DietPage = () => {
     additional_notes: residentData.additional_notes || ''
   });
 
-  // Handle error state from navigation and validate all required fields
-  useEffect(() => {
-    if (location.state?.errorField) {
-      const newErrors = {};
-      
-      // Check all required fields
-      if (!formData.dietary_preference) {
-        newErrors.dietary_preference = 'Dietary Preference is required';
-      }
-      if (!formData.food_category) {
-        newErrors.food_category = 'Food Category is required';
-      }
-      if (!formData.food_texture) {
-        newErrors.food_texture = 'Food Texture is required';
-      }
-
-      setErrors(newErrors);
-    }
-  }, [location.state, formData]);
-
-  // Update form data when context data changes
+  // Update form when context data changes
   useEffect(() => {
     setFormData({
       dietary_preference: residentData.dietary_preference || '',
@@ -235,70 +219,29 @@ const DietPage = () => {
       ...prev,
       [name]: value
     }));
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.dietary_preference) {
-      newErrors.dietary_preference = 'Dietary preference is required';
-    }
-    
-    if (!formData.food_category) {
-      newErrors.food_category = 'Food category is required';
-    }
-
-    if (!formData.food_texture) {
-      newErrors.food_texture = 'Food texture is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // Always save data before navigation
-  const saveDataBeforeNavigation = () => {
+    // Update context immediately
     updateResidentData('diet', {
-      dietary_preference: formData.dietary_preference,
-      food_category: formData.food_category,
-      food_texture: formData.food_texture,
-      food_allergies: formData.food_allergies,
-      special_diet_needs: formData.special_diet_needs,
-      additional_notes: formData.additional_notes
+      ...formData,
+      [name]: value
     });
   };
 
-  const handleNext = () => {
-    if (validateForm()) {
-      saveDataBeforeNavigation();
-      navigate('/admin/registration/room', { 
-        state: { 
-          isEditMode,
-          residentId,
-          returnPath
-        } 
-      });
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (isEditMode) {
+      updateResidentSection('diet', formData);
+      navigate(returnPath || '/admin/residents');
+    } else {
+      // Regular registration flow
+      updateResidentData('diet', formData);
+      navigate('/admin/registration/medical');
     }
   };
 
-  const handleSave = () => {
-    if (validateForm()) {
-      saveDataBeforeNavigation();
-      navigate(returnPath || '/admin/info/diet', {
-        state: { residentId }
-      });
-    }
-  };
-
-  // Handle navigation tab changes - no validation needed
   const handleTabChange = (path) => {
-    saveDataBeforeNavigation();
+    // Save current data before navigation
+    updateResidentData('diet', formData);
     navigate(path, {
       state: {
         isEditMode,
@@ -313,20 +256,26 @@ const DietPage = () => {
       <AdminNavbar />
       <TopSection>
         <TopContent>
-          <Title>Resident Registration</Title>
+          <Title>{isEditMode ? 'Update Diet Information' : 'Resident Registration'}</Title>
           
-          <NavigationTabs>
-            <Tab onClick={() => handleTabChange('/admin/registration/personal')}>Personal</Tab>
-            <Tab onClick={() => handleTabChange('/admin/registration/medical')}>Medical</Tab>
-            <Tab active>Diet</Tab>
-            <Tab onClick={() => handleTabChange('/admin/registration/room')}>Room</Tab>
-            <Tab onClick={() => handleTabChange('/admin/registration/guardian')}>Guardian</Tab>
-            <Tab onClick={() => handleTabChange('/admin/registration/financial')}>Financial</Tab>
-          </NavigationTabs>
+          {!isEditMode && (
+            <NavigationTabs>
+              <Tab onClick={() => handleTabChange('/admin/registration/personal')}>Personal</Tab>
+              <Tab onClick={() => handleTabChange('/admin/registration/medical')}>Medical</Tab>
+              <Tab active>Diet</Tab>
+              <Tab onClick={() => handleTabChange('/admin/registration/room')}>Room</Tab>
+              <Tab onClick={() => handleTabChange('/admin/registration/guardian')}>Guardian</Tab>
+              <Tab onClick={() => handleTabChange('/admin/registration/financial')}>Financial</Tab>
+            </NavigationTabs>
+          )}
         </TopContent>
       </TopSection>
       
       <MainContent>
+        {errors.submit && (
+          <ErrorText>{errors.submit}</ErrorText>
+        )}
+
         <FormContainer>
           <FormGroup>
             <Label>Dietary Preferences:</Label>
@@ -452,7 +401,7 @@ const DietPage = () => {
             />
           </FormGroup>
 
-          <SaveButton onClick={isEditMode ? handleSave : handleNext}>
+          <SaveButton onClick={handleSubmit}>
             {isEditMode ? 'Save' : 'Next'}
           </SaveButton>
         </FormContainer>

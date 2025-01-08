@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { useResidentRegistration } from '../../../context/ResidentRegistrationContext';
+import { useResident } from '../../../context/ResidentContext';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
 import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
+import axios from 'axios';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -221,55 +223,95 @@ const PersonalPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isEditMode, residentId, returnPath } = location.state || {};
-  const { residentData, updateResidentData } = useResidentRegistration();
-
+  const { residentData: registrationData, updateResidentData: updateRegistrationData, resetRegistrationData } = useResidentRegistration();
+  const { residentData, updateResidentData } = useResident();
   const [errors, setErrors] = useState({});
-
-  // Initialize form with context data
   const [formData, setFormData] = useState({
-    full_name: residentData.full_name || '',
-    gender: residentData.gender || '',
-    date_of_birth: residentData.date_of_birth || '',
-    contact_number: residentData.contact_number || '',
-    emergency_contact_name: residentData.emergency_contact_name || '',
-    emergency_contact_number: residentData.emergency_contact_number || '',
-    address: residentData.address || '',
-    profile_picture: residentData.profile_picture || null
+    full_name: '',
+    gender: '',
+    date_of_birth: '',
+    contact_number: '',
+    emergency_contact_name: '',
+    emergency_contact_number: '',
+    address: '',
+    profile_picture: null
   });
 
-  // Handle error state from navigation and validate all required fields
-  useEffect(() => {
-    if (location.state?.errorField) {
-      const newErrors = {};
-      
-      // Check all required fields
-      if (!formData.full_name) {
-        newErrors.full_name = 'Full Name is required';
-      }
-      if (!formData.gender) {
-        newErrors.gender = 'Gender is required';
-      }
-      if (!formData.date_of_birth) {
-        newErrors.date_of_birth = 'Date of Birth is required';
-      }
+  console.log('PersonalPage - Initial props:', {
+    isEditMode,
+    residentId,
+    returnPath,
+    registrationData,
+    residentData
+  });
 
-      setErrors(newErrors);
+  // Reset registration data when mounting in non-edit mode and no existing data
+  useEffect(() => {
+    if (!isEditMode && !registrationData?.full_name) {
+      console.log('PersonalPage - Resetting registration data (no existing data)');
+      resetRegistrationData();
     }
-  }, [location.state, formData]);
+  }, [isEditMode, resetRegistrationData, registrationData?.full_name]);
 
-  // Update form data when context data changes
+  // Load existing resident data when in edit mode
   useEffect(() => {
-    setFormData({
-      full_name: residentData.full_name || '',
-      gender: residentData.gender || '',
-      date_of_birth: residentData.date_of_birth || '',
-      contact_number: residentData.contact_number || '',
-      emergency_contact_name: residentData.emergency_contact_name || '',
-      emergency_contact_number: residentData.emergency_contact_number || '',
-      address: residentData.address || '',
-      profile_picture: residentData.profile_picture || null
+    console.log('PersonalPage - Loading data:', {
+      isEditMode,
+      residentId,
+      residentData
     });
-  }, [residentData]);
+
+    if (isEditMode && residentData?.resident) {
+      console.log('PersonalPage - Loading resident data:', residentData);
+      // Format date to YYYY-MM-DD
+      const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0];
+      };
+
+      setFormData({
+        full_name: residentData.resident.name || '',
+        gender: (residentData.resident.gender || '').toLowerCase(),
+        date_of_birth: formatDate(residentData.resident.date_of_birth) || '',
+        contact_number: residentData.resident.personal_contact_number || '',
+        emergency_contact_name: residentData.resident.emergency_contact_name || '',
+        emergency_contact_number: residentData.resident.emergency_contact_number || '',
+        address: residentData.resident.address || '',
+        profile_picture: residentData.resident.photo_url || null
+      });
+    } else if (!isEditMode) {
+      // In registration mode, use registration data if available
+      console.log('PersonalPage - Loading registration data:', registrationData);
+      setFormData({
+        full_name: registrationData.full_name || '',
+        gender: registrationData.gender || '',
+        date_of_birth: registrationData.date_of_birth || '',
+        contact_number: registrationData.contact_number || '',
+        emergency_contact_name: registrationData.emergency_contact_name || '',
+        emergency_contact_number: registrationData.emergency_contact_number || '',
+        address: registrationData.address || '',
+        profile_picture: registrationData.profile_picture || null
+      });
+    }
+  }, [isEditMode, residentData, registrationData]);
+
+  // Save form data to registration context when it changes
+  useEffect(() => {
+    if (!isEditMode) {
+      console.log('PersonalPage - Auto-saving form data:', formData);
+      updateRegistrationData('personal', {
+        full_name: formData.full_name,
+        gender: formData.gender,
+        date_of_birth: formData.date_of_birth,
+        contact_number: formData.contact_number,
+        emergency_contact_name: formData.emergency_contact_name,
+        emergency_contact_number: formData.emergency_contact_number,
+        address: formData.address,
+        profile_picture: formData.profile_picture
+      });
+    }
+  }, [isEditMode, formData, updateRegistrationData]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -305,7 +347,7 @@ const PersonalPage = () => {
   };
 
   const saveDataBeforeNavigation = () => {
-    updateResidentData('personal', {
+    updateRegistrationData('personal', {
       full_name: formData.full_name,
       gender: formData.gender,
       date_of_birth: formData.date_of_birth,
@@ -324,30 +366,113 @@ const PersonalPage = () => {
         state: { 
           isEditMode, 
           residentId, 
-          returnPath
+          returnPath 
         } 
       });
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (validateForm()) {
-      saveDataBeforeNavigation();
-      navigate(returnPath || '/admin/info/personal', {
-        state: { residentId }
-      });
+      try {
+        // Get the correct resident ID
+        const currentId = residentId;
+        
+        console.log('PersonalPage - handleSave - Starting save:', {
+          isEditMode,
+          residentId: currentId,
+          formData
+        });
+
+        if (!currentId) {
+          console.error('PersonalPage - handleSave - No resident ID available');
+          setErrors({ alert: ['No resident ID available for update'] });
+          return;
+        }
+
+        // Update the database through direct API call
+        const updateData = {
+          residentData: {
+            name: formData.full_name,
+            gender: formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1), // Capitalize first letter
+            date_of_birth: formData.date_of_birth,
+            personal_contact_number: formData.contact_number || '',
+            emergency_contact_name: formData.emergency_contact_name || '',
+            emergency_contact_number: formData.emergency_contact_number || '',
+            address: formData.address || '',
+            photo_url: formData.profile_picture || '',
+            status: 'active'
+          }
+        };
+        
+        console.log('PersonalPage - handleSave - Making API call:', {
+          url: `http://localhost:5000/api/residents/${currentId}`,
+          data: updateData
+        });
+
+        const token = localStorage.getItem('authToken');
+        const response = await axios.put(
+          `http://localhost:5000/api/residents/${currentId}`,
+          updateData,
+          { 
+            headers: { 
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            } 
+          }
+        );
+
+        console.log('PersonalPage - handleSave - API Response:', response.data);
+
+        if (response.data.success) {
+          console.log('PersonalPage - handleSave - Update successful');
+          
+          // Update registration context
+          saveDataBeforeNavigation();
+          
+          // Update resident context with new data
+          await updateResidentData(updateData);
+          
+          // Navigate back
+          navigate(returnPath || '/admin/info/personal', {
+            state: { residentId: currentId }
+          });
+        } else {
+          console.error('PersonalPage - handleSave - Update failed:', response.data);
+          setErrors({ alert: ['Failed to update resident information'] });
+        }
+      } catch (error) {
+        console.error('PersonalPage - handleSave - Error:', error);
+        if (error.response) {
+          console.error('PersonalPage - handleSave - Error response:', {
+            status: error.response.status,
+            data: error.response.data
+          });
+          setErrors({ alert: [error.response.data.message || 'Failed to update resident information'] });
+        } else {
+          setErrors({ alert: ['An error occurred while updating resident information'] });
+        }
+      }
+    } else {
+      console.log('PersonalPage - handleSave - Form validation failed');
     }
   };
 
   const handleTabChange = (path) => {
-    saveDataBeforeNavigation();
-    navigate(path, { 
-      state: { 
-        isEditMode, 
-        residentId, 
-        returnPath 
-      } 
+    console.log('PersonalPage - Changing tab to:', path);
+    // Save current form data before navigating
+    updateRegistrationData('personal', {
+      full_name: formData.full_name,
+      gender: formData.gender,
+      date_of_birth: formData.date_of_birth,
+      contact_number: formData.contact_number,
+      emergency_contact_name: formData.emergency_contact_name,
+      emergency_contact_number: formData.emergency_contact_number,
+      address: formData.address,
+      profile_picture: formData.profile_picture
     });
+    
+    navigate(path);
   };
 
   return (
@@ -355,27 +480,29 @@ const PersonalPage = () => {
       <AdminNavbar />
       <TopSection>
         <TopContent>
-          <Title>Resident Registration</Title>
-          
-          {errors.alert && (
-            <ErrorAlert>
-              <strong>Please complete the following required fields:</strong>
-              <RequiredFieldsList>
-                {errors.alert.map((error, index) => (
-                  <li key={index}>{error.replace('- ', '')}</li>
-                ))}
-              </RequiredFieldsList>
-            </ErrorAlert>
+          <Title>{isEditMode ? 'Update Info' : 'Register Resident'}</Title>
+          {!isEditMode && (
+            <>
+              {errors.alert && (
+                <ErrorAlert>
+                  <strong>Please complete the following required fields:</strong>
+                  <RequiredFieldsList>
+                    {errors.alert.map((field, index) => (
+                      <li key={index}>{field}</li>
+                    ))}
+                  </RequiredFieldsList>
+                </ErrorAlert>
+              )}
+              <NavigationTabs>
+                <Tab active>Personal</Tab>
+                <Tab onClick={() => handleTabChange('/admin/registration/medical')}>Medical</Tab>
+                <Tab onClick={() => handleTabChange('/admin/registration/diet')}>Diet</Tab>
+                <Tab onClick={() => handleTabChange('/admin/registration/room')}>Room</Tab>
+                <Tab onClick={() => handleTabChange('/admin/registration/guardian')}>Guardian</Tab>
+                <Tab onClick={() => handleTabChange('/admin/registration/financial')}>Financial</Tab>
+              </NavigationTabs>
+            </>
           )}
-
-          <NavigationTabs>
-            <Tab active>Personal</Tab>
-            <Tab onClick={() => handleTabChange('/admin/registration/medical')}>Medical</Tab>
-            <Tab onClick={() => handleTabChange('/admin/registration/diet')}>Diet</Tab>
-            <Tab onClick={() => handleTabChange('/admin/registration/room')}>Room</Tab>
-            <Tab onClick={() => handleTabChange('/admin/registration/guardian')}>Guardian</Tab>
-            <Tab onClick={() => handleTabChange('/admin/registration/financial')}>Financial</Tab>
-          </NavigationTabs>
         </TopContent>
       </TopSection>
       

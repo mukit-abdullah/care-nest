@@ -5,7 +5,9 @@ import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useResidentRegistration } from '../../../context/ResidentRegistrationContext';
+import { useResident } from '../../../context/ResidentContext';
 import axios from 'axios';
+import { getAdminToken } from '../../../services/authService';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -173,12 +175,20 @@ const SaveButton = styled.button`
   }
 `;
 
+const ErrorMessage = styled.div`
+  color: #f44336;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+`;
+
 const MedicalPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isEditMode, residentId, returnPath } = location.state || {};
   const { residentData, updateResidentData } = useResidentRegistration();
-
+  const { updateResidentSection } = useResident();
+  const [errors, setErrors] = useState({});
+  
   // Initialize form with context data
   const [formData, setFormData] = useState({
     blood_group: residentData.blood_group || '',
@@ -192,7 +202,7 @@ const MedicalPage = () => {
     insurance_files_url: residentData.insurance_files_url || []
   });
 
-  // Update form data when context data changes
+  // Update form when context data changes
   useEffect(() => {
     setFormData({
       blood_group: residentData.blood_group || '',
@@ -209,71 +219,44 @@ const MedicalPage = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    const updatedData = {
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Update context immediately
+    updateResidentData('medical', {
       ...formData,
       [name]: value
-    };
-    setFormData(updatedData);
-    
-    // Format data for backend
-    const medicalData = {
-      blood_group: updatedData.blood_group,
-      medical_history: updatedData.medical_history,
-      medical_files_url: updatedData.medical_files_url,
-      current_medication: updatedData.current_medication,
-      physician_name: updatedData.physician_name,
-      physician_contact_number: updatedData.physician_contact_number,
-      special_needs: updatedData.special_needs,
-      insurance_details: updatedData.insurance_details,
-      insurance_files_url: updatedData.insurance_files_url
-    };
-    
-    // Update context
-    updateResidentData('medical', medicalData);
+    });
   };
 
   const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    const updatedData = {
+    const { name, files } = e.target;
+    const updatedFiles = Array.from(files);
+    setFormData(prev => ({
+      ...prev,
+      [name]: updatedFiles
+    }));
+    // Update context immediately
+    updateResidentData('medical', {
       ...formData,
-      [e.target.name]: [...(formData[e.target.name] || []), ...files]
-    };
-    setFormData(updatedData);
-    
-    // Format data for backend
-    const medicalData = {
-      blood_group: updatedData.blood_group,
-      medical_history: updatedData.medical_history,
-      medical_files_url: updatedData.medical_files_url,
-      current_medication: updatedData.current_medication,
-      physician_name: updatedData.physician_name,
-      physician_contact_number: updatedData.physician_contact_number,
-      special_needs: updatedData.special_needs,
-      insurance_details: updatedData.insurance_details,
-      insurance_files_url: updatedData.insurance_files_url
-    };
-    
-    // Update context
-    updateResidentData('medical', medicalData);
+      [name]: updatedFiles
+    });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     
-    if (isEditMode && returnPath) {
-      navigate(returnPath, { state: { residentId } });
+    if (isEditMode) {
+      updateResidentSection('medical', formData);
+      navigate(returnPath || '/admin/residents');
     } else {
-      navigate('/admin/registration/diet', { 
-        state: { 
-          isEditMode,
-          residentId,
-          returnPath
-        } 
-      });
+      // Regular registration flow - no validation needed since fields are optional
+      updateResidentData('medical', formData);
+      navigate('/admin/registration/financial');
     }
   };
 
-  // Handle navigation tab changes
   const handleTabChange = (path) => {
     // Save current data before navigation
     updateResidentData('medical', formData);
@@ -291,7 +274,7 @@ const MedicalPage = () => {
       <AdminNavbar />
       <TopSection>
         <TopContent>
-          <Title>{isEditMode ? 'Edit Medical Information' : 'Medical Registration'}</Title>
+          <Title>{isEditMode ? 'Edit Medical Information' : 'Resident Registration'}</Title>
           
           {!isEditMode && (
             <NavigationTabs>
@@ -309,8 +292,9 @@ const MedicalPage = () => {
       <MainContent>
         <FormContainer>
           <form onSubmit={handleSubmit}>
+            {errors.submit && <ErrorMessage>{errors.submit}</ErrorMessage>}
             <FormGroup>
-              <Label>Blood Group *</Label>
+              <Label>Blood Group</Label>
               <Input 
                 type="text"
                 name="blood_group"
@@ -321,7 +305,7 @@ const MedicalPage = () => {
             </FormGroup>
             
             <FormGroup>
-              <Label>Medical History *</Label>
+              <Label>Medical History</Label>
               <TextArea 
                 name="medical_history"
                 value={formData.medical_history}

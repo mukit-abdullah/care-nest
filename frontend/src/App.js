@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Services from './components/Services';
@@ -33,11 +33,27 @@ import DietInfoPage from './pages/admin/ResidentInfo/DietInfoPage';
 import RoomInfoPage from './pages/admin/ResidentInfo/RoomInfoPage';
 import GuardianInfoPage from './pages/admin/ResidentInfo/GuardianInfoPage';
 import FinancialInfoPage from './pages/admin/ResidentInfo/FinancialInfoPage';
-import GlobalStyles from './theme/GlobalStyles';
 import { AdminProvider } from './context/AdminContext';
 import { ResidentRegistrationProvider } from './context/ResidentRegistrationContext';
+import { ResidentProvider } from './context/ResidentContext';
+
+const GlobalStyles = createGlobalStyle`
+  body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+`;
 
 const AppContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   background-color: #0F1914;
   color: #ffffff;
 `;
@@ -149,37 +165,41 @@ const LoginRoute = ({ children }) => {
 function App() {
   return (
     <Router>
-      <GlobalStyles />
-      <AppContainer>
-        <AdminProvider>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<HomePage />} />
-            <Route path="/gallery" element={<GalleryPage />} />
-            <Route path="/accommodation" element={<AccommodationPage />} />
-            <Route path="/medical-care" element={<MedicalCarePage />} />
-            <Route path="/personal-care" element={<PersonalCarePage />} />
-            <Route path="/activities" element={<ActivitiesPage />} />
-            <Route path="/donation" element={<DonationPage />} />
-            
-            {/* Login Route - Protected from logged in users */}
-            <Route 
-              path="/login" 
-              element={
-                <LoginRoute>
-                  <LoginPage />
-                </LoginRoute>
-              } 
-            />
+      <AdminProvider>
+        <ResidentProvider>
+          <ResidentRegistrationProvider>
+            <GlobalStyles />
+            <AppContainer>
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<HomePage />} />
+                <Route path="/gallery" element={<GalleryPage />} />
+                <Route path="/accommodation" element={<AccommodationPage />} />
+                <Route path="/medical-care" element={<MedicalCarePage />} />
+                <Route path="/personal-care" element={<PersonalCarePage />} />
+                <Route path="/activities" element={<ActivitiesPage />} />
+                <Route path="/donation" element={<DonationPage />} />
+                
+                {/* Login Route - Protected from logged in users */}
+                <Route 
+                  path="/login" 
+                  element={
+                    <LoginRoute>
+                      <LoginPage />
+                    </LoginRoute>
+                  } 
+                />
 
-            {/* Protected Admin Routes */}
-            <Route path="/admin/*" element={<ProtectedRoute><AdminRoutes /></ProtectedRoute>} />
+                {/* Protected Admin Routes */}
+                <Route path="/admin/*" element={<ProtectedRoute><AdminRoutes /></ProtectedRoute>} />
 
-            {/* Catch all route */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </AdminProvider>
-      </AppContainer>
+                {/* Catch all route */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </AppContainer>
+          </ResidentRegistrationProvider>
+        </ResidentProvider>
+      </AdminProvider>
     </Router>
   );
 }
@@ -187,31 +207,27 @@ function App() {
 // Admin routes component
 const AdminRoutes = () => {
   return (
-    <AdminProvider>
-      <ResidentRegistrationProvider>
-        <Routes>
-          <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="meal" element={<MealPage />} />
-          <Route path="transaction" element={<TransactionPage />} />
-          <Route path="registration">
-            <Route path="personal" element={<PersonalPage />} />
-            <Route path="medical" element={<MedicalPage />} />
-            <Route path="diet" element={<DietPage />} />
-            <Route path="room" element={<RoomPage />} />
-            <Route path="guardian" element={<GuardianPage />} />
-            <Route path="financial" element={<FinancialPage />} />
-          </Route>
-          <Route path="info">
-            <Route path="personal" element={<PersonalInfoPage />} />
-            <Route path="medical" element={<MedicalInfoPage />} />
-            <Route path="diet" element={<DietInfoPage />} />
-            <Route path="room" element={<RoomInfoPage />} />
-            <Route path="guardian" element={<GuardianInfoPage />} />
-            <Route path="financial" element={<FinancialInfoPage />} />
-          </Route>
-        </Routes>
-      </ResidentRegistrationProvider>
-    </AdminProvider>
+    <Routes>
+      <Route path="dashboard" element={<DashboardPage />} />
+      <Route path="meal" element={<MealPage />} />
+      <Route path="transaction" element={<TransactionPage />} />
+      <Route path="registration">
+        <Route path="personal" element={<PersonalPage />} />
+        <Route path="medical" element={<MedicalPage />} />
+        <Route path="diet" element={<DietPage />} />
+        <Route path="room" element={<RoomPage />} />
+        <Route path="guardian" element={<GuardianPage />} />
+        <Route path="financial" element={<FinancialPage />} />
+      </Route>
+      <Route path="info">
+        <Route path="personal" element={<PersonalInfoPage />} />
+        <Route path="medical" element={<MedicalInfoPage />} />
+        <Route path="diet" element={<DietInfoPage />} />
+        <Route path="room" element={<RoomInfoPage />} />
+        <Route path="guardian" element={<GuardianInfoPage />} />
+        <Route path="financial" element={<FinancialInfoPage />} />
+      </Route>
+    </Routes>
   );
 };
 

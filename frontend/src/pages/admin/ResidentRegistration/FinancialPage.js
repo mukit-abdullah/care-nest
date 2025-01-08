@@ -240,13 +240,84 @@ const FinancialPage = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
-
-  // Initialize form with context data
   const [formData, setFormData] = useState({
     payment_preference: residentData.payment_preference || '',
     account_number: residentData.account_number || '',
     payment_details: residentData.payment_details || ''
   });
+
+  // Fetch resident data in edit mode
+  useEffect(() => {
+    const fetchResidentData = async () => {
+      if (isEditMode && residentId) {
+        try {
+          const token = getAdminToken();
+          if (!token) {
+            navigate('/login', { 
+              state: { 
+                returnTo: location.pathname,
+                message: 'Please login to continue' 
+              } 
+            });
+            return;
+          }
+
+          const response = await axios.get(`http://localhost:5000/api/residents/${residentId}`, {
+            headers: { 
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (response.data.success) {
+            const financialData = response.data.data;
+            if (financialData) {
+              const updatedData = {
+                payment_preference: financialData.payment_preference || '',
+                account_number: financialData.account_number || '',
+                payment_details: financialData.payment_details || ''
+              };
+              setFormData(updatedData);
+              updateResidentData('financial', updatedData);
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching resident data:', error);
+          if (error.response?.status === 401) {
+            navigate('/login', { 
+              state: { 
+                returnTo: location.pathname,
+                message: 'Session expired. Please login again.' 
+              } 
+            });
+          } else {
+            setSubmitError('Failed to load resident data');
+          }
+        }
+      }
+    };
+
+    fetchResidentData();
+  }, [isEditMode, residentId, updateResidentData, navigate, location.pathname]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    const updatedData = {
+      ...formData,
+      [name]: value
+    };
+    
+    setFormData(updatedData);
+    updateResidentData('financial', updatedData);
+
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+    setSubmitError('');
+  };
 
   // Handle error state from navigation
   useEffect(() => {
@@ -258,21 +329,6 @@ const FinancialPage = () => {
       setErrors(newErrors);
     }
   }, [location.state, formData]);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-    setSubmitError('');
-  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -343,11 +399,10 @@ const FinancialPage = () => {
 
   const handleSubmit = async () => {
     try {
-      if (isSubmitting) return; // Prevent double submission
+      if (isSubmitting) return;
       setIsSubmitting(true);
       setSubmitError('');
 
-      // Check for token
       const token = getAdminToken();
       if (!token) {
         setSubmitError('Please login to submit the form');
@@ -361,7 +416,6 @@ const FinancialPage = () => {
         return;
       }
 
-      // Check if account is active
       if (!isAdminActive()) {
         clearAuthData();
         setSubmitError('Your account has been deactivated. Please contact the administrator.');
@@ -374,16 +428,47 @@ const FinancialPage = () => {
         return;
       }
 
-      // First save current page data
       saveDataBeforeNavigation();
 
-      // Validate all required fields
+      if (isEditMode) {
+        // Update existing resident
+        try {
+          const response = await api.put(`/residents/${residentId}`, {
+            residentData: {
+              payment_preference: formData.payment_preference,
+              account_number: formData.account_number,
+              payment_details: formData.payment_details
+            }
+          });
+
+          if (response.data && response.data.success) {
+            resetResidentData();
+            navigate(returnPath || '/admin/info/financial', {
+              state: { 
+                residentId,
+                success: true,
+                message: 'Resident information updated successfully!'
+              }
+            });
+          } else {
+            throw new Error('Failed to update resident');
+          }
+        } catch (error) {
+          if (error.response?.data?.message) {
+            setSubmitError(error.response.data.message);
+          } else {
+            setSubmitError('Failed to update resident. Please try again.');
+          }
+          throw error;
+        }
+        return;
+      }
+
+      // For new registration, validate all fields
       const validationErrors = validateAllFields();
       if (validationErrors.length > 0) {
-        // Get the first error and navigate to that page
         const firstError = validationErrors[0];
         setIsSubmitting(false);
-        // Construct the full path
         const targetPath = `/admin/registration/${firstError.page}`;
         navigate(targetPath, {
           state: {
@@ -397,12 +482,11 @@ const FinancialPage = () => {
         return;
       }
 
-      // If all validations pass, proceed with registration
+      // Submit new registration
       const residentSubmitData = {
         residentData: {
-          // Personal Information
           name: residentData.full_name,
-          gender: residentData.gender.charAt(0).toUpperCase() + residentData.gender.slice(1), // Capitalize first letter
+          gender: residentData.gender.charAt(0).toUpperCase() + residentData.gender.slice(1),
           date_of_birth: residentData.date_of_birth,
           personal_contact_number: residentData.contact_number,
           emergency_contact_name: residentData.emergency_contact_name,
@@ -412,21 +496,18 @@ const FinancialPage = () => {
           status: 'active'
         },
         roomData: {
-          // Room Information
           room_type: residentData.room_type,
           room_number: residentData.room_number,
           special_facilities: residentData.special_facilities,
           additional_notes: residentData.room_additional_notes
         },
         guardianData: {
-          // Guardian Information
           name: residentData.guardian_name,
           relationship: residentData.guardian_relationship,
           guardian_contact_number: residentData.guardian_contact_number,
           guardian_address: residentData.guardian_address
         },
         medicalData: {
-          // Medical Information
           medical_history: residentData.medical_history,
           medical_files: residentData.medical_files,
           current_medication: residentData.current_medication,
@@ -437,7 +518,6 @@ const FinancialPage = () => {
           blood_group: residentData.blood_group
         },
         dietData: {
-          // Diet Information
           dietary_preference: residentData.dietary_preference,
           food_category: residentData.food_category,
           food_texture: residentData.food_texture,
@@ -446,18 +526,14 @@ const FinancialPage = () => {
           additional_notes: residentData.additional_notes
         },
         financialData: {
-          // Financial Information
           payment_preference: formData.payment_preference,
           account_number: formData.account_number,
           payment_details: formData.payment_details
         }
       };
 
-      console.log('Submitting resident data:', residentSubmitData);
       try {
         const response = await api.post('/residents', residentSubmitData);
-        console.log('API response:', response.data);
-        
         if (response.data && response.data.success) {
           resetResidentData();
           navigate('/admin/dashboard', {
@@ -467,7 +543,6 @@ const FinancialPage = () => {
             }
           });
         } else {
-          console.error('Invalid response format:', response.data);
           throw new Error('Failed to register resident');
         }
       } catch (error) {
@@ -476,7 +551,7 @@ const FinancialPage = () => {
         } else {
           setSubmitError('Failed to register resident. Please try again.');
         }
-        throw error; // Re-throw to be caught by outer catch
+        throw error;
       }
     } catch (error) {
       console.error('API Error:', error);
@@ -522,16 +597,18 @@ const FinancialPage = () => {
       <AdminNavbar />
       <TopSection>
         <TopContent>
-          <Title>Resident Registration</Title>
+          <Title>{isEditMode ? 'Update Info' : 'Resident Registration'}</Title>
           
-          <NavigationTabs>
-            <Tab onClick={() => handleTabChange('/admin/registration/personal')}>Personal</Tab>
-            <Tab onClick={() => handleTabChange('/admin/registration/medical')}>Medical</Tab>
-            <Tab onClick={() => handleTabChange('/admin/registration/diet')}>Diet</Tab>
-            <Tab onClick={() => handleTabChange('/admin/registration/room')}>Room</Tab>
-            <Tab onClick={() => handleTabChange('/admin/registration/guardian')}>Guardian</Tab>
-            <Tab active>Financial</Tab>
-          </NavigationTabs>
+          {!isEditMode && (
+            <NavigationTabs>
+              <Tab onClick={() => handleTabChange('/admin/registration/personal')}>Personal</Tab>
+              <Tab onClick={() => handleTabChange('/admin/registration/medical')}>Medical</Tab>
+              <Tab onClick={() => handleTabChange('/admin/registration/diet')}>Diet</Tab>
+              <Tab onClick={() => handleTabChange('/admin/registration/room')}>Room</Tab>
+              <Tab onClick={() => handleTabChange('/admin/registration/guardian')}>Guardian</Tab>
+              <Tab active>Financial</Tab>
+            </NavigationTabs>
+          )}
         </TopContent>
       </TopSection>
       

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import colors from '../../../theme/colors';
+//import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useResidentRegistration } from '../../../context/ResidentRegistrationContext';
+import { useResident } from '../../../context/ResidentContext';
+import axios from 'axios';
+import { getAdminToken } from '../../../services/authService';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -160,7 +163,10 @@ const GuardianPage = () => {
   const location = useLocation();
   const { isEditMode, residentId, returnPath } = location.state || {};
   const { residentData, updateResidentData } = useResidentRegistration();
+  const { updateResidentSection } = useResident();
 
+  const [errors, setErrors] = useState({});
+  
   // Initialize form with context data
   const [formData, setFormData] = useState({
     guardian_name: residentData.guardian_name || '',
@@ -169,7 +175,7 @@ const GuardianPage = () => {
     guardian_address: residentData.guardian_address || ''
   });
 
-  // Update form data when context data changes
+  // Update form when context data changes
   useEffect(() => {
     setFormData({
       guardian_name: residentData.guardian_name || '',
@@ -179,45 +185,69 @@ const GuardianPage = () => {
     });
   }, [residentData]);
 
-  const [errors, setErrors] = useState({});
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    const updatedData = {
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Update context immediately
+    updateResidentData('guardian', {
       ...formData,
       [name]: value
-    };
-    
-    setFormData(updatedData);
-    // Update context immediately on each change
-    updateResidentData('guardian', updatedData);
+    });
+  };
 
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.guardian_name) {
+      newErrors.guardian_name = 'Guardian name is required';
     }
+    
+    if (!formData.guardian_relationship) {
+      newErrors.guardian_relationship = 'Guardian relationship is required';
+    }
+
+    if (!formData.guardian_contact_number) {
+      newErrors.guardian_contact_number = 'Guardian contact number is required';
+    }
+
+    if (!formData.guardian_address) {
+      newErrors.guardian_address = 'Guardian address is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // No validation needed since fields are optional
-    
-    // Navigate based on mode
-    if (isEditMode && returnPath) {
-      navigate(returnPath, { state: { residentId } });
+    if (!validateForm()) {
+      return;
+    }
+
+    if (isEditMode) {
+      updateResidentSection('guardian', formData);
+      navigate(returnPath || '/admin/residents');
     } else {
-      navigate('/admin/registration/financial', { state: { residentId } });
+      // Regular registration flow
+      updateResidentData('guardian', formData);
+      navigate('/admin/registration/financial');
     }
   };
 
-  const handleTabClick = (path) => {
+  const handleTabChange = (path) => {
     // Save current data before navigation
     updateResidentData('guardian', formData);
-    navigate(path);
+    navigate(path, {
+      state: {
+        isEditMode,
+        residentId,
+        returnPath
+      }
+    });
   };
 
   return (
@@ -225,16 +255,16 @@ const GuardianPage = () => {
       <AdminNavbar />
       <TopSection>
         <TopContent>
-          <Title>{isEditMode ? 'Edit Guardian Information' : 'Guardian Registration'}</Title>
+          <Title>{isEditMode ? 'Update Info' : 'Resident Registration'}</Title>
           
           {!isEditMode && (
             <NavigationTabs>
-              <Tab onClick={() => handleTabClick('/admin/registration/personal')}>Personal</Tab>
-              <Tab onClick={() => handleTabClick('/admin/registration/medical')}>Medical</Tab>
-              <Tab onClick={() => handleTabClick('/admin/registration/diet')}>Diet</Tab>
-              <Tab onClick={() => handleTabClick('/admin/registration/room')}>Room</Tab>
+              <Tab onClick={() => handleTabChange('/admin/registration/personal')}>Personal</Tab>
+              <Tab onClick={() => handleTabChange('/admin/registration/medical')}>Medical</Tab>
+              <Tab onClick={() => handleTabChange('/admin/registration/diet')}>Diet</Tab>
+              <Tab onClick={() => handleTabChange('/admin/registration/room')}>Room</Tab>
               <Tab active>Guardian</Tab>
-              <Tab onClick={() => handleTabClick('/admin/registration/financial')}>Financial</Tab>
+              <Tab onClick={() => handleTabChange('/admin/registration/financial')}>Financial</Tab>
             </NavigationTabs>
           )}
         </TopContent>
@@ -252,6 +282,7 @@ const GuardianPage = () => {
                 onChange={handleInputChange}
                 placeholder="Enter guardian's name"
               />
+              {errors.guardian_name && <ErrorText>{errors.guardian_name}</ErrorText>}
             </FormGroup>
 
             <FormGroup>
@@ -263,6 +294,7 @@ const GuardianPage = () => {
                 onChange={handleInputChange}
                 placeholder="Enter relationship to resident"
               />
+              {errors.guardian_relationship && <ErrorText>{errors.guardian_relationship}</ErrorText>}
             </FormGroup>
 
             <FormGroup>
@@ -274,6 +306,7 @@ const GuardianPage = () => {
                 onChange={handleInputChange}
                 placeholder="Enter guardian's contact number"
               />
+              {errors.guardian_contact_number && <ErrorText>{errors.guardian_contact_number}</ErrorText>}
             </FormGroup>
 
             <FormGroup>
@@ -285,6 +318,7 @@ const GuardianPage = () => {
                 placeholder="Enter guardian's address"
                 rows={4}
               />
+              {errors.guardian_address && <ErrorText>{errors.guardian_address}</ErrorText>}
             </FormGroup>
 
             <SaveButton type="submit">

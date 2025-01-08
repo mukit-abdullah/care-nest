@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import LoginHeader from '../components/LoginHeader';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { loginAdmin } from '../services/authService';
 import { useAdmin } from '../context/AdminContext';
 
@@ -89,6 +89,7 @@ const ErrorMessage = styled.div`
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { updateAdminData } = useAdmin();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -114,17 +115,25 @@ const LoginPage = () => {
       if (response.success && response.data) {
         console.log('Login successful, updating admin data...');
         updateAdminData(response.data);
-        navigate('/admin/dashboard', { replace: true });
+        
+        // Get return path from location state or default to dashboard
+        const { state } = location;
+        const returnPath = state?.returnTo || '/admin/dashboard';
+        
+        navigate(returnPath, { 
+          state: { 
+            success: true,
+            message: 'Login successful!'
+          }
+        });
       } else {
-        console.error('Invalid response format:', response);
-        throw new Error('Invalid response from server');
+        setError(response.message || 'Login failed');
       }
-    } catch (err) {
-      console.error('Login error:', err);
-      setError(typeof err === 'string' ? err : 'Login failed. Please check your credentials.');
-      // Clear any existing auth data on error
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userData');
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(error.message || 'Login failed');
+      // Clear password field on error
+      setPassword('');
     } finally {
       setLoading(false);
     }
