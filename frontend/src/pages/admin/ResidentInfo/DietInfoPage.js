@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
 import { useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
 import { FaEdit, FaCircle } from 'react-icons/fa';
 
 const PageContainer = styled.div`
@@ -63,23 +64,15 @@ const InfoContainer = styled.div`
   width: 100%;
 `;
 
-const InfoGroup = styled.div`
+const Section = styled.div`
   margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
 `;
 
-const Label = styled.span`
+const SectionTitle = styled.h2`
   font-family: ${fonts.secondary};
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   color: #B1CF86;
-`;
-
-const Value = styled.span`
-  font-family: ${fonts.secondary};
-  font-size: 1.1rem;
-  color: #FFFFFF;
-  margin-left: 8px;
+  margin-bottom: 0.5rem;
 `;
 
 const RadioGroup = styled.div`
@@ -98,6 +91,13 @@ const RadioItem = styled.div`
 const RadioIcon = styled(FaCircle)`
   color: ${props => props.isSelected ? '#B1CF86' : '#FFFFFF'};
   font-size: 0.8rem;
+`;
+
+const Value = styled.span`
+  font-family: ${fonts.secondary};
+  font-size: 1.1rem;
+  color: #FFFFFF;
+  margin-left: 8px;
 `;
 
 const Title = styled.h1`
@@ -147,17 +147,59 @@ const Tab = styled.button`
 const DietInfoPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { residentId } = location.state || { residentId: null };
+  const residentId = location.state?.residentId || localStorage.getItem('currentResidentId');
+  const [resident, setResident] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Dummy data
+  useEffect(() => {
+    if (location.state?.residentId) {
+      localStorage.setItem('currentResidentId', location.state.residentId);
+    }
+  }, [location.state?.residentId]);
+
+  useEffect(() => {
+    const fetchResidentData = async () => {
+      console.log('\n=== Starting Diet Info Page Data Load ===');
+      console.log('1. Resident ID:', residentId);
+      
+      if (!residentId) {
+        console.log('❌ No resident ID found, using fallback data');
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        console.log('2. Fetching resident data...');
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`http://localhost:5000/api/residents/${residentId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        console.log('3. API Response:', response.data);
+
+        if (response.data.success) {
+          const residentData = response.data.data;
+          console.log('4. Diet Data:', residentData.diet);
+          setResident(residentData);
+        }
+      } catch (error) {
+        console.error('Error fetching resident:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResidentData();
+  }, [residentId]);
+
+  // Fallback data if no resident data is available
   const dietInfo = {
-    dietaryPreference: "Vegetarian",
-    foodCategory: {
-      spiciness: "Non-Spicy",
-      texture: "Soft"
-    },
-    foodAllergies: "Peanuts, Shellfish",
-    specialDietNeeds: "Low sodium, Diabetic diet"
+    dietaryPreference: "N/A",
+    foodCategory: "N/A",
+    foodTexture: "N/A",
+    specialDietNeeds: "N/A",
+    additionalNotes: "N/A",
+    foodAllergies: ["N/A"]
   };
 
   const handleEdit = () => {
@@ -170,6 +212,10 @@ const DietInfoPage = () => {
     });
   };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <PageContainer>
       <AdminNavbar />
@@ -178,12 +224,22 @@ const DietInfoPage = () => {
           <Title>Resident Info</Title>
           
           <NavigationTabs>
-            <Tab onClick={() => navigate('/admin/info/personal')}>Personal</Tab>
-            <Tab onClick={() => navigate('/admin/info/medical')}>Medical</Tab>
+            <Tab onClick={() => navigate('/admin/info/personal', { 
+              state: { residentId } 
+            })}>Personal</Tab>
+            <Tab onClick={() => navigate('/admin/info/medical', { 
+              state: { residentId } 
+            })}>Medical</Tab>
             <Tab active>Diet</Tab>
-            <Tab onClick={() => navigate('/admin/info/room')}>Room</Tab>
-            <Tab onClick={() => navigate('/admin/info/guardian')}>Guardian</Tab>
-            <Tab onClick={() => navigate('/admin/info/financial')}>Financial</Tab>
+            <Tab onClick={() => navigate('/admin/info/room', { 
+              state: { residentId } 
+            })}>Room</Tab>
+            <Tab onClick={() => navigate('/admin/info/guardian', { 
+              state: { residentId } 
+            })}>Guardian</Tab>
+            <Tab onClick={() => navigate('/admin/info/financial', { 
+              state: { residentId } 
+            })}>Financial</Tab>
           </NavigationTabs>
         </TopContent>
         <ActionBar>
@@ -193,59 +249,71 @@ const DietInfoPage = () => {
       
       <MainContent>
         <InfoContainer>
-          <InfoGroup>
-            <Label>Dietary Preference: </Label>
+          <Section>
+            <SectionTitle>Dietary Preference</SectionTitle>
             <RadioGroup>
-              <RadioItem isSelected={dietInfo.dietaryPreference === "Vegetarian"}>
-                <RadioIcon isSelected={dietInfo.dietaryPreference === "Vegetarian"} />
+              <RadioItem isSelected={resident?.diet?.dietary_preference === "Vegetarian"}>
+                <RadioIcon isSelected={resident?.diet?.dietary_preference === "Vegetarian"} />
                 Vegetarian
               </RadioItem>
-              <RadioItem isSelected={dietInfo.dietaryPreference === "Non-Vegetarian"}>
-                <RadioIcon isSelected={dietInfo.dietaryPreference === "Non-Vegetarian"} />
+              <RadioItem isSelected={resident?.diet?.dietary_preference === "Non-Vegetarian"}>
+                <RadioIcon isSelected={resident?.diet?.dietary_preference === "Non-Vegetarian"} />
                 Non-Vegetarian
               </RadioItem>
-              <RadioItem isSelected={dietInfo.dietaryPreference === "Vegan"}>
-                <RadioIcon isSelected={dietInfo.dietaryPreference === "Vegan"} />
+              <RadioItem isSelected={resident?.diet?.dietary_preference === "Vegan"}>
+                <RadioIcon isSelected={resident?.diet?.dietary_preference === "Vegan"} />
                 Vegan
               </RadioItem>
             </RadioGroup>
-          </InfoGroup>
+          </Section>
 
-          <InfoGroup>
-            <Label>Food Category: </Label>
-            <div>
-              <RadioGroup style={{ marginBottom: '1rem' }}>
-                <RadioItem isSelected={dietInfo.foodCategory.spiciness === "Spicy"}>
-                  <RadioIcon isSelected={dietInfo.foodCategory.spiciness === "Spicy"} />
-                  Spicy
-                </RadioItem>
-                <RadioItem isSelected={dietInfo.foodCategory.spiciness === "Non-Spicy"}>
-                  <RadioIcon isSelected={dietInfo.foodCategory.spiciness === "Non-Spicy"} />
-                  Non-Spicy
-                </RadioItem>
-              </RadioGroup>
-              <RadioGroup>
-                <RadioItem isSelected={dietInfo.foodCategory.texture === "Hard"}>
-                  <RadioIcon isSelected={dietInfo.foodCategory.texture === "Hard"} />
-                  Hard
-                </RadioItem>
-                <RadioItem isSelected={dietInfo.foodCategory.texture === "Soft"}>
-                  <RadioIcon isSelected={dietInfo.foodCategory.texture === "Soft"} />
-                  Soft
-                </RadioItem>
-              </RadioGroup>
-            </div>
-          </InfoGroup>
+          <Section>
+            <SectionTitle>Food Category</SectionTitle>
+            <RadioGroup>
+              <RadioItem isSelected={resident?.diet?.food_category === "Spicy"}>
+                <RadioIcon isSelected={resident?.diet?.food_category === "Spicy"} />
+                Spicy
+              </RadioItem>
+              <RadioItem isSelected={resident?.diet?.food_category === "Non-Spicy"}>
+                <RadioIcon isSelected={resident?.diet?.food_category === "Non-Spicy"} />
+                Non-Spicy
+              </RadioItem>
+            </RadioGroup>
+          </Section>
 
-          <InfoGroup>
-            <Label>Food Allergies: </Label>
-            <Value>{dietInfo.foodAllergies}</Value>
-          </InfoGroup>
+          <Section>
+            <SectionTitle>Food Texture</SectionTitle>
+            <RadioGroup>
+              <RadioItem isSelected={resident?.diet?.food_texture === "Hard"}>
+                <RadioIcon isSelected={resident?.diet?.food_texture === "Hard"} />
+                Hard
+              </RadioItem>
+              <RadioItem isSelected={resident?.diet?.food_texture === "Soft"}>
+                <RadioIcon isSelected={resident?.diet?.food_texture === "Soft"} />
+                Soft
+              </RadioItem>
+            </RadioGroup>
+          </Section>
 
-          <InfoGroup>
-            <Label>Special Diet Needs: </Label>
-            <Value>{dietInfo.specialDietNeeds}</Value>
-          </InfoGroup>
+          <Section>
+            <SectionTitle>Special Diet Needs</SectionTitle>
+            <Value>{resident?.diet?.special_diet_needs || dietInfo.specialDietNeeds}</Value>
+          </Section>
+
+          <Section>
+            <SectionTitle>Food Allergies</SectionTitle>
+            <Value>
+              {resident?.diet?.food_allergies?.length > 0 
+                ? resident.diet.food_allergies.join(', ')
+                : dietInfo.foodAllergies[0]
+              }
+            </Value>
+          </Section>
+
+          <Section>
+            <SectionTitle>Additional Notes</SectionTitle>
+            <Value>{resident?.diet?.additional_notes || dietInfo.additionalNotes}</Value>
+          </Section>
         </InfoContainer>
       </MainContent>
     </PageContainer>

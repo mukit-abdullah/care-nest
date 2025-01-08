@@ -422,8 +422,8 @@ const FinancialPage = () => {
           // Guardian Information
           name: residentData.guardian_name,
           relationship: residentData.guardian_relationship,
-          contact: residentData.guardian_contact || '',
-          address: residentData.guardian_address || ''
+          guardian_contact_number: residentData.guardian_contact_number,
+          guardian_address: residentData.guardian_address
         },
         medicalData: {
           // Medical Information
@@ -431,7 +431,7 @@ const FinancialPage = () => {
           medical_files: residentData.medical_files,
           current_medication: residentData.current_medication,
           physician_name: residentData.physician_name,
-          physician_contact: residentData.physician_contact,
+          physician_contact_number: residentData.physician_contact_number,
           special_needs: residentData.special_needs,
           insurance_details: residentData.insurance_details,
           blood_group: residentData.blood_group

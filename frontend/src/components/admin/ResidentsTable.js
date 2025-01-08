@@ -5,9 +5,6 @@ import { typography, fonts } from '../../theme/typography';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-
-
-
 const TableContainer = styled.div`
   width: 80%;
   margin: 0 auto;
@@ -239,67 +236,63 @@ const ResidentsTable = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [residentData, setResidentData] = useState(residents);
+  const [tableData, setTableData] = useState(residents);
   const itemsPerPage = 5;
-  useEffect(() => { 
-    const fetchResidents = async () => {
+  useEffect(() => {
+    const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
-        // First get residents
-        const residentsResponse = await axios.get('http://localhost:5000/api/residents', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
-        if (residentsResponse.data.success) {
-          // Then get rooms
-          const roomsResponse = await axios.get('http://localhost:5000/api/rooms', {
+        const [residentsResponse, roomsResponse] = await Promise.all([
+          axios.get('http://localhost:5000/api/residents', {
             headers: { Authorization: `Bearer ${token}` }
+          }),
+          axios.get('http://localhost:5000/api/rooms', {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+        ]);
+
+        if (residentsResponse.data.success && roomsResponse.data.success) {
+          const roomMap = {};
+          roomsResponse.data.data.forEach(room => {
+            if (room.resident_id && room.resident_id._id) {
+              roomMap[room.resident_id._id] = room.room_number;
+            }
           });
 
-          console.log('Rooms data:', roomsResponse.data.data);
-          console.log('Residents data:', residentsResponse.data.data);
+          console.log('Room assignments:', roomMap);
 
-          // Create room mapping using resident_id
-          const roomMap = {};
-          if (roomsResponse.data.success) {
-            roomsResponse.data.data.forEach(room => {
-              if (room.resident_id && room.resident_id._id) {
-                roomMap[room.resident_id._id.toString()] = room.room_number;
-              }
-            });
-          }
-          console.log('Room map:', roomMap);
-
-          const formattedResidents = residentsResponse.data.data.map(resident => {
-            const residentId = resident._id.toString();
-            console.log('Looking up room for resident:', residentId);
-            console.log('Found room:', roomMap[residentId]);
+          const mappedData = residentsResponse.data.data.map((resident, index) => {
+            const residentId = resident._id;
             return {
               id: residentId,
               photo: <div className="photo-placeholder">Photo</div>,
               name: resident.name,
-              dob: resident.date_of_birth || 'N/A',
+              dob: resident.date_of_birth ? new Date(resident.date_of_birth).toLocaleDateString('en-GB') : 'N/A',
               roomNo: roomMap[residentId] || 'Not Assigned',
               emergencyContact: resident.emergency_contact_number || 'N/A',
               available: resident.status === 'active'
             };
           });
-          setResidentData(formattedResidents);
+
+          setTableData(mappedData);
         }
       } catch (error) {
-        console.error('Error fetching residents:', error);
+        console.error('Error loading resident data:', error.message);
       }
     };
-    fetchResidents();
 
+    fetchData();
   }, []);
 
   const handleRowClick = (id) => {
-    navigate('/admin/info/personal');
+    console.log('Selected resident:', id);
+    navigate('/admin/info/personal', {
+      state: { residentId: id }
+    });
   };
 
   // Filter residents based on search term
-  const filteredResidents = residentData.filter(resident =>
+  const filteredResidents = tableData.filter(resident =>
     resident.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     resident.id.includes(searchTerm) ||
     resident.roomNo.includes(searchTerm) ||

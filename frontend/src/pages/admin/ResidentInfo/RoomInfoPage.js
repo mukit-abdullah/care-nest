@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FaEdit, FaCircle } from 'react-icons/fa';
+import { FaEdit } from 'react-icons/fa';
+import axios from 'axios';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -54,6 +55,8 @@ const MainContent = styled.div`
   margin-left: 260px;
   padding: 2rem;
   color: #FFFFFF;
+  display: flex;
+  justify-content: space-between;
   max-width: 1200px;
   margin: 0 auto;
 `;
@@ -63,16 +66,15 @@ const InfoContainer = styled.div`
   width: 100%;
 `;
 
-const InfoGroup = styled.div`
+const Section = styled.div`
   margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
 `;
 
-const Label = styled.span`
+const SectionTitle = styled.h2`
   font-family: ${fonts.secondary};
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   color: #B1CF86;
+  margin-bottom: 0.5rem;
 `;
 
 const Value = styled.span`
@@ -80,24 +82,6 @@ const Value = styled.span`
   font-size: 1.1rem;
   color: #FFFFFF;
   margin-left: 8px;
-`;
-
-const RadioGroup = styled.div`
-  display: flex;
-  gap: 2rem;
-  margin-left: 8px;
-`;
-
-const RadioItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: ${props => props.isSelected ? '#B1CF86' : '#FFFFFF'};
-`;
-
-const RadioIcon = styled(FaCircle)`
-  color: ${props => props.isSelected ? '#B1CF86' : '#FFFFFF'};
-  font-size: 0.8rem;
 `;
 
 const Title = styled.h1`
@@ -147,14 +131,50 @@ const Tab = styled.button`
 const RoomInfoPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { residentId } = location.state || { residentId: null };
+  const residentId = location.state?.residentId || localStorage.getItem('currentResidentId');
+  const [resident, setResident] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Dummy data
-  const roomInfo = {
-    roomPreference: "Private",
-    roomNo: "13",
-    specificFacilityRequest: "Extra blanket, Reading lamp, Near to garden view"
-  };
+  useEffect(() => {
+    if (location.state?.residentId) {
+      localStorage.setItem('currentResidentId', location.state.residentId);
+    }
+  }, [location.state?.residentId]);
+
+  useEffect(() => {
+    const fetchResidentData = async () => {
+      console.log('\n=== Starting Room Info Page Data Load ===');
+      console.log('1. Resident ID:', residentId);
+      
+      if (!residentId) {
+        console.log('❌ No resident ID found, using fallback data');
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        console.log('2. Fetching resident data...');
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`http://localhost:5000/api/residents/${residentId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        console.log('3. API Response:', response.data);
+
+        if (response.data.success) {
+          const residentData = response.data.data;
+          console.log('4. Room Data:', residentData.room);
+          setResident(residentData);
+        }
+      } catch (error) {
+        console.error('Error fetching resident:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResidentData();
+  }, [residentId]);
 
   const handleEdit = () => {
     navigate('/admin/registration/room', { 
@@ -166,6 +186,17 @@ const RoomInfoPage = () => {
     });
   };
 
+  // Fallback data if no resident data is available
+  const roomInfo = {
+    roomNumber: "N/A",
+    roomType: "N/A",
+    specialFacilities: ["N/A"]
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <PageContainer>
       <AdminNavbar />
@@ -174,12 +205,22 @@ const RoomInfoPage = () => {
           <Title>Resident Info</Title>
           
           <NavigationTabs>
-            <Tab onClick={() => navigate('/admin/info/personal')}>Personal</Tab>
-            <Tab onClick={() => navigate('/admin/info/medical')}>Medical</Tab>
-            <Tab onClick={() => navigate('/admin/info/diet')}>Diet</Tab>
+            <Tab onClick={() => navigate('/admin/info/personal', { 
+              state: { residentId } 
+            })}>Personal</Tab>
+            <Tab onClick={() => navigate('/admin/info/medical', { 
+              state: { residentId } 
+            })}>Medical</Tab>
+            <Tab onClick={() => navigate('/admin/info/diet', { 
+              state: { residentId } 
+            })}>Diet</Tab>
             <Tab active>Room</Tab>
-            <Tab onClick={() => navigate('/admin/info/guardian')}>Guardian</Tab>
-            <Tab onClick={() => navigate('/admin/info/financial')}>Financial</Tab>
+            <Tab onClick={() => navigate('/admin/info/guardian', { 
+              state: { residentId } 
+            })}>Guardian</Tab>
+            <Tab onClick={() => navigate('/admin/info/financial', { 
+              state: { residentId } 
+            })}>Financial</Tab>
           </NavigationTabs>
         </TopContent>
         <ActionBar>
@@ -189,29 +230,30 @@ const RoomInfoPage = () => {
       
       <MainContent>
         <InfoContainer>
-          <InfoGroup>
-            <Label>Room Preference: </Label>
-            <RadioGroup>
-              <RadioItem isSelected={roomInfo.roomPreference === "Private"}>
-                <RadioIcon isSelected={roomInfo.roomPreference === "Private"} />
-                Private
-              </RadioItem>
-              <RadioItem isSelected={roomInfo.roomPreference === "Shared"}>
-                <RadioIcon isSelected={roomInfo.roomPreference === "Shared"} />
-                Shared
-              </RadioItem>
-            </RadioGroup>
-          </InfoGroup>
+          <Section>
+            <SectionTitle>Room Number</SectionTitle>
+            <Value>{resident?.room?.room_number || roomInfo.roomNumber}</Value>
+          </Section>
 
-          <InfoGroup>
-            <Label>Room No: </Label>
-            <Value>{roomInfo.roomNo}</Value>
-          </InfoGroup>
+          <Section>
+            <SectionTitle>Room Type</SectionTitle>
+            <Value>
+              {resident?.room?.room_type 
+                ? resident.room.room_type.charAt(0).toUpperCase() + resident.room.room_type.slice(1)
+                : roomInfo.roomType
+              }
+            </Value>
+          </Section>
 
-          <InfoGroup>
-            <Label>Specific Facility Request: </Label>
-            <Value>{roomInfo.specificFacilityRequest}</Value>
-          </InfoGroup>
+          <Section>
+            <SectionTitle>Special Facilities</SectionTitle>
+            <Value>
+              {resident?.room?.special_facilities?.length > 0
+                ? resident.room.special_facilities.join(', ')
+                : roomInfo.specialFacilities[0]
+              }
+            </Value>
+          </Section>
         </InfoContainer>
       </MainContent>
     </PageContainer>
