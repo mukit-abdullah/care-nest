@@ -185,81 +185,232 @@ const MedicalPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isEditMode, residentId, returnPath } = location.state || {};
-  const { residentData, updateResidentData } = useResidentRegistration();
-  const { updateResidentSection } = useResident();
+  const { residentData: registrationData, updateResidentData: updateRegistrationData, resetRegistrationData } = useResidentRegistration();
+  const { residentData, updateResidentSection } = useResident();
   const [errors, setErrors] = useState({});
   
   // Initialize form with context data
   const [formData, setFormData] = useState({
-    blood_group: residentData.blood_group || '',
-    medical_history: residentData.medical_history || '',
-    medical_files_url: residentData.medical_files_url || [],
-    current_medication: residentData.current_medication || '',
-    physician_name: residentData.physician_name || '',
-    physician_contact_number: residentData.physician_contact_number || '',
-    special_needs: residentData.special_needs || '',
-    insurance_details: residentData.insurance_details || '',
-    insurance_files_url: residentData.insurance_files_url || []
+    blood_group: registrationData?.blood_group || '',
+    medical_history: registrationData?.medical_history || '',
+    medical_files_url: registrationData?.medical_files_url || [],
+    current_medication: registrationData?.current_medication || '',
+    physician_name: registrationData?.physician_name || '',
+    physician_contact_number: registrationData?.physician_contact_number || '',
+    special_needs: registrationData?.special_needs || '',
+    insurance_details: registrationData?.insurance_details || '',
+    insurance_files_url: registrationData?.insurance_files_url || []
   });
 
   // Update form when context data changes
   useEffect(() => {
-    setFormData({
-      blood_group: residentData.blood_group || '',
-      medical_history: residentData.medical_history || '',
-      medical_files_url: residentData.medical_files_url || [],
-      current_medication: residentData.current_medication || '',
-      physician_name: residentData.physician_name || '',
-      physician_contact_number: residentData.physician_contact_number || '',
-      special_needs: residentData.special_needs || '',
-      insurance_details: residentData.insurance_details || '',
-      insurance_files_url: residentData.insurance_files_url || []
-    });
-  }, [residentData]);
+    if (!isEditMode && registrationData) {
+      setFormData({
+        blood_group: registrationData.blood_group || '',
+        medical_history: registrationData.medical_history || '',
+        medical_files_url: registrationData.medical_files_url || [],
+        current_medication: registrationData.current_medication || '',
+        physician_name: registrationData.physician_name || '',
+        physician_contact_number: registrationData.physician_contact_number || '',
+        special_needs: registrationData.special_needs || '',
+        insurance_details: registrationData.insurance_details || '',
+        insurance_files_url: registrationData.insurance_files_url || []
+      });
+    }
+  }, [registrationData, isEditMode]);
+
+  // Fetch resident data in edit mode
+  useEffect(() => {
+    if (isEditMode && residentId) {
+      console.log('MedicalPage - Fetching resident:', residentId);
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        axios.get(`http://localhost:5000/api/residents/${residentId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(response => {
+          console.log('MedicalPage - Fetch response:', response.data);
+          if (response.data.success && response.data.data.medicalRecord) {
+            const medical = response.data.data.medicalRecord;
+            setFormData({
+              blood_group: medical.blood_group || '',
+              medical_history: medical.medical_history || '',
+              medical_files_url: medical.medical_files_url || [],
+              current_medication: medical.current_medication || '',
+              physician_name: medical.physician_name || '',
+              physician_contact_number: medical.physician_contact_number || '',
+              special_needs: medical.special_needs || '',
+              insurance_details: medical.insurance_details || '',
+              insurance_files_url: medical.insurance_files_url || []
+            });
+          }
+        })
+        .catch(error => {
+          console.error('MedicalPage - Fetch error:', error);
+          setErrors({ submit: 'Failed to fetch resident data' });
+        });
+      }
+    }
+  }, [isEditMode, residentId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    // Update local form state
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+
     // Update context immediately
-    updateResidentData('medical', {
-      ...formData,
-      [name]: value
-    });
+    if (!isEditMode) {
+      updateRegistrationData('medical', {
+        ...formData,
+        [name]: value
+      });
+    }
   };
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     const updatedFiles = Array.from(files);
+    
+    // Update local form state
     setFormData(prev => ({
       ...prev,
       [name]: updatedFiles
     }));
+
     // Update context immediately
-    updateResidentData('medical', {
-      ...formData,
-      [name]: updatedFiles
-    });
+    if (!isEditMode) {
+      updateRegistrationData('medical', {
+        ...formData,
+        [name]: updatedFiles
+      });
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (isEditMode) {
-      updateResidentSection('medical', formData);
-      navigate(returnPath || '/admin/residents');
+      try {
+        // Get the correct resident ID
+        const currentId = residentId;
+        
+        console.log('MedicalPage - handleSubmit - Starting save:', {
+          isEditMode,
+          residentId: currentId,
+          formData
+        });
+
+        if (!currentId) {
+          console.error('MedicalPage - handleSubmit - No resident ID available');
+          setErrors({ submit: 'No resident ID available for update' });
+          return;
+        }
+
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          setErrors({ submit: 'Authentication token not found' });
+          return;
+        }
+
+        // First, get current data to see structure
+        console.log('MedicalPage - handleSubmit - Fetching current data');
+        const currentResponse = await axios.get(
+          `http://localhost:5000/api/residents/${currentId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        console.log('MedicalPage - handleSubmit - Current data:', currentResponse.data);
+
+        // Get medical record ID
+        const medicalRecordId = currentResponse.data.data.medicalRecord._id;
+
+        // Update the medical record directly
+        const updateData = {
+          blood_group: formData.blood_group || '',
+          medical_history: formData.medical_history || '',
+          medical_files_url: formData.medical_files_url || [],
+          current_medication: formData.current_medication || '',
+          physician_name: formData.physician_name || '',
+          physician_contact_number: formData.physician_contact_number || '',
+          special_needs: formData.special_needs || '',
+          insurance_details: formData.insurance_details || '',
+          insurance_files_url: formData.insurance_files_url || []
+        };
+        
+        console.log('MedicalPage - handleSubmit - Making API call:', {
+          url: `http://localhost:5000/api/medical-records/${medicalRecordId}`,
+          data: updateData
+        });
+
+        const response = await axios.put(
+          `http://localhost:5000/api/medical-records/${medicalRecordId}`,
+          updateData,
+          { 
+            headers: { 
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            } 
+          }
+        );
+
+        console.log('MedicalPage - handleSubmit - API Response:', response.data);
+
+        if (response.data.success) {
+          console.log('MedicalPage - handleSubmit - Update successful');
+
+          // Get the updated resident data
+          const updatedResponse = await axios.get(
+            `http://localhost:5000/api/residents/${currentId}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+
+          if (updatedResponse.data.success) {
+            // Update the resident context with ALL the data
+            const updatedData = updatedResponse.data.data;
+            await updateResidentSection('resident', updatedData.resident);
+            await updateResidentSection('medicalRecord', updatedData.medicalRecord);
+            await updateResidentSection('diet', updatedData.diet);
+            await updateResidentSection('room', updatedData.room);
+            await updateResidentSection('guardian', updatedData.guardian);
+            await updateResidentSection('financialRecord', updatedData.financialRecord);
+          }
+          
+          // Navigate back with replace to prevent history stack issues
+          navigate(returnPath || '/admin/info/medical', {
+            state: { residentId: currentId },
+            replace: true
+          });
+        } else {
+          console.error('MedicalPage - handleSubmit - Update failed:', response.data);
+          setErrors({ submit: 'Failed to update resident information' });
+        }
+      } catch (error) {
+        console.error('MedicalPage - handleSubmit - Error:', error);
+        if (error.response) {
+          console.error('MedicalPage - handleSubmit - Error response:', {
+            status: error.response.status,
+            data: error.response.data
+          });
+          setErrors({ submit: error.response.data.message || 'Failed to update resident information' });
+        } else {
+          setErrors({ submit: 'An error occurred while updating resident information' });
+        }
+      }
     } else {
-      // Regular registration flow - no validation needed since fields are optional
-      updateResidentData('medical', formData);
-      navigate('/admin/registration/financial');
+      // Save data before navigation
+      updateRegistrationData('medical', formData);
+      navigate('/admin/registration/diet');
     }
   };
 
   const handleTabChange = (path) => {
     // Save current data before navigation
-    updateResidentData('medical', formData);
+    if (!isEditMode) {
+      updateRegistrationData('medical', formData);
+    }
     navigate(path, {
       state: {
         isEditMode,

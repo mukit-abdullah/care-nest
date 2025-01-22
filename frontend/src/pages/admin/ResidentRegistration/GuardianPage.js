@@ -162,85 +162,77 @@ const GuardianPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isEditMode, residentId, returnPath } = location.state || {};
-  const { residentData, updateResidentData } = useResidentRegistration();
-  const { updateResidentSection } = useResident();
+  const { residentData: registrationData, updateResidentData: updateRegistrationData } = useResidentRegistration();
+  const { residentData, updateResidentSection } = useResident();
 
   const [errors, setErrors] = useState({});
   
   // Initialize form with context data
   const [formData, setFormData] = useState({
-    guardian_name: residentData.guardian_name || '',
-    guardian_relationship: residentData.guardian_relationship || '',
-    guardian_contact_number: residentData.guardian_contact_number || '',
-    guardian_address: residentData.guardian_address || ''
+    name: registrationData?.guardian_name || '',
+    relationship: registrationData?.guardian_relationship || '',
+    guardian_contact_number: registrationData?.guardian_contact_number || '',
+    guardian_address: registrationData?.guardian_address || ''
   });
 
   // Update form when context data changes
   useEffect(() => {
-    setFormData({
-      guardian_name: residentData.guardian_name || '',
-      guardian_relationship: residentData.guardian_relationship || '',
-      guardian_contact_number: residentData.guardian_contact_number || '',
-      guardian_address: residentData.guardian_address || ''
-    });
-  }, [residentData]);
+    if (!isEditMode && registrationData) {
+      setFormData({
+        name: registrationData.guardian_name || '',
+        relationship: registrationData.guardian_relationship || '',
+        guardian_contact_number: registrationData.guardian_contact_number || '',
+        guardian_address: registrationData.guardian_address || ''
+      });
+    }
+  }, [registrationData, isEditMode]);
+
+  // Load resident data in edit mode
+  useEffect(() => {
+    if (isEditMode && residentData?.guardian) {
+      setFormData({
+        name: residentData.guardian.name || '',
+        relationship: residentData.guardian.relationship || '',
+        guardian_contact_number: residentData.guardian.guardian_contact_number || '',
+        guardian_address: residentData.guardian.guardian_address || ''
+      });
+    }
+  }, [isEditMode, residentData]);
+
+  const validateForm = () => {
+    return true;
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    // Update local form state
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+
     // Update context immediately
-    updateResidentData('guardian', {
-      ...formData,
-      [name]: value
-    });
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.guardian_name) {
-      newErrors.guardian_name = 'Guardian name is required';
-    }
-    
-    if (!formData.guardian_relationship) {
-      newErrors.guardian_relationship = 'Guardian relationship is required';
-    }
-
-    if (!formData.guardian_contact_number) {
-      newErrors.guardian_contact_number = 'Guardian contact number is required';
-    }
-
-    if (!formData.guardian_address) {
-      newErrors.guardian_address = 'Guardian address is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
-    if (isEditMode) {
-      updateResidentSection('guardian', formData);
-      navigate(returnPath || '/admin/residents');
-    } else {
-      // Regular registration flow
-      updateResidentData('guardian', formData);
-      navigate('/admin/registration/financial');
+    if (!isEditMode) {
+      updateRegistrationData('guardian', {
+        guardian_name: name === 'name' ? value : formData.name,
+        guardian_relationship: name === 'relationship' ? value : formData.relationship,
+        guardian_contact_number: name === 'guardian_contact_number' ? value : formData.guardian_contact_number,
+        guardian_address: name === 'guardian_address' ? value : formData.guardian_address
+      });
     }
   };
 
   const handleTabChange = (path) => {
     // Save current data before navigation
-    updateResidentData('guardian', formData);
+    if (!isEditMode) {
+      updateRegistrationData('guardian', {
+        guardian_name: formData.name,
+        guardian_relationship: formData.relationship,
+        guardian_contact_number: formData.guardian_contact_number,
+        guardian_address: formData.guardian_address
+      });
+    }
     navigate(path, {
       state: {
         isEditMode,
@@ -250,12 +242,110 @@ const GuardianPage = () => {
     });
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (isEditMode) {
+      try {
+        if (!residentId) {
+          setErrors({ submit: 'No resident ID available for update' });
+          return;
+        }
+
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          setErrors({ submit: 'Authentication token not found' });
+          return;
+        }
+
+        // First get current data to get guardian ID
+        const currentResponse = await axios.get(
+          `http://localhost:5000/api/residents/${residentId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        // Get guardian ID
+        const guardianId = currentResponse.data.data.guardian._id;
+
+        // Update the guardian record directly
+        const updateData = {
+          name: formData.name || '',
+          relationship: formData.relationship || '',
+          guardian_contact_number: formData.guardian_contact_number || '',
+          guardian_address: formData.guardian_address || '',
+          resident_id: residentId
+        };
+
+        const response = await axios.put(
+          `http://localhost:5000/api/guardians/${guardianId}`,
+          updateData,
+          { 
+            headers: { 
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            } 
+          }
+        );
+
+        if (response.data.success) {
+          // Get the updated resident data
+          const updatedResponse = await axios.get(
+            `http://localhost:5000/api/residents/${residentId}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+
+          if (updatedResponse.data.success) {
+            // Update the resident context with the new data
+            const updatedData = updatedResponse.data.data;
+            await updateResidentSection('resident', updatedData.resident);
+            await updateResidentSection('medicalRecord', updatedData.medicalRecord);
+            await updateResidentSection('diet', updatedData.diet);
+            await updateResidentSection('room', updatedData.room);
+            await updateResidentSection('guardian', updatedData.guardian);
+            await updateResidentSection('financialRecord', updatedData.financialRecord);
+          }
+
+          navigate(returnPath || '/admin/info/guardian', {
+            state: { 
+              residentId,
+              success: true,
+              message: 'Guardian information updated successfully'
+            },
+            replace: true
+          });
+        } else {
+          setErrors({ submit: 'Failed to update guardian information' });
+        }
+      } catch (error) {
+        console.error('Error updating guardian information:', error);
+        setErrors({ 
+          submit: error.response?.data?.message || 'Failed to update guardian information'
+        });
+      }
+    } else {
+      // Regular registration flow - no validation needed
+      updateRegistrationData('guardian', {
+        guardian_name: formData.name,
+        guardian_relationship: formData.relationship,
+        guardian_contact_number: formData.guardian_contact_number,
+        guardian_address: formData.guardian_address
+      });
+      navigate('/admin/registration/financial', {
+        state: {
+          isEditMode,
+          residentId,
+          returnPath
+        }
+      });
+    }
+  };
+
   return (
     <PageContainer>
       <AdminNavbar />
       <TopSection>
         <TopContent>
-          <Title>{isEditMode ? 'Update Info' : 'Resident Registration'}</Title>
+          <Title>{isEditMode ? 'Update Guardian Info' : 'Resident Registration'}</Title>
           
           {!isEditMode && (
             <NavigationTabs>
@@ -277,24 +367,24 @@ const GuardianPage = () => {
               <Label>Guardian Name</Label>
               <Input
                 type="text"
-                name="guardian_name"
-                value={formData.guardian_name}
+                name="name"
+                value={formData.name}
                 onChange={handleInputChange}
                 placeholder="Enter guardian's name"
               />
-              {errors.guardian_name && <ErrorText>{errors.guardian_name}</ErrorText>}
+              {errors.name && <ErrorText>{errors.name}</ErrorText>}
             </FormGroup>
 
             <FormGroup>
               <Label>Relationship to Resident</Label>
               <Input
                 type="text"
-                name="guardian_relationship"
-                value={formData.guardian_relationship}
+                name="relationship"
+                value={formData.relationship}
                 onChange={handleInputChange}
                 placeholder="Enter relationship to resident"
               />
-              {errors.guardian_relationship && <ErrorText>{errors.guardian_relationship}</ErrorText>}
+              {errors.relationship && <ErrorText>{errors.relationship}</ErrorText>}
             </FormGroup>
 
             <FormGroup>
@@ -320,6 +410,8 @@ const GuardianPage = () => {
               />
               {errors.guardian_address && <ErrorText>{errors.guardian_address}</ErrorText>}
             </FormGroup>
+
+            {errors.submit && <ErrorText>{errors.submit}</ErrorText>}
 
             <SaveButton type="submit">
               {isEditMode ? 'Save Changes' : 'Next'}

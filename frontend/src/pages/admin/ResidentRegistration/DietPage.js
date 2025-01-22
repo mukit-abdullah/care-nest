@@ -186,62 +186,228 @@ const DietPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isEditMode, residentId, returnPath } = location.state || {};
-  const { residentData, updateResidentData } = useResidentRegistration();
-  const { updateResidentSection } = useResident();
+  const { residentData: registrationData, updateResidentData: updateRegistrationData } = useResidentRegistration();
+  const { residentData, updateResidentSection } = useResident();
 
   const [errors, setErrors] = useState({});
-
-  // Initialize form with context data
+  
+  // Initialize form with empty values
   const [formData, setFormData] = useState({
-    dietary_preference: residentData.dietary_preference || '',
-    food_category: residentData.food_category || '',
-    food_texture: residentData.food_texture || '',
-    food_allergies: residentData.food_allergies || '',
-    special_diet_needs: residentData.special_diet_needs || '',
-    additional_notes: residentData.additional_notes || ''
+    dietary_preference: '',
+    food_category: '',
+    food_texture: '',
+    food_allergies: [],  // Initialize as array
+    special_diet_needs: '',
+    additional_notes: ''
   });
 
-  // Update form when context data changes
+  // Fetch resident data in edit mode
   useEffect(() => {
-    setFormData({
-      dietary_preference: residentData.dietary_preference || '',
-      food_category: residentData.food_category || '',
-      food_texture: residentData.food_texture || '',
-      food_allergies: residentData.food_allergies || '',
-      special_diet_needs: residentData.special_diet_needs || '',
-      additional_notes: residentData.additional_notes || ''
-    });
-  }, [residentData]);
+    if (isEditMode && residentId) {
+      console.log('DietPage - Fetching resident:', residentId);
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        axios.get(`http://localhost:5000/api/residents/${residentId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(response => {
+          console.log('DietPage - Fetch response:', response.data);
+          if (response.data.success && response.data.data.diet) {
+            const diet = response.data.data.diet;
+            setFormData({
+              dietary_preference: diet.dietary_preference || '',
+              food_category: diet.food_category || '',
+              food_texture: diet.food_texture || '',
+              food_allergies: diet.food_allergies || [], // Ensure it's an array
+              special_diet_needs: diet.special_diet_needs || '',
+              additional_notes: diet.additional_notes || ''
+            });
+          }
+        })
+        .catch(error => {
+          console.error('DietPage - Fetch error:', error);
+          setErrors({ submit: 'Failed to fetch resident data' });
+        });
+      }
+    }
+  }, [isEditMode, residentId]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Update context immediately
-    updateResidentData('diet', {
-      ...formData,
-      [name]: value
-    });
+  // Update form when registration data changes (only in registration mode)
+  useEffect(() => {
+    if (!isEditMode && registrationData?.diet) {
+      setFormData({
+        dietary_preference: registrationData.diet.dietary_preference || '',
+        food_category: registrationData.diet.food_category || '',
+        food_texture: registrationData.diet.food_texture || '',
+        food_allergies: registrationData.diet.food_allergies || [], // Ensure it's an array
+        special_diet_needs: registrationData.diet.special_diet_needs || '',
+        additional_notes: registrationData.diet.additional_notes || ''
+      });
+    }
+  }, [registrationData, isEditMode]);
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.dietary_preference) {
+      newErrors.dietary_preference = 'Dietary Preference is required';
+    }
+    
+    if (!formData.food_category) {
+      newErrors.food_category = 'Food Category is required';
+    }
+
+    if (!formData.food_texture) {
+      newErrors.food_texture = 'Food Texture is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const saveDataBeforeNavigation = () => {
+    updateRegistrationData('diet', formData);
+  };
+
+  const handleNext = () => {
+    if (validateForm()) {
+      saveDataBeforeNavigation();
+      navigate('/admin/registration/room', { 
+        state: { 
+          isEditMode, 
+          residentId, 
+          returnPath 
+        } 
+      });
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (isEditMode) {
-      updateResidentSection('diet', formData);
-      navigate(returnPath || '/admin/residents');
-    } else {
-      // Regular registration flow
-      updateResidentData('diet', formData);
-      navigate('/admin/registration/medical');
+    if (validateForm()) {
+      if (isEditMode) {
+        try {
+          console.log('DietPage - handleSubmit - Starting save:', {
+            isEditMode,
+            residentId,
+            formData
+          });
+
+          if (!residentId) {
+            console.error('DietPage - handleSubmit - No resident ID available');
+            setErrors({ submit: 'No resident ID available for update' });
+            return;
+          }
+
+          const token = localStorage.getItem('authToken');
+          if (!token) {
+            setErrors({ submit: 'Authentication token not found' });
+            return;
+          }
+
+          // First get current data to get diet ID
+          console.log('DietPage - handleSubmit - Fetching current data');
+          const currentResponse = await axios.get(
+            `http://localhost:5000/api/residents/${residentId}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          console.log('DietPage - handleSubmit - Current data:', currentResponse.data);
+
+          // Get diet record ID
+          const dietRecordId = currentResponse.data.data.diet._id;
+
+          // Update the diet record directly
+          const updateData = {
+            dietary_preference: formData.dietary_preference || '',
+            food_category: formData.food_category || '',
+            food_texture: formData.food_texture || '',
+            food_allergies: Array.isArray(formData.food_allergies) ? formData.food_allergies : [],
+            special_diet_needs: formData.special_diet_needs || '',
+            additional_notes: formData.additional_notes || ''
+          };
+          
+          console.log('DietPage - handleSubmit - Making API call:', {
+            url: `http://localhost:5000/api/diets/${dietRecordId}`,
+            data: updateData
+          });
+
+          const response = await axios.put(
+            `http://localhost:5000/api/diets/${dietRecordId}`,
+            updateData,
+            { 
+              headers: { 
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              } 
+            }
+          );
+
+          console.log('DietPage - handleSubmit - API Response:', response.data);
+
+          if (response.data.success) {
+            console.log('DietPage - handleSubmit - Update successful');
+
+            // Get the updated resident data
+            const updatedResponse = await axios.get(
+              `http://localhost:5000/api/residents/${residentId}`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            if (updatedResponse.data.success) {
+              // Update the resident context with ALL the data
+              const updatedData = updatedResponse.data.data;
+              await updateResidentSection('resident', updatedData.resident);
+              await updateResidentSection('medicalRecord', updatedData.medicalRecord);
+              await updateResidentSection('diet', updatedData.diet);
+              await updateResidentSection('room', updatedData.room);
+              await updateResidentSection('guardian', updatedData.guardian);
+              await updateResidentSection('financialRecord', updatedData.financialRecord);
+            }
+
+            navigate(returnPath || '/admin/info/diet', {
+              state: { 
+                residentId,
+                success: true,
+                message: 'Diet information updated successfully'
+              },
+              replace: true
+            });
+          } else {
+            console.error('DietPage - handleSubmit - Update failed:', response.data);
+            setErrors({ submit: 'Failed to update diet information' });
+          }
+        } catch (error) {
+          console.error('Error updating diet information:', error);
+          if (error.response) {
+            console.error('DietPage - handleSubmit - Error response:', {
+              status: error.response.status,
+              data: error.response.data
+            });
+            setErrors({ submit: error.response.data.message || 'Failed to update diet information' });
+          } else {
+            setErrors({ submit: 'An error occurred while updating diet information' });
+          }
+        }
+      } else {
+        // Regular registration flow
+        saveDataBeforeNavigation();
+        navigate('/admin/registration/room', {
+          state: {
+            isEditMode,
+            residentId,
+            returnPath
+          }
+        });
+      }
     }
   };
 
   const handleTabChange = (path) => {
     // Save current data before navigation
-    updateResidentData('diet', formData);
+    if (!isEditMode) {
+      updateRegistrationData('diet', formData);
+    }
     navigate(path, {
       state: {
         isEditMode,
@@ -249,6 +415,34 @@ const DietPage = () => {
         returnPath
       }
     });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    
+    // Special handling for food_allergies
+    if (name === 'food_allergies') {
+      // Split by commas and trim whitespace
+      const allergiesArray = value.split(',').map(item => item.trim());
+      setFormData(prev => ({
+        ...prev,
+        [name]: allergiesArray
+      }));
+    } else {
+      // Regular handling for other fields
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+
+    // Update context immediately in registration mode
+    if (!isEditMode) {
+      updateRegistrationData('diet', {
+        ...formData,
+        [name]: name === 'food_allergies' ? value.split(',').map(item => item.trim()) : value
+      });
+    }
   };
 
   return (
@@ -372,9 +566,9 @@ const DietPage = () => {
             <Label>Food Allergies:</Label>
             <TextArea 
               name="food_allergies"
-              value={formData.food_allergies}
+              value={formData.food_allergies.join(', ')} // Join array with commas
               onChange={handleInputChange}
-              placeholder="Enter any food allergies (optional)" 
+              placeholder="Enter any food allergies (optional), separate with commas" 
               rows="2"
             />
           </FormGroup>

@@ -194,42 +194,55 @@ const SuccessMessage = styled.div`
 const MedicalInfoPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const residentId = location.state?.residentId || localStorage.getItem('currentResidentId');
-  const { residentData, loading, fetchResident, updateResidentSection } = useResident();
+  const residentId = location.state?.residentId;
+  const { residentData, loading, setCurrentResidentId } = useResident();
 
+  console.log('MedicalInfoPage - Mount:', {
+    locationState: location.state,
+    residentData
+  });
+
+  // Set current resident ID when page loads
   useEffect(() => {
     if (location.state?.residentId) {
-      localStorage.setItem('currentResidentId', location.state.residentId);
+      console.log('MedicalInfoPage - Setting residentId:', location.state.residentId);
+      setCurrentResidentId(location.state.residentId);
     }
-  }, [location.state?.residentId]);
+  }, [location.state?.residentId, setCurrentResidentId]);
 
-  useEffect(() => {
-    if (!residentData && residentId) {
-      fetchResident(residentId);
-    }
-  }, [residentId, residentData, fetchResident]);
-
-  // Update local state if we get updated data from navigation
-  useEffect(() => {
-    if (location.state?.updatedMedical) {
-      updateResidentSection('medicalRecord', location.state.updatedMedical);
-    }
-  }, [location.state?.updatedMedical, updateResidentSection]);
+  // Render loading state if needed
+  if (!residentData || loading) {
+    return (
+      <PageContainer>
+        <AdminNavbar />
+        <div style={{ marginTop: '80px', textAlign: 'center', color: '#FFFFFF' }}>
+          Loading...
+        </div>
+      </PageContainer>
+    );
+  }
 
   const handleEdit = () => {
+    console.log('MedicalInfoPage - handleEdit:', {
+      residentData,
+      id: residentData?.resident?._id
+    });
+
     navigate('/admin/registration/medical', { 
       state: { 
         isEditMode: true,
-        residentId,
-        returnPath: '/admin/info/medical',
-        medicalData: residentData?.medicalRecord || {}
+        residentId: residentData?.resident?._id,
+        returnPath: '/admin/info/medical'
       } 
     });
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const handleTabChange = (path) => {
+    navigate(path, { 
+      state: { residentId: residentData?.resident?._id },
+      replace: true // Use replace to prevent adding to history stack
+    });
+  };
 
   return (
     <PageContainer>
@@ -239,32 +252,18 @@ const MedicalInfoPage = () => {
           <Title>Resident Info</Title>
           
           <NavigationTabs>
-            <Tab onClick={() => navigate('/admin/info/personal', { 
-              state: { residentId } 
-            })}>Personal</Tab>
+            <Tab onClick={() => handleTabChange('/admin/info/personal')}>Personal</Tab>
             <Tab active>Medical</Tab>
-            <Tab onClick={() => navigate('/admin/info/diet', { 
-              state: { residentId } 
-            })}>Diet</Tab>
-            <Tab onClick={() => navigate('/admin/info/room', { 
-              state: { residentId } 
-            })}>Room</Tab>
-            <Tab onClick={() => navigate('/admin/info/guardian', { 
-              state: { residentId } 
-            })}>Guardian</Tab>
-            <Tab onClick={() => navigate('/admin/info/financial', { 
-              state: { residentId } 
-            })}>Financial</Tab>
+            <Tab onClick={() => handleTabChange('/admin/info/diet')}>Diet</Tab>
+            <Tab onClick={() => handleTabChange('/admin/info/room')}>Room</Tab>
+            <Tab onClick={() => handleTabChange('/admin/info/guardian')}>Guardian</Tab>
+            <Tab onClick={() => handleTabChange('/admin/info/financial')}>Financial</Tab>
           </NavigationTabs>
         </TopContent>
         <ActionBar>
           <EditIcon onClick={handleEdit} />
         </ActionBar>
       </TopSection>
-      
-      {location.state?.success && (
-        <SuccessMessage>{location.state.message}</SuccessMessage>
-      )}
       
       <MainContent>
         <InfoContainer>

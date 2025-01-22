@@ -84,23 +84,33 @@ const Value = styled.span`
   margin-left: 8px;
 `;
 
-const RadioGroup = styled.div`
+const StyledRadioGroup = styled.div`
   display: flex;
   gap: 2rem;
   margin-left: 8px;
 `;
 
-const RadioItem = styled.div`
+const StyledRadioItem = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: ${props => props.isSelected ? '#B1CF86' : '#FFFFFF'};
+  color: ${props => props.selected ? '#B1CF86' : '#FFFFFF'};
 `;
 
-const RadioIcon = styled(FaCircle)`
-  color: ${props => props.isSelected ? '#B1CF86' : '#FFFFFF'};
+const StyledRadioIcon = styled(FaCircle)`
+  color: ${props => props.selected ? '#B1CF86' : '#FFFFFF'};
   font-size: 0.8rem;
 `;
+
+const RadioItem = ({ isSelected, children, ...props }) => (
+  <StyledRadioItem selected={isSelected} {...props}>
+    {children}
+  </StyledRadioItem>
+);
+
+const RadioIcon = ({ isSelected, ...props }) => (
+  <StyledRadioIcon selected={isSelected} {...props} />
+);
 
 const Title = styled.h1`
   font-family: 'Italiana', serif;
@@ -221,7 +231,7 @@ const FinancialInfoPage = () => {
         <InfoContainer>
           <InfoGroup>
             <Label>Payment Preference: </Label>
-            <RadioGroup>
+            <StyledRadioGroup>
               <RadioItem isSelected={residentData?.payment_preference === "Sponsored"}>
                 <RadioIcon isSelected={residentData?.financialRecord?.payment_preference === "Sponsored"} />
                 Sponsored
@@ -230,7 +240,7 @@ const FinancialInfoPage = () => {
                 <RadioIcon isSelected={residentData?.financialRecord?.payment_preference === "Subscription"} />
                 Subscription
               </RadioItem>
-            </RadioGroup>
+            </StyledRadioGroup>
           </InfoGroup>
 
           <InfoGroup>

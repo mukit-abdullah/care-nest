@@ -225,59 +225,232 @@ const ErrorMessage = styled.div`
 const RoomPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isEditMode, residentId, returnPath, roomData } = location.state || {};
-  const { residentData, updateResidentData } = useResidentRegistration();
-  const { updateResidentSection } = useResident();
+  const { isEditMode, residentId, returnPath } = location.state || {};
+  const { residentData: registrationData, updateResidentData: updateRegistrationData } = useResidentRegistration();
+  const { residentData, updateResidentSection } = useResident();
 
   const [errors, setErrors] = useState({});
 
   // Initialize form with context data
   const [formData, setFormData] = useState({
-    room_type: residentData.room_type || '',
-    room_number: residentData.room_number || '',
-    special_facilities: residentData.special_facilities || '',
-    additional_notes: residentData.additional_notes || ''
+    room_type: registrationData?.room_type || '',
+    room_number: registrationData?.room_number || '',
+    special_facilities: registrationData?.special_facilities || '',
+    additional_notes: registrationData?.additional_notes || ''
   });
 
   // Update form when context data changes
   useEffect(() => {
-    setFormData({
-      room_type: residentData.room_type || '',
-      room_number: residentData.room_number || '',
-      special_facilities: residentData.special_facilities || '',
-      additional_notes: residentData.additional_notes || ''
-    });
-  }, [residentData]);
+    if (!isEditMode && registrationData) {
+      setFormData({
+        room_type: registrationData.room_type || '',
+        room_number: registrationData.room_number || '',
+        special_facilities: registrationData.special_facilities || '',
+        additional_notes: registrationData.additional_notes || ''
+      });
+    }
+  }, [registrationData, isEditMode]);
+
+  // Load resident data in edit mode
+  useEffect(() => {
+    if (isEditMode && residentId) {
+      console.log('RoomPage - Fetching resident:', residentId);
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        axios.get(`http://localhost:5000/api/residents/${residentId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(response => {
+          console.log('RoomPage - Fetch response:', response.data);
+          if (response.data.success && response.data.data.room) {
+            const room = response.data.data.room;
+            setFormData({
+              room_type: room.room_type || '',
+              room_number: room.room_number || '',
+              special_facilities: room.special_facilities || '',
+              additional_notes: room.additional_notes || ''
+            });
+          }
+        })
+        .catch(error => {
+          console.error('RoomPage - Fetch error:', error);
+          setErrors({ submit: 'Failed to fetch resident data' });
+        });
+      }
+    }
+  }, [isEditMode, residentId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    // Special handling for special_facilities
+    if (name === 'special_facilities') {
+      // Split by commas and trim whitespace
+      const facilitiesArray = value.split(',').map(item => item.trim()).filter(item => item);
+      setFormData(prev => ({
+        ...prev,
+        [name]: facilitiesArray
+      }));
+    } else {
+      // For room_number, keep it as string
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+
     // Update context immediately
-    updateResidentData('room', {
-      ...formData,
-      [name]: value
-    });
+    if (!isEditMode) {
+      updateRegistrationData('room', {
+        ...formData,
+        [name]: name === 'special_facilities' ? 
+          value.split(',').map(item => item.trim()).filter(item => item) : 
+          value
+      });
+    }
   };
 
-  const handleSubmit = (e) => {
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.room_type) {
+      newErrors.room_type = 'Room type is required';
+    }
+    
+    if (!formData.room_number) {
+      newErrors.room_number = 'Room number is required';
+    } else if (isNaN(formData.room_number) || formData.room_number < 1) {
+      newErrors.room_number = 'Room number must be a positive number';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (isEditMode) {
-      updateResidentSection('room', formData);
-      navigate(returnPath || '/admin/residents');
-    } else {
-      // Regular registration flow
-      updateResidentData('room', formData);
-      navigate('/admin/registration/guardian');
+    if (validateForm()) {
+      if (isEditMode) {
+        try {
+          console.log('RoomPage - handleSubmit - Starting save:', {
+            isEditMode,
+            residentId,
+            formData
+          });
+
+          if (!residentId) {
+            console.error('RoomPage - handleSubmit - No resident ID available');
+            setErrors({ submit: 'No resident ID available for update' });
+            return;
+          }
+
+          const token = localStorage.getItem('authToken');
+          if (!token) {
+            setErrors({ submit: 'Authentication token not found' });
+            return;
+          }
+
+          // First get current data to get room number
+          console.log('RoomPage - handleSubmit - Fetching current data');
+          const currentResponse = await axios.get(
+            `http://localhost:5000/api/residents/${residentId}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          console.log('RoomPage - handleSubmit - Current data:', currentResponse.data);
+
+          // Get current room number - this is what we use to find the room
+          const currentRoomNumber = currentResponse.data.data.room.room_number;
+
+          // Update the room record directly
+          const updateData = {
+            room_type: formData.room_type || '',
+            room_number: String(formData.room_number || ''), // Ensure room_number is string
+            special_facilities: Array.isArray(formData.special_facilities) ? formData.special_facilities : [],
+            additional_notes: formData.additional_notes || ''
+          };
+          
+          console.log('RoomPage - handleSubmit - Making API call:', {
+            url: `http://localhost:5000/api/rooms/${currentRoomNumber}`,
+            data: updateData
+          });
+
+          const response = await axios.put(
+            `http://localhost:5000/api/rooms/${currentRoomNumber}`,
+            updateData,
+            { 
+              headers: { 
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              } 
+            }
+          );
+
+          console.log('RoomPage - handleSubmit - API Response:', response.data);
+
+          if (response.data.success) {
+            console.log('RoomPage - handleSubmit - Update successful');
+
+            // Get the updated resident data
+            const updatedResponse = await axios.get(
+              `http://localhost:5000/api/residents/${residentId}`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            if (updatedResponse.data.success) {
+              // Update the resident context with ALL the data
+              const updatedData = updatedResponse.data.data;
+              await updateResidentSection('resident', updatedData.resident);
+              await updateResidentSection('medicalRecord', updatedData.medicalRecord);
+              await updateResidentSection('diet', updatedData.diet);
+              await updateResidentSection('room', updatedData.room);
+              await updateResidentSection('guardian', updatedData.guardian);
+              await updateResidentSection('financialRecord', updatedData.financialRecord);
+            }
+
+            navigate(returnPath || '/admin/info/room', {
+              state: { 
+                residentId,
+                success: true,
+                message: 'Room information updated successfully'
+              },
+              replace: true
+            });
+          } else {
+            console.error('RoomPage - handleSubmit - Update failed:', response.data);
+            setErrors({ submit: 'Failed to update room information' });
+          }
+        } catch (error) {
+          console.error('Error updating room information:', error);
+          if (error.response) {
+            console.error('RoomPage - handleSubmit - Error response:', {
+              status: error.response.status,
+              data: error.response.data
+            });
+            setErrors({ submit: error.response.data.message || 'Failed to update room information' });
+          } else {
+            setErrors({ submit: 'An error occurred while updating room information' });
+          }
+        }
+      } else {
+        // Regular registration flow
+        updateRegistrationData('room', formData);
+        navigate('/admin/registration/guardian', {
+          state: {
+            isEditMode,
+            residentId,
+            returnPath
+          }
+        });
+      }
     }
   };
 
   const handleTabChange = (path) => {
     // Save current data before navigation
-    updateResidentData('room', formData);
+    if (!isEditMode) {
+      updateRegistrationData('room', formData);
+    }
     navigate(path, {
       state: {
         isEditMode,
@@ -352,24 +525,25 @@ const RoomPage = () => {
           </FormGroup>
 
           <FormGroup>
-            <Label>Room Number:</Label>
-            {errors.room_number && <ErrorText>{errors.room_number}</ErrorText>}
-            <Input 
-              type="text"
+            <Label>Room Number *</Label>
+            <Input
+              type="number"
               name="room_number"
               value={formData.room_number}
               onChange={handleInputChange}
               placeholder="Enter room number"
+              min="1"
             />
+            {errors.room_number && <ErrorText>{errors.room_number}</ErrorText>}
           </FormGroup>
 
           <FormGroup>
             <Label>Special Facilities:</Label>
             <TextArea 
               name="special_facilities"
-              value={formData.special_facilities}
+              value={Array.isArray(formData.special_facilities) ? formData.special_facilities.join(', ') : formData.special_facilities}
               onChange={handleInputChange}
-              placeholder="Enter special facilities (optional)"
+              placeholder="Enter any special facilities (optional), separate with commas" 
               rows="2"
             />
           </FormGroup>

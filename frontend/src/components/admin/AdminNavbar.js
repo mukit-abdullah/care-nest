@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import logo from '../../assets/CareNestLogo.png';
 import colors from '../../theme/colors';
 import { typography, fonts } from '../../theme/typography';
 import { useAdmin } from '../../context/AdminContext';
+import { useResidentRegistration } from '../../context/ResidentRegistrationContext';
 
 const NavbarContainer = styled.nav`
   background-color: ${colors.navbarBg};
@@ -90,12 +91,26 @@ const LogoutButton = styled.button`
 
 const AdminNavbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { adminData, updateAdminData } = useAdmin();
+  const { resetRegistrationData } = useResidentRegistration();
+
+  const handleNavigation = (path) => {
+    // Reset registration data when navigating to any non-registration page
+    if (location.pathname.includes('/admin/registration/')) {
+      console.log('AdminNavbar - Leaving registration process, resetting data');
+      resetRegistrationData();
+    }
+    navigate(path);
+  };
 
   const handleLogout = () => {
     // Clear admin authentication
     localStorage.removeItem('authToken');
-    updateAdminData(null); // This will also clear localStorage userData
+    updateAdminData(null);
+    
+    // Clear any registration data
+    resetRegistrationData();
     
     // Navigate to home page (visitor view)
     navigate('/', { replace: true });
@@ -104,7 +119,15 @@ const AdminNavbar = () => {
   return (
     <NavbarContainer>
       <LogoSection>
-        <Logo src={logo} alt="CareNest Logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }} />
+        <Logo 
+          src={logo} 
+          alt="CareNest Logo" 
+          onClick={() => {
+            resetRegistrationData();
+            navigate('/');
+          }} 
+          style={{ cursor: 'pointer' }} 
+        />
         <UserInfo>
           <span className="user-name">{adminData?.username || 'Admin'}</span>
           <span className="profile-icon">👤</span>
@@ -112,9 +135,15 @@ const AdminNavbar = () => {
       </LogoSection>
 
       <NavLinks>
-        <NavLink to="/admin/dashboard">Dashboard</NavLink>
-        <NavLink to="/admin/meal">Meal</NavLink>
-        <NavLink to="/admin/transaction">Transaction</NavLink>
+        <NavLink to="/admin/dashboard" onClick={() => handleNavigation('/admin/dashboard')}>
+          Dashboard
+        </NavLink>
+        <NavLink to="/admin/meal" onClick={() => handleNavigation('/admin/meal')}>
+          Meal
+        </NavLink>
+        <NavLink to="/admin/transaction" onClick={() => handleNavigation('/admin/transaction')}>
+          Transaction
+        </NavLink>
         <LogoutButton onClick={handleLogout}>Log Out</LogoutButton>
       </NavLinks>
     </NavbarContainer>

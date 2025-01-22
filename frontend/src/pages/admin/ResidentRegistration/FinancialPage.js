@@ -5,6 +5,7 @@ import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useResidentRegistration } from '../../../context/ResidentRegistrationContext';
+import { useResident } from '../../../context/ResidentContext';
 import axios from 'axios';
 import { getAdminToken, isAdminActive, clearAuthData, urls } from '../../../services/authService';
 
@@ -200,6 +201,11 @@ const SaveButton = styled.button`
   &:hover {
     background-color: #C9E4A5;
   }
+
+  &:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
 `;
 
 const ErrorText = styled.span`
@@ -235,100 +241,84 @@ const FinancialPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isEditMode, residentId, returnPath } = location.state || {};
-  const { residentData, updateResidentData, resetResidentData } = useResidentRegistration();
+  const { residentData: registrationData, updateResidentData: updateRegistrationData } = useResidentRegistration();
+  const { residentData, updateResidentSection } = useResident();
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+
+  // Initialize form with context data
   const [formData, setFormData] = useState({
-    payment_preference: residentData.payment_preference || '',
-    account_number: residentData.account_number || '',
-    payment_details: residentData.payment_details || ''
+    payment_preference: registrationData?.payment_preference || '',
+    account_number: registrationData?.account_number || '',
+    payment_details: registrationData?.payment_details || ''
   });
 
-  // Fetch resident data in edit mode
+  // Update form when context data changes
   useEffect(() => {
-    const fetchResidentData = async () => {
-      if (isEditMode && residentId) {
-        try {
-          const token = getAdminToken();
-          if (!token) {
-            navigate('/login', { 
-              state: { 
-                returnTo: location.pathname,
-                message: 'Please login to continue' 
-              } 
-            });
-            return;
-          }
+    if (!isEditMode && registrationData) {
+      setFormData({
+        payment_preference: registrationData.payment_preference || '',
+        account_number: registrationData.account_number || '',
+        payment_details: registrationData.payment_details || ''
+      });
+    }
+  }, [registrationData, isEditMode]);
 
-          const response = await axios.get(`http://localhost:5000/api/residents/${residentId}`, {
-            headers: { 
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          });
-
-          if (response.data.success) {
-            const financialData = response.data.data;
-            if (financialData) {
-              const updatedData = {
-                payment_preference: financialData.payment_preference || '',
-                account_number: financialData.account_number || '',
-                payment_details: financialData.payment_details || ''
-              };
-              setFormData(updatedData);
-              updateResidentData('financial', updatedData);
-            }
-          }
-        } catch (error) {
-          console.error('Error fetching resident data:', error);
-          if (error.response?.status === 401) {
-            navigate('/login', { 
-              state: { 
-                returnTo: location.pathname,
-                message: 'Session expired. Please login again.' 
-              } 
-            });
-          } else {
-            setSubmitError('Failed to load resident data');
-          }
-        }
-      }
-    };
-
-    fetchResidentData();
-  }, [isEditMode, residentId, updateResidentData, navigate, location.pathname]);
+  // Load resident data in edit mode
+  useEffect(() => {
+    if (isEditMode && residentData?.financialRecord) {
+      setFormData({
+        payment_preference: residentData.financialRecord.payment_preference || '',
+        account_number: residentData.financialRecord.account_number || '',
+        payment_details: residentData.financialRecord.payment_details || ''
+      });
+    }
+  }, [isEditMode, residentData]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    const updatedData = {
-      ...formData,
-      [name]: value
-    };
     
-    setFormData(updatedData);
-    updateResidentData('financial', updatedData);
+    // Update local form state
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
 
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+    // Update context immediately
+    if (!isEditMode) {
+      updateRegistrationData('financial', {
+        ...formData,  // Spread existing form data
+        [name]: value
+      });
     }
-    setSubmitError('');
+  };
+
+  const handleTabChange = (path) => {
+    // Save current data before navigation
+    if (!isEditMode) {
+      updateRegistrationData('financial', formData);
+    }
+    navigate(path, {
+      state: {
+        isEditMode,
+        residentId,
+        returnPath
+      }
+    });
   };
 
   // Handle error state from navigation
   useEffect(() => {
     if (location.state?.errorField) {
       const newErrors = {};
-      if (!formData.payment_preference) {
-        newErrors.payment_preference = 'Payment Preference is required';
+      if (location.state.errorField === 'payment_preference') {
+        newErrors.payment_preference = location.state.errorMessage || 'Payment Preference is required';
       }
       setErrors(newErrors);
     }
-  }, [location.state, formData]);
+  }, [location.state]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -343,58 +333,118 @@ const FinancialPage = () => {
 
   // Always save data before navigation
   const saveDataBeforeNavigation = () => {
-    updateResidentData('financial', formData);
+    updateRegistrationData('financial', formData);
   };
 
   const validateAllFields = () => {
-    console.log('Validating all required fields...');
-    console.log('Current residentData:', residentData);
-
     const validationErrors = [];
 
     // Check Personal page required fields
-    if (!residentData.full_name || !residentData.gender || !residentData.date_of_birth) {
-      const missingFields = [];
-      if (!residentData.full_name) missingFields.push({ field: 'full_name', message: 'Full Name' });
-      if (!residentData.gender) missingFields.push({ field: 'gender', message: 'Gender (Male/Female)' });
-      if (!residentData.date_of_birth) missingFields.push({ field: 'date_of_birth', message: 'Date of Birth' });
-      
-      missingFields.forEach(field => {
-        validationErrors.push({ page: 'personal', message: field.message, field: field.field });
-      });
-    }
-
-    // Validate gender format
-    if (residentData.gender && !['male', 'female'].includes(residentData.gender.charAt(0).toLowerCase() + residentData.gender.slice(1))) {
-      validationErrors.push({ page: 'personal', message: 'Gender must be Male or Female', field: 'gender' });
+    if (!registrationData.full_name || !registrationData.gender || !registrationData.date_of_birth) {
+      if (!registrationData.full_name) {
+        validationErrors.push({ page: 'personal', message: 'Full Name is required', field: 'full_name' });
+      }
+      if (!registrationData.gender) {
+        validationErrors.push({ page: 'personal', message: 'Gender is required', field: 'gender' });
+      }
+      if (!registrationData.date_of_birth) {
+        validationErrors.push({ page: 'personal', message: 'Date of Birth is required', field: 'date_of_birth' });
+      }
     }
 
     // Check Diet page required fields
-    if (!residentData.dietary_preference) {
-      validationErrors.push({ page: 'diet', message: 'Dietary Preference', field: 'dietary_preference' });
+    if (!registrationData.dietary_preference) {
+      validationErrors.push({ page: 'diet', message: 'Dietary Preference is required', field: 'dietary_preference' });
     }
-    if (!residentData.food_category) {
-      validationErrors.push({ page: 'diet', message: 'Food Category', field: 'food_category' });
+    if (!registrationData.food_category) {
+      validationErrors.push({ page: 'diet', message: 'Food Category is required', field: 'food_category' });
     }
-    if (!residentData.food_texture) {
-      validationErrors.push({ page: 'diet', message: 'Food Texture', field: 'food_texture' });
+    if (!registrationData.food_texture) {
+      validationErrors.push({ page: 'diet', message: 'Food Texture is required', field: 'food_texture' });
     }
 
     // Check Room page required fields
-    if (!residentData.room_type) {
-      validationErrors.push({ page: 'room', message: 'Room Type', field: 'room_type' });
+    if (!registrationData.room_type) {
+      validationErrors.push({ page: 'room', message: 'Room Type is required', field: 'room_type' });
     }
-    if (!residentData.room_number) {
-      validationErrors.push({ page: 'room', message: 'Room Number', field: 'room_number' });
+    if (!registrationData.room_number) {
+      validationErrors.push({ page: 'room', message: 'Room Number is required', field: 'room_number' });
     }
 
     // Check current page required fields
     if (!formData.payment_preference) {
-      validationErrors.push({ page: 'financial', message: 'Payment Preference', field: 'payment_preference' });
+      validationErrors.push({ page: 'financial', message: 'Payment Preference is required', field: 'payment_preference' });
     }
 
-    console.log('Validation result:', validationErrors);
     return validationErrors;
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      if (!validateForm()) {
+        return;
+      }
+
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setErrors({ submit: 'Authentication token not found' });
+        return;
+      }
+
+      // Get current data to get financial record ID
+      const currentResponse = await axios.get(
+        `http://localhost:5000/api/residents/${residentId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const financialRecordId = currentResponse.data.data.financialRecord._id;
+
+      // Update financial record
+      const response = await axios.put(
+        `http://localhost:5000/api/financial-records/${financialRecordId}`,
+        {
+          payment_preference: formData.payment_preference,
+          account_number: formData.account_number,
+          payment_details: formData.payment_details,
+          resident_id: residentId
+        },
+        { 
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          } 
+        }
+      );
+
+      if (response.data.success) {
+        // Update resident context
+        const updatedResponse = await axios.get(
+          `http://localhost:5000/api/residents/${residentId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        if (updatedResponse.data.success) {
+          const updatedData = updatedResponse.data.data;
+          await updateResidentSection('financialRecord', updatedData.financialRecord);
+        }
+
+        navigate(returnPath || '/admin/info/financial', {
+          state: { 
+            residentId,
+            success: true,
+            message: 'Financial information updated successfully'
+          },
+          replace: true
+        });
+      } else {
+        setErrors({ submit: 'Failed to update financial information' });
+      }
+    } catch (error) {
+      console.error('Error updating financial information:', error);
+      setErrors({ 
+        submit: error.response?.data?.message || 'Failed to update financial information'
+      });
+    }
   };
 
   const handleSubmit = async () => {
@@ -402,6 +452,21 @@ const FinancialPage = () => {
       if (isSubmitting) return;
       setIsSubmitting(true);
       setSubmitError('');
+
+      // Validate all required fields across all pages
+      const validationErrors = validateAllFields();
+      if (validationErrors.length > 0) {
+        const firstError = validationErrors[0];
+        setIsSubmitting(false);
+        const targetPath = `/admin/registration/${firstError.page}`;
+        navigate(targetPath, {
+          state: {
+            errorMessage: firstError.message,
+            errorField: firstError.field
+          }
+        });
+        return;
+      }
 
       const token = getAdminToken();
       if (!token) {
@@ -428,102 +493,48 @@ const FinancialPage = () => {
         return;
       }
 
-      saveDataBeforeNavigation();
-
-      if (isEditMode) {
-        // Update existing resident
-        try {
-          const response = await api.put(`/residents/${residentId}`, {
-            residentData: {
-              payment_preference: formData.payment_preference,
-              account_number: formData.account_number,
-              payment_details: formData.payment_details
-            }
-          });
-
-          if (response.data && response.data.success) {
-            resetResidentData();
-            navigate(returnPath || '/admin/info/financial', {
-              state: { 
-                residentId,
-                success: true,
-                message: 'Resident information updated successfully!'
-              }
-            });
-          } else {
-            throw new Error('Failed to update resident');
-          }
-        } catch (error) {
-          if (error.response?.data?.message) {
-            setSubmitError(error.response.data.message);
-          } else {
-            setSubmitError('Failed to update resident. Please try again.');
-          }
-          throw error;
-        }
-        return;
-      }
-
-      // For new registration, validate all fields
-      const validationErrors = validateAllFields();
-      if (validationErrors.length > 0) {
-        const firstError = validationErrors[0];
-        setIsSubmitting(false);
-        const targetPath = `/admin/registration/${firstError.page}`;
-        navigate(targetPath, {
-          state: {
-            isEditMode,
-            residentId,
-            returnPath,
-            errorMessage: firstError.message,
-            errorField: firstError.field
-          }
-        });
-        return;
-      }
-
       // Submit new registration
       const residentSubmitData = {
         residentData: {
-          name: residentData.full_name,
-          gender: residentData.gender.charAt(0).toUpperCase() + residentData.gender.slice(1),
-          date_of_birth: residentData.date_of_birth,
-          personal_contact_number: residentData.contact_number,
-          emergency_contact_name: residentData.emergency_contact_name,
-          emergency_contact_number: residentData.emergency_contact_number,
-          address: residentData.address,
-          photo_url: residentData.profile_picture,
+          name: registrationData.full_name,
+          gender: registrationData.gender.charAt(0).toUpperCase() + registrationData.gender.slice(1),
+          date_of_birth: registrationData.date_of_birth,
+          personal_contact_number: registrationData.contact_number,
+          emergency_contact_name: registrationData.emergency_contact_name,
+          emergency_contact_number: registrationData.emergency_contact_number,
+          address: registrationData.address,
+          photo_url: registrationData.profile_picture,
           status: 'active'
         },
         roomData: {
-          room_type: residentData.room_type,
-          room_number: residentData.room_number,
-          special_facilities: residentData.special_facilities,
-          additional_notes: residentData.room_additional_notes
+          room_type: registrationData.room_type,
+          room_number: registrationData.room_number,
+          special_facilities: registrationData.special_facilities,
+          additional_notes: registrationData.room_additional_notes
         },
         guardianData: {
-          name: residentData.guardian_name,
-          relationship: residentData.guardian_relationship,
-          guardian_contact_number: residentData.guardian_contact_number,
-          guardian_address: residentData.guardian_address
+          name: registrationData.guardian_name,
+          relationship: registrationData.guardian_relationship,
+          guardian_contact_number: registrationData.guardian_contact_number,
+          guardian_address: registrationData.guardian_address
         },
         medicalData: {
-          medical_history: residentData.medical_history,
-          medical_files: residentData.medical_files,
-          current_medication: residentData.current_medication,
-          physician_name: residentData.physician_name,
-          physician_contact_number: residentData.physician_contact_number,
-          special_needs: residentData.special_needs,
-          insurance_details: residentData.insurance_details,
-          blood_group: residentData.blood_group
+          medical_history: registrationData.medical_history,
+          medical_files: registrationData.medical_files,
+          current_medication: registrationData.current_medication,
+          physician_name: registrationData.physician_name,
+          physician_contact_number: registrationData.physician_contact_number,
+          special_needs: registrationData.special_needs,
+          insurance_details: registrationData.insurance_details,
+          blood_group: registrationData.blood_group
         },
         dietData: {
-          dietary_preference: residentData.dietary_preference,
-          food_category: residentData.food_category,
-          food_texture: residentData.food_texture,
-          food_allergies: residentData.food_allergies,
-          special_diet_needs: residentData.special_diet_needs,
-          additional_notes: residentData.additional_notes
+          dietary_preference: registrationData.dietary_preference,
+          food_category: registrationData.food_category,
+          food_texture: registrationData.food_texture,
+          food_allergies: registrationData.food_allergies,
+          special_diet_needs: registrationData.special_diet_needs,
+          additional_notes: registrationData.additional_notes
         },
         financialData: {
           payment_preference: formData.payment_preference,
@@ -532,26 +543,16 @@ const FinancialPage = () => {
         }
       };
 
-      try {
-        const response = await api.post('/residents', residentSubmitData);
-        if (response.data && response.data.success) {
-          resetResidentData();
-          navigate('/admin/dashboard', {
-            state: { 
-              success: true,
-              message: 'Resident registered successfully!'
-            }
-          });
-        } else {
-          throw new Error('Failed to register resident');
-        }
-      } catch (error) {
-        if (error.response?.data?.message) {
-          setSubmitError(error.response.data.message);
-        } else {
-          setSubmitError('Failed to register resident. Please try again.');
-        }
-        throw error;
+      const response = await api.post('/residents', residentSubmitData);
+      if (response.data && response.data.success) {
+        navigate('/admin/dashboard', {
+          state: { 
+            success: true,
+            message: 'Resident registered successfully!'
+          }
+        });
+      } else {
+        throw new Error('Failed to register resident');
       }
     } catch (error) {
       console.error('API Error:', error);
@@ -581,17 +582,6 @@ const FinancialPage = () => {
     }
   };
 
-  const handleTabChange = (path) => {
-    saveDataBeforeNavigation();
-    navigate(path, { 
-      state: { 
-        isEditMode, 
-        residentId, 
-        returnPath 
-      } 
-    });
-  };
-
   return (
     <PageContainer>
       <AdminNavbar />
@@ -615,8 +605,7 @@ const FinancialPage = () => {
       <MainContent>
         <FormContainer>
           <FormGroup>
-            <Label>Payment Preference:</Label>
-            {errors.payment_preference && <ErrorText>{errors.payment_preference}</ErrorText>}
+            <Label>Payment Preference: <span style={{ color: '#ff6b6b' }}>*</span></Label>
             <RadioGroup>
               <RadioLabel>
                 <RadioInput 
@@ -639,11 +628,11 @@ const FinancialPage = () => {
                 Subscription
               </RadioLabel>
             </RadioGroup>
+            {errors.payment_preference && <ErrorText>{errors.payment_preference}</ErrorText>}
           </FormGroup>
 
           <FormGroup>
             <Label>Account Number:</Label>
-            {errors.account_number && <ErrorText>{errors.account_number}</ErrorText>}
             <Input 
               type="text" 
               name="account_number"
@@ -655,7 +644,6 @@ const FinancialPage = () => {
 
           <FormGroup>
             <Label>Payment Details:</Label>
-            {errors.payment_details && <ErrorText>{errors.payment_details}</ErrorText>}
             <TextArea 
               name="payment_details"
               value={formData.payment_details}
@@ -665,18 +653,27 @@ const FinancialPage = () => {
             />
           </FormGroup>
 
-          {submitError && (
-            <FormGroup>
-              <ErrorMessage>{submitError}</ErrorMessage>
-            </FormGroup>
+          {errors.submit && (
+            <div style={{ color: '#ff6b6b', marginTop: '0.5rem', fontSize: '0.875rem' }}>
+              {errors.submit}
+            </div>
           )}
 
-          <SaveButton 
-            onClick={handleSubmit} 
-            disabled={isSubmitting ? "true" : undefined}
-          >
-            {isSubmitting ? 'Registering...' : 'Register Resident'}
-          </SaveButton>
+          {isEditMode ? (
+            <SaveButton 
+              onClick={handleSaveChanges}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Saving...' : 'Save Changes'}
+            </SaveButton>
+          ) : (
+            <SaveButton 
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Registering...' : 'Register Resident'}
+            </SaveButton>
+          )}
         </FormContainer>
       </MainContent>
     </PageContainer>

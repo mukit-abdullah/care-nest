@@ -224,17 +224,17 @@ const PersonalPage = () => {
   const location = useLocation();
   const { isEditMode, residentId, returnPath } = location.state || {};
   const { residentData: registrationData, updateResidentData: updateRegistrationData, resetRegistrationData } = useResidentRegistration();
-  const { residentData, updateResidentData } = useResident();
+  const { residentData, updateResidentData: updateResident } = useResident();
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
-    full_name: '',
-    gender: '',
-    date_of_birth: '',
-    contact_number: '',
-    emergency_contact_name: '',
-    emergency_contact_number: '',
-    address: '',
-    profile_picture: null
+    full_name: registrationData?.full_name || '',
+    gender: registrationData?.gender || '',
+    date_of_birth: registrationData?.date_of_birth || '',
+    contact_number: registrationData?.contact_number || '',
+    emergency_contact_name: registrationData?.emergency_contact_name || '',
+    emergency_contact_number: registrationData?.emergency_contact_number || '',
+    address: registrationData?.address || '',
+    profile_picture: registrationData?.profile_picture || null
   });
 
   console.log('PersonalPage - Initial props:', {
@@ -245,25 +245,25 @@ const PersonalPage = () => {
     residentData
   });
 
-  // Reset registration data when mounting in non-edit mode and no existing data
+  // Update form when context data changes
   useEffect(() => {
-    if (!isEditMode && !registrationData?.full_name) {
-      console.log('PersonalPage - Resetting registration data (no existing data)');
-      resetRegistrationData();
+    if (!isEditMode && registrationData) {
+      setFormData({
+        full_name: registrationData.full_name || '',
+        gender: registrationData.gender || '',
+        date_of_birth: registrationData.date_of_birth || '',
+        contact_number: registrationData.contact_number || '',
+        emergency_contact_name: registrationData.emergency_contact_name || '',
+        emergency_contact_number: registrationData.emergency_contact_number || '',
+        address: registrationData.address || '',
+        profile_picture: registrationData.profile_picture || null
+      });
     }
-  }, [isEditMode, resetRegistrationData, registrationData?.full_name]);
+  }, [registrationData, isEditMode]);
 
-  // Load existing resident data when in edit mode
+  // Load resident data in edit mode
   useEffect(() => {
-    console.log('PersonalPage - Loading data:', {
-      isEditMode,
-      residentId,
-      residentData
-    });
-
     if (isEditMode && residentData?.resident) {
-      console.log('PersonalPage - Loading resident data:', residentData);
-      // Format date to YYYY-MM-DD
       const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
@@ -280,50 +280,25 @@ const PersonalPage = () => {
         address: residentData.resident.address || '',
         profile_picture: residentData.resident.photo_url || null
       });
-    } else if (!isEditMode) {
-      // In registration mode, use registration data if available
-      console.log('PersonalPage - Loading registration data:', registrationData);
-      setFormData({
-        full_name: registrationData.full_name || '',
-        gender: registrationData.gender || '',
-        date_of_birth: registrationData.date_of_birth || '',
-        contact_number: registrationData.contact_number || '',
-        emergency_contact_name: registrationData.emergency_contact_name || '',
-        emergency_contact_number: registrationData.emergency_contact_number || '',
-        address: registrationData.address || '',
-        profile_picture: registrationData.profile_picture || null
-      });
     }
-  }, [isEditMode, residentData, registrationData]);
+  }, [isEditMode, residentData]);
 
-  // Save form data to registration context when it changes
-  useEffect(() => {
-    if (!isEditMode) {
-      console.log('PersonalPage - Auto-saving form data:', formData);
-      updateRegistrationData('personal', {
-        full_name: formData.full_name,
-        gender: formData.gender,
-        date_of_birth: formData.date_of_birth,
-        contact_number: formData.contact_number,
-        emergency_contact_name: formData.emergency_contact_name,
-        emergency_contact_number: formData.emergency_contact_number,
-        address: formData.address,
-        profile_picture: formData.profile_picture
-      });
-    }
-  }, [isEditMode, formData, updateRegistrationData]);
-
+  // Handle input changes and update context
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    // Update local form state
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+
+    // Update context immediately
+    if (!isEditMode) {
+      updateRegistrationData('personal', {
+        ...formData,
+        [name]: value
+      });
     }
   };
 
@@ -431,7 +406,7 @@ const PersonalPage = () => {
           saveDataBeforeNavigation();
           
           // Update resident context with new data
-          await updateResidentData(updateData);
+          await updateResident(updateData);
           
           // Navigate back
           navigate(returnPath || '/admin/info/personal', {
@@ -459,20 +434,17 @@ const PersonalPage = () => {
   };
 
   const handleTabChange = (path) => {
-    console.log('PersonalPage - Changing tab to:', path);
-    // Save current form data before navigating
-    updateRegistrationData('personal', {
-      full_name: formData.full_name,
-      gender: formData.gender,
-      date_of_birth: formData.date_of_birth,
-      contact_number: formData.contact_number,
-      emergency_contact_name: formData.emergency_contact_name,
-      emergency_contact_number: formData.emergency_contact_number,
-      address: formData.address,
-      profile_picture: formData.profile_picture
+    // Save current data before navigation
+    if (!isEditMode) {
+      updateRegistrationData('personal', formData);
+    }
+    navigate(path, {
+      state: {
+        isEditMode,
+        residentId,
+        returnPath
+      }
     });
-    
-    navigate(path);
   };
 
   return (
@@ -480,7 +452,7 @@ const PersonalPage = () => {
       <AdminNavbar />
       <TopSection>
         <TopContent>
-          <Title>{isEditMode ? 'Update Info' : 'Register Resident'}</Title>
+          <Title>{isEditMode ? 'Update Info' : 'Resident Registration'}</Title>
           {!isEditMode && (
             <>
               {errors.alert && (
