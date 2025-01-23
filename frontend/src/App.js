@@ -9,7 +9,7 @@ import AboutUs from './components/AboutUs';
 import Gallery from './components/Gallery';
 import Testimonial from './components/Testimonial';
 import Donation from './components/Donation';
-import ContactUs from './components/ContactUs';
+import ContactUs from './components/JoinUs';
 import Footer from './components/Footer';
 import GalleryPage from './pages/GalleryPage';
 import AccommodationPage from './pages/AccommodationPage';

@@ -87,6 +87,14 @@ const LoginLink = styled.span`
   }
 `;
 
+const MapContainer = styled.div`
+  height: 300px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #D2E6B5;
+  margin-top: 20px;
+`;
+
 const Footer = () => {
   const navigate = useNavigate();
 
@@ -95,11 +103,19 @@ const Footer = () => {
   };
 
   return (
-    <FooterContainer>
+    <FooterContainer id="footer">
       <FooterContent>
         <FooterSection>
           <h3>About CareNest</h3>
           <p>Providing exceptional care and comfort for seniors in a warm, home-like environment.</p>
+          <h3></h3><br></br>
+          <h3>Contact Info</h3>
+          <ul>
+            <li>123 Care Street</li>
+            <li>Comfort City, CC 12345</li>
+            <li>Phone: +1 (555) 123-4567</li>
+            <li>Email: info@carenest.com</li>
+          </ul>
           <SocialLinks>
             <a href="#" aria-label="Facebook"><i className="fab fa-facebook"></i></a>
             <a href="#" aria-label="Instagram"><i className="fab fa-instagram"></i></a>
@@ -108,30 +124,32 @@ const Footer = () => {
           </SocialLinks>
         </FooterSection>
 
-        <FooterSection>
+        <FooterSection style={{ paddingLeft: '30%' }}>
           <h3>Quick Links</h3>
           <ul>
-            <li><a href="#services">Our Services</a></li>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#services">Services</a></li>
             <li><a href="#about">About Us</a></li>
             <li><a href="#gallery">Gallery</a></li>
-            <li><a href="#contact">Contact</a></li>
+            <li><a href="#testimonials">Testimonials</a></li>
+            <li><a href="#donation">Donation</a></li>
+            <li><a href="#contact">Contact Us</a></li>
           </ul>
         </FooterSection>
 
         <FooterSection>
-          <h3>Contact Info</h3>
-          <ul>
-            <li>123 Care Street</li>
-            <li>Comfort City, CC 12345</li>
-            <li>Phone: +1 (555) 123-4567</li>
-            <li>Email: info@carenest.com</li>
-          </ul>
-        </FooterSection>
-
-        <FooterSection>
-          <h3>Newsletter</h3>
-          <p>Subscribe to our newsletter for updates and news.</p>
-          {/* Add newsletter form here */}
+          
+          <MapContainer>
+            <iframe 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.1!2d-73.9!3d40.7!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zM40zMCcwMC4wIk4gNzPCsDU0JzAwLjAiVw!5e0!3m2!1sen!2sus!4v1234567890"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </MapContainer>
         </FooterSection>
       </FooterContent>
       <Copyright>

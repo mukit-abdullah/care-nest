@@ -139,7 +139,8 @@ const Header = () => {
         <NavLink onClick={() => location.pathname === '/gallery' ? navigate('/') : scrollToSection('gallery')}>Gallery</NavLink>
         <NavLink onClick={() => scrollToSection('testimonial')}>Testimonial</NavLink>
         <NavLink onClick={() => scrollToSection('donation')}>Donation</NavLink>
-        <NavLink onClick={() => scrollToSection('contact')}>Contact Us</NavLink>
+        <NavLink onClick={() => scrollToSection('join')}> Join Us</NavLink>
+        <NavLink onClick={() => scrollToSection('footer')}>Contact Us</NavLink>
       </Nav>
     </HeaderContainer>
   );
