@@ -165,11 +165,34 @@ const AdminNavbar = () => {
 
   useEffect(() => {
     fetchPendingApplications();
+
+    // Add event listener for notification refresh
+    const handleRefresh = () => {
+      console.log('Refreshing notifications...');
+      fetchPendingApplications();
+    };
+
+    window.addEventListener('refreshNotifications', handleRefresh);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('refreshNotifications', handleRefresh);
+    };
   }, []);
 
   const fetchPendingApplications = async () => {
     try {
-      const response = await axios.get('/api/resident-applications');
+      const userData = localStorage.getItem('userData');
+      if (!userData) {
+        console.error('No user data found');
+        return;
+      }
+      const admin = JSON.parse(userData);
+      const response = await axios.get('/api/resident-applications', {
+        headers: {
+          'Authorization': `Bearer ${admin.token}`
+        }
+      });
       const pending = response.data.filter(app => app.status === 'pending');
       setPendingApplications(pending);
     } catch (error) {

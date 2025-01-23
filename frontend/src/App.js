@@ -35,6 +35,7 @@ import RoomInfoPage from './pages/admin/ResidentInfo/RoomInfoPage';
 import GuardianInfoPage from './pages/admin/ResidentInfo/GuardianInfoPage';
 import FinancialInfoPage from './pages/admin/ResidentInfo/FinancialInfoPage';
 import ResidentApplicationPage from './pages/ResidentApplicationPage';
+import ApplicationDetailsPage from './pages/admin/ApplicationDetailsPage';
 import { AdminProvider } from './context/AdminContext';
 import { ResidentRegistrationProvider } from './context/ResidentRegistrationContext';
 import { ResidentProvider } from './context/ResidentContext';
@@ -231,6 +232,7 @@ const AdminRoutes = () => {
         <Route path="guardian" element={<GuardianInfoPage />} />
         <Route path="financial" element={<FinancialInfoPage />} />
       </Route>
+      <Route path="applications/:id" element={<ApplicationDetailsPage />} />
     </Routes>
   );
 };
