@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Header from '../components/Header';
 import { FaUniversity, FaMoneyBillWave } from 'react-icons/fa';
 import { GiPenguin } from 'react-icons/gi';
+import { useNavigate } from 'react-router-dom';
 
 const PageContainer = styled.div`
   background-color: #0A2A22;
@@ -96,6 +97,8 @@ const BankText = styled.span`
 `;
 
 const DonationPage = () => {
+  const navigate = useNavigate();
+
   return (
     <>
       <Header />
@@ -117,7 +120,7 @@ const DonationPage = () => {
               Donate With <TaptapText>Taptap Send</TaptapText>
             </DonationButton>
 
-            <DonationButton>
+            <DonationButton onClick={() => navigate('/payment')}>
               <FaUniversity size={24} />
               Donate With <BankText>Bank Account</BankText>
             </DonationButton>

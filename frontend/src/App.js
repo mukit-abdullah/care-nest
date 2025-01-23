@@ -17,6 +17,7 @@ import MedicalCarePage from './pages/MedicalCarePage';
 import PersonalCarePage from './pages/PersonalCarePage';
 import ActivitiesPage from './pages/ActivitiesPage';
 import DonationPage from './pages/DonationPage';
+import PaymentPage from './pages/PaymentPage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/admin/DashboardPage';
 import MealPage from './pages/admin/MealPage';
@@ -179,6 +180,7 @@ function App() {
                 <Route path="/personal-care" element={<PersonalCarePage />} />
                 <Route path="/activities" element={<ActivitiesPage />} />
                 <Route path="/donation" element={<DonationPage />} />
+                <Route path="/payment" element={<PaymentPage />} />
                 
                 {/* Login Route - Protected from logged in users */}
                 <Route 

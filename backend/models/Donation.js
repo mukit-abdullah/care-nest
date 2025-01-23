@@ -23,12 +23,7 @@ const donationSchema = new mongoose.Schema({
   },
   currency: {
     type: String,
-    default: 'USD'
-  },
-  purpose: {
-    type: String,
-    enum: ['General', 'Medical', 'Food', 'Infrastructure', 'Activities', 'Other'],
-    default: 'General'
+    default: 'BDT'
   },
   paymentMethod: {
     type: String,
@@ -37,11 +32,6 @@ const donationSchema = new mongoose.Schema({
   transactionId: {
     type: String,
     unique: true
-  },
-  status: {
-    type: String,
-    enum: ['Pending', 'Completed', 'Failed', 'Refunded'],
-    default: 'Pending'
   },
   isAnonymous: {
     type: Boolean,

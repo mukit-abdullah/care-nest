@@ -20,6 +20,7 @@ const guardianRoutes = require('./routes/guardian');
 const medicalRecordRoutes = require('./routes/medicalRecord');
 const dietRoutes = require('./routes/diet');
 const financialRecordRoutes = require('./routes/financialRecord');
+const donationRoutes = require('./routes/donations');
 
 // Connect to database
 connectDB();
@@ -75,6 +76,7 @@ app.use('/api/guardians', guardianRoutes);
 app.use('/api/medical-records', medicalRecordRoutes);
 app.use('/api/diets', dietRoutes);
 app.use('/api/financial-records', financialRecordRoutes);
+app.use('/api/donations', donationRoutes);
 
 // Error handler
 app.use(errorHandler);
