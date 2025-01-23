@@ -85,6 +85,20 @@ const ImageContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  background-color: #1a1a1a;
+`;
+
+const ProfileImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const NoImageText = styled.div`
+  color: #B1CF86;
+  font-family: ${fonts.secondary};
+  text-align: center;
 `;
 
 const InfoGroup = styled.div`
@@ -324,13 +338,17 @@ const PersonalInfoPage = () => {
 
         <ImageContainer>
           {residentData.resident.photo_url ? (
-            <img 
-              src={residentData.resident.photo_url} 
-              alt="Profile" 
-              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }} 
+            <ProfileImage
+              src={`http://localhost:5000${residentData.resident.photo_url}`}
+              alt={`${residentData.resident.name}'s profile`}
+              onError={(e) => {
+                e.target.onerror = null; // Prevent infinite loop
+                e.target.style.display = 'none';
+                e.target.parentElement.innerHTML = '<div class="error-text">Image not found</div>';
+              }}
             />
           ) : (
-            <div>No profile picture</div>
+            <NoImageText>No profile picture</NoImageText>
           )}
         </ImageContainer>
       </MainContent>

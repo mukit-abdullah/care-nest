@@ -350,7 +350,6 @@ const PersonalPage = () => {
   const handleSave = async () => {
     if (validateForm()) {
       try {
-        // Get the correct resident ID
         const currentId = residentId;
         
         console.log('PersonalPage - handleSave - Starting save:', {
@@ -365,17 +364,52 @@ const PersonalPage = () => {
           return;
         }
 
+        let photoUrl = formData.profile_picture;
+
+        // If profile_picture is a File object, upload it first
+        if (formData.profile_picture instanceof File) {
+          const imageFormData = new FormData();
+          imageFormData.append('image', formData.profile_picture);
+          
+          // If we have an existing photo_url, send it to be deleted
+          if (residentData?.resident?.photo_url) {
+            imageFormData.append('oldImagePath', residentData.resident.photo_url);
+          }
+
+          const token = localStorage.getItem('authToken');
+          try {
+            const uploadResponse = await axios.post(
+              'http://localhost:5000/api/upload',
+              imageFormData,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'multipart/form-data'
+                }
+              }
+            );
+
+            if (uploadResponse.data && uploadResponse.data.url) {
+              photoUrl = uploadResponse.data.url;
+            }
+          } catch (uploadError) {
+            console.error('PersonalPage - handleSave - Upload Error:', uploadError);
+            setErrors({ alert: ['Failed to upload profile picture'] });
+            return;
+          }
+        }
+
         // Update the database through direct API call
         const updateData = {
           residentData: {
             name: formData.full_name,
-            gender: formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1), // Capitalize first letter
+            gender: formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1),
             date_of_birth: formData.date_of_birth,
             personal_contact_number: formData.contact_number || '',
             emergency_contact_name: formData.emergency_contact_name || '',
             emergency_contact_number: formData.emergency_contact_number || '',
             address: formData.address || '',
-            photo_url: formData.profile_picture || '',
+            photo_url: photoUrl || '',
             status: 'active'
           }
         };

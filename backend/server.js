@@ -22,6 +22,7 @@ const dietRoutes = require('./routes/diet');
 const financialRecordRoutes = require('./routes/financialRecord');
 const donationRoutes = require('./routes/donations');
 const residentApplicationsRoute = require('./routes/residentApplications');
+const uploadRoutes = require('./routes/upload');
 
 // Connect to database
 connectDB();
@@ -43,6 +44,9 @@ app.use(cors({
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Rate limiting
 const authLimiter = rateLimit({
@@ -79,6 +83,7 @@ app.use('/api/medical-records', medicalRecordRoutes);
 app.use('/api/diets', dietRoutes);
 app.use('/api/financial-records', financialRecordRoutes);
 app.use('/api/donations', donationRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Error handler
 app.use(errorHandler);
