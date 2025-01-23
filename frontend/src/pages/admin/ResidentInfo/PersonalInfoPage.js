@@ -142,11 +142,30 @@ const Tab = styled.button`
   }
 `;
 
+const StatusButton = styled.button`
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-family: ${fonts.secondary};
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 1rem;
+  color: white;
+  background-color: ${props => props.$isActive ? colors.error : colors.primary.green1};
+
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+`;
+
 const PersonalInfoPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { residentData, setCurrentResidentId, setResidentData } = useResident();
+  const { residentData, setCurrentResidentId, fetchResident } = useResident();
   const [loading, setLoading] = useState(false);
+  const [updating, setUpdating] = useState(false);
 
   console.log('PersonalInfoPage - Mount:', {
     locationState: location.state,
@@ -193,6 +212,32 @@ const PersonalInfoPage = () => {
       state: { residentId: residentData?.resident?._id },
       replace: true // Use replace to prevent adding to history stack
     });
+  };
+
+  const handleStatusToggle = async () => {
+    try {
+      setUpdating(true);
+      const newStatus = residentData?.resident?.status === 'active' ? 'inactive' : 'active';
+      
+      const response = await axios.patch(
+        `/api/residents/${residentData?.resident?._id}/status`,
+        { status: newStatus },
+        {
+          headers: {
+            'Authorization': `Bearer ${JSON.parse(localStorage.getItem('userData')).token}`
+          }
+        }
+      );
+
+      if (response.data.success) {
+        // Refetch the resident data to update all components
+        await fetchResident(residentData.resident._id);
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+    } finally {
+      setUpdating(false);
+    }
   };
 
   return (
@@ -266,6 +311,15 @@ const PersonalInfoPage = () => {
             <Label>Status: </Label>
             <Value>{residentData.resident.status || 'N/A'}</Value>
           </InfoGroup>
+
+          <StatusButton 
+            $isActive={residentData?.resident?.status === 'active'}
+            onClick={handleStatusToggle}
+            disabled={updating}
+          >
+            {updating ? 'Updating...' : 
+              residentData?.resident?.status === 'active' ? 'On Leave' : 'Available Now'}
+          </StatusButton>
         </InfoContainer>
 
         <ImageContainer>

@@ -6,7 +6,8 @@ const {
     getAllResidents,
     getResident,
     updateResident,
-    deleteResident
+    deleteResident,
+    updateResidentStatus
 } = require('../controllers/residentController');
 
 // Public routes
@@ -20,5 +21,6 @@ router.use(authorize('admin', 'super_admin'));
 router.post('/', createResident);
 router.put('/:id', updateResident);
 router.delete('/:id', deleteResident);
+router.patch('/:id/status', updateResidentStatus);
 
 module.exports = router;

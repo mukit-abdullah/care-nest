@@ -271,9 +271,20 @@ const MealPage = () => {
 
         // Process each diet record
         diets.forEach(diet => {
+          // Skip if resident is not active
+          if (!diet.resident_id || diet.resident_id.status !== 'active') {
+            console.log('Skipping inactive/missing resident:', diet.resident_id?._id);
+            return;
+          }
+
           // Convert Non-Vegetarian to nonvegetarian for object key compatibility
           const category = diet.dietary_preference.toLowerCase().replace(/-/g, '').replace(/\s+/g, '');
-          console.log('Processing diet:', { category, diet });
+          console.log('Processing active resident diet:', { 
+            residentId: diet.resident_id._id,
+            residentName: diet.resident_id.name,
+            status: diet.resident_id.status,
+            category 
+          });
 
           if (processedData[category]) {
             processedData[category].total++;

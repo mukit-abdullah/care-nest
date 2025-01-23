@@ -1,6 +1,7 @@
 export const colors = {
   background: '#0F1914',
   navbarBg: '#000000',
+  error: '#D32F2F',
   primary: {
     green1: '#8EB15C',
     green2: '#A0C172',
