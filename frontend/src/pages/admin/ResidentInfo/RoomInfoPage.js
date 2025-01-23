@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useResident } from '../../../context/ResidentContext';
 import { FaEdit } from 'react-icons/fa';
-import axios from 'axios';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -25,8 +25,8 @@ const TopSection = styled.div`
 
 const TopContent = styled.div`
   max-width: 1200px;
-  width: 100%;
   display: flex;
+  width: 100%;
   flex-direction: column;
   align-items: center;
 `;
@@ -42,6 +42,7 @@ const ActionBar = styled.div`
 
 const EditIcon = styled(FaEdit)`
   color: white;
+  text-align: center;
   font-size: 1.5rem;
   cursor: pointer;
   transition: opacity 0.2s;
@@ -128,12 +129,20 @@ const Tab = styled.button`
   }
 `;
 
+const SuccessMessage = styled.div`
+  background-color: #4CAF50;
+  color: white;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+  text-align: center;
+`;
+
 const RoomInfoPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const residentId = location.state?.residentId || localStorage.getItem('currentResidentId');
-  const [resident, setResident] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { residentData, loading, fetchResident } = useResident();
 
   useEffect(() => {
     if (location.state?.residentId) {
@@ -142,60 +151,38 @@ const RoomInfoPage = () => {
   }, [location.state?.residentId]);
 
   useEffect(() => {
-    const fetchResidentData = async () => {
-      console.log('\n=== Starting Room Info Page Data Load ===');
-      console.log('1. Resident ID:', residentId);
-      
-      if (!residentId) {
-        console.log('❌ No resident ID found, using fallback data');
-        setLoading(false);
-        return;
-      }
-      
-      try {
-        console.log('2. Fetching resident data...');
-        const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:5000/api/residents/${residentId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+    if (!residentData && residentId) {
+      fetchResident(residentId);
+    }
+  }, [residentId, residentData, fetchResident]);
 
-        console.log('3. API Response:', response.data);
-
-        if (response.data.success) {
-          const residentData = response.data.data;
-          console.log('4. Room Data:', residentData.room);
-          setResident(residentData);
-        }
-      } catch (error) {
-        console.error('Error fetching resident:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchResidentData();
-  }, [residentId]);
-
-  const handleEdit = () => {
-    navigate('/admin/registration/room', { 
-      state: { 
-        isEditMode: true,
-        residentId,
-        returnPath: '/admin/info/room'
-      } 
-    });
-  };
-
-  // Fallback data if no resident data is available
   const roomInfo = {
     roomNumber: "N/A",
     roomType: "N/A",
     specialFacilities: ["N/A"]
   };
 
+  const handleEdit = () => {
+    navigate('/admin/registration/room', { 
+      state: { 
+        isEditMode: true,
+        residentId,
+        returnPath: '/admin/info/room',
+        roomData: residentData?.room || null
+      } 
+    });
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
+
+  const specialFacilities = residentData?.room?.special_facilities || [];
+  const specialFacilitiesText = Array.isArray(specialFacilities) 
+    ? specialFacilities.join(', ') 
+    : typeof specialFacilities === 'string' 
+      ? specialFacilities 
+      : '';
 
   return (
     <PageContainer>
@@ -229,17 +216,22 @@ const RoomInfoPage = () => {
       </TopSection>
       
       <MainContent>
+        {location.state?.success && (
+          <SuccessMessage>
+            {location.state.message}
+          </SuccessMessage>
+        )}
         <InfoContainer>
           <Section>
             <SectionTitle>Room Number</SectionTitle>
-            <Value>{resident?.room?.room_number || roomInfo.roomNumber}</Value>
+            <Value>{residentData?.room?.room_number || roomInfo.roomNumber}</Value>
           </Section>
 
           <Section>
             <SectionTitle>Room Type</SectionTitle>
             <Value>
-              {resident?.room?.room_type 
-                ? resident.room.room_type.charAt(0).toUpperCase() + resident.room.room_type.slice(1)
+              {residentData?.room?.room_type 
+                ? residentData.room.room_type.charAt(0).toUpperCase() + residentData.room.room_type.slice(1)
                 : roomInfo.roomType
               }
             </Value>
@@ -247,12 +239,7 @@ const RoomInfoPage = () => {
 
           <Section>
             <SectionTitle>Special Facilities</SectionTitle>
-            <Value>
-              {resident?.room?.special_facilities?.length > 0
-                ? resident.room.special_facilities.join(', ')
-                : roomInfo.specialFacilities[0]
-              }
-            </Value>
+            <Value>{specialFacilitiesText || 'None'}</Value>
           </Section>
         </InfoContainer>
       </MainContent>

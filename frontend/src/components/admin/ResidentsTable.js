@@ -92,7 +92,7 @@ const Table = styled.table`
 `;
 
 const TableCell = styled.td`
-  padding: 0.6rem;
+  padding: 0.1rem;
   text-align: center;
   font-weight: 700;
   color: ${colors.text.dark};
@@ -110,8 +110,8 @@ const TableCell = styled.td`
   }
 
   .photo-placeholder {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     background-color: #e0e0e0;
     display: flex;
     align-items: center;
@@ -208,6 +208,27 @@ const AvailabilityCheckbox = styled.input`
   accent-color: ${colors.primary.green1};
 `;
 
+const ProfileImage = styled.img`
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #1a1a1a;
+`;
+
+const NoImagePlaceholder = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${colors.text.light};
+  font-size: 0.8rem;
+  margin: 0 auto;
+`;
+
 const columns = [
   { id: 'sl', label: 'SL' },
   { id: 'photo', label: 'Photo' },
@@ -265,7 +286,27 @@ const ResidentsTable = () => {
             const residentId = resident._id;
             return {
               id: residentId,
-              photo: <div className="photo-placeholder">Photo</div>,
+              photo: resident.photo_url ? (
+                <img 
+                  src={`http://localhost:5000${resident.photo_url}`}
+                  alt="Profile"
+                  style={{ 
+                    width: '50px', 
+                    height: '50px', 
+                    objectFit: 'cover',
+                    margin: '0 auto',
+                    display: 'block',
+                    backgroundColor: '#e0e0e0'
+                  }}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.style.display = 'none';
+                    e.target.parentElement.innerHTML = '<div class="photo-placeholder">Photo</div>';
+                  }}
+                />
+              ) : (
+                <div className="photo-placeholder">Photo</div>
+              ),
               name: resident.name,
               dob: resident.date_of_birth ? new Date(resident.date_of_birth).toLocaleDateString('en-GB') : 'N/A',
               roomNo: roomMap[residentId] || 'Not Assigned',

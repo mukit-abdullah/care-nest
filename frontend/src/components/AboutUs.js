@@ -4,6 +4,7 @@ import styled from 'styled-components';
 const AboutSection = styled.section`
   padding: 80px 20px;
   background-color: #0F1914;
+  
 `;
 
 const Container = styled.div`
@@ -13,6 +14,7 @@ const Container = styled.div`
   grid-template-columns: 1fr 1fr;
   gap: 50px;
   align-items: center;
+  margin-top: 170px;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;

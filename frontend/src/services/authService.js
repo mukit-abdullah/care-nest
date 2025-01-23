@@ -38,13 +38,30 @@ export const urls = {
     }
 };
 
+// Clear admin auth data
+export const clearAuthData = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('loginAttempts');
+    localStorage.removeItem('loginBlockedUntil');
+    delete axios.defaults.headers.common['Authorization'];
+};
+
 // Login admin
 export const loginAdmin = async (username, password) => {
     try {
         console.log('Attempting login for:', username);
+        
+        // Clear any existing auth data before login attempt
+        clearAuthData();
+
         const response = await axios.post(urls.api.login, {
             username,
             password
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
         });
 
         console.log('Login response:', response.data);
@@ -55,62 +72,35 @@ export const loginAdmin = async (username, password) => {
         }
 
         const userData = response.data.data;
-        console.log('User data:', userData);
 
-        // Validate user data
-        if (!userData || !userData._id || !userData.username || !userData.role || !userData.status) {
-            console.error('Invalid user data:', userData);
-            throw new Error('Invalid user data received');
-        }
-
-        // Check if user is admin or super_admin
-        if (userData.role !== 'admin' && userData.role !== 'super_admin') {
-            console.error('Invalid role:', userData.role);
-            throw new Error('Access denied. Only administrators are allowed.');
-        }
-
-        // Check if account is active
-        console.log('Account status:', userData.status);
-        if (userData.status !== 'active') {
-            console.error('Account not active. Status:', userData.status);
-            throw new Error('Your account has been deactivated. Please contact the administrator.');
-        }
-
-        // Store token and user data
+        // Store the token and user data
         localStorage.setItem('authToken', userData.token);
         localStorage.setItem('userData', JSON.stringify(userData));
-        console.log('Auth data stored successfully');
+        
+        // Set the default authorization header
+        axios.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
 
-        return response.data;
+        return {
+            success: true,
+            data: userData
+        };
     } catch (error) {
         console.error('Login error:', error);
         
-        // Clear any existing auth data
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userData');
+        // Handle rate limiting error
+        if (error.response?.status === 429) {
+            const retryAfter = error.response.data.retryAfter || 300; // Default to 5 minutes
+            const minutes = Math.ceil(retryAfter / 60);
+            throw new Error(`Too many login attempts. Please wait ${minutes} minute(s) and try again.`);
+        }
 
-        if (error.response) {
-            // Server responded with error
-            console.error('Server error:', error.response.data);
-            if (error.response.status === 401) {
-                throw new Error('Invalid username or password');
-            } else if (error.response.status === 403) {
-                throw new Error('Access denied. Please check your credentials.');
-            }
-            throw new Error(error.response.data.message || 'Login failed');
-        }
+        // Clear any partial auth data
+        clearAuthData();
         
-        // If error is Error object, use its message
-        if (error instanceof Error) {
-            throw error.message;
-        }
-        
-        // If error is string (thrown by us)
-        if (typeof error === 'string') {
-            throw error;
-        }
-        
-        throw new Error('Network error. Please try again later.');
+        return {
+            success: false,
+            message: error.response?.data?.message || error.message || 'Login failed'
+        };
     }
 };
 
@@ -118,6 +108,7 @@ export const loginAdmin = async (username, password) => {
 export const logoutAdmin = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
+    delete axios.defaults.headers.common['Authorization'];
 };
 
 // Get admin profile
@@ -144,6 +135,7 @@ export const getAdminProfile = async () => {
             // Token expired or invalid
             localStorage.removeItem('authToken');
             localStorage.removeItem('userData');
+            delete axios.defaults.headers.common['Authorization'];
         }
         throw error.response?.data?.message || error;
     }
@@ -154,10 +146,10 @@ export const getAdminToken = () => {
     try {
         const token = localStorage.getItem('authToken');
         if (!token) {
-            console.warn('No auth token found');
+            console.error('No auth token found');
             return null;
         }
-        return token; // Return raw token, Bearer prefix added in axios interceptor
+        return token;
     } catch (error) {
         console.error('Error getting admin token:', error);
         return null;
@@ -168,8 +160,8 @@ export const getAdminToken = () => {
 export const isAdminLoggedIn = () => {
     try {
         const token = getAdminToken();
-        const userData = getAdminData();
-        return !!(token && userData && userData._id);
+        const userData = localStorage.getItem('userData');
+        return !!(token && userData);
     } catch (error) {
         console.error('Error checking admin login status:', error);
         return false;
@@ -179,21 +171,10 @@ export const isAdminLoggedIn = () => {
 // Get admin data
 export const getAdminData = () => {
     try {
-        const userDataStr = localStorage.getItem('userData');
-        if (!userDataStr) {
-            console.warn('No user data found');
-            return null;
-        }
-        const userData = JSON.parse(userDataStr);
-        if (!userData || !userData._id || !userData.username || !userData.role) {
-            console.warn('Invalid user data format');
-            clearAuthData();
-            return null;
-        }
-        return userData;
+        const userData = localStorage.getItem('userData');
+        return userData ? JSON.parse(userData) : null;
     } catch (error) {
         console.error('Error getting admin data:', error);
-        clearAuthData();
         return null;
     }
 };
@@ -202,20 +183,9 @@ export const getAdminData = () => {
 export const isAdminActive = () => {
     try {
         const userData = getAdminData();
-        return userData && userData.status === 'active';
+        return userData?.status === 'active';
     } catch (error) {
         console.error('Error checking admin status:', error);
         return false;
-    }
-};
-
-// Clear admin auth data
-export const clearAuthData = () => {
-    try {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userData');
-        console.log('Auth data cleared successfully');
-    } catch (error) {
-        console.error('Error clearing auth data:', error);
     }
 };

@@ -258,6 +258,43 @@ exports.updateResident = async (req, res) => {
     }
 };
 
+// Update resident status
+exports.updateResidentStatus = async (req, res) => {
+    try {
+        const { status } = req.body;
+
+        if (!status || !['active', 'inactive'].includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid status value. Must be either "active" or "inactive"'
+            });
+        }
+
+        const resident = await Resident.findByIdAndUpdate(
+            req.params.id,
+            { status },
+            { new: true, runValidators: true }
+        );
+
+        if (!resident) {
+            return res.status(404).json({
+                success: false,
+                message: 'Resident not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: resident
+        });
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
 // Delete resident and related information
 exports.deleteResident = async (req, res) => {
     try {

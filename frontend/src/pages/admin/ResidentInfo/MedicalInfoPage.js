@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FaEdit, FaFilePdf } from 'react-icons/fa';
+import { useResident } from '../../../context/ResidentContext';
 import axios from 'axios';
 
 const PageContainer = styled.div`
@@ -167,80 +168,81 @@ const Tab = styled.button`
   }
 `;
 
+const SuccessMessage = styled.div`
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  text-align: center;
+  width: fit-content;
+  margin: 0.5rem auto;
+  animation: fadeIn 0.5s ease-in;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+
 const MedicalInfoPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const residentId = location.state?.residentId || localStorage.getItem('currentResidentId');
-  const [resident, setResident] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const residentId = location.state?.residentId;
+  const { residentData, loading, setCurrentResidentId } = useResident();
 
+  console.log('MedicalInfoPage - Mount:', {
+    locationState: location.state,
+    residentData
+  });
+
+  // Set current resident ID when page loads
   useEffect(() => {
     if (location.state?.residentId) {
-      localStorage.setItem('currentResidentId', location.state.residentId);
+      console.log('MedicalInfoPage - Setting residentId:', location.state.residentId);
+      setCurrentResidentId(location.state.residentId);
     }
-  }, [location.state?.residentId]);
+  }, [location.state?.residentId, setCurrentResidentId]);
 
-  useEffect(() => {
-    const fetchResidentData = async () => {
-      console.log('\n=== Starting Medical Info Page Data Load ===');
-      console.log('1. Resident ID:', residentId);
-      
-      if (!residentId) {
-        console.log('❌ No resident ID found, using fallback data');
-        setLoading(false);
-        return;
-      }
-      
-      try {
-        console.log('2. Fetching resident data...');
-        const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:5000/api/residents/${residentId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
-        console.log('3. API Response:', response.data);
-
-        if (response.data.success) {
-          const residentData = response.data.data;
-          console.log('4. Medical Data:', residentData.medicalRecord);
-          setResident(residentData);
-        }
-      } catch (error) {
-        console.error('Error fetching resident:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchResidentData();
-  }, [residentId]);
+  // Render loading state if needed
+  if (!residentData || loading) {
+    return (
+      <PageContainer>
+        <AdminNavbar />
+        <div style={{ marginTop: '80px', textAlign: 'center', color: '#FFFFFF' }}>
+          Loading...
+        </div>
+      </PageContainer>
+    );
+  }
 
   const handleEdit = () => {
+    console.log('MedicalInfoPage - handleEdit:', {
+      residentData,
+      id: residentData?.resident?._id
+    });
+
     navigate('/admin/registration/medical', { 
       state: { 
         isEditMode: true,
-        residentId,
+        residentId: residentData?.resident?._id,
         returnPath: '/admin/info/medical'
       } 
     });
   };
 
-  // Fallback data if no resident data is available
-  const medicalInfo = {
-    medicalHistory: "N/A",
-    blood_group: "N/A",
-    currentMedication: "N/A",
-    primaryPhysicianName: "N/A",
-    primaryPhysicianContact: "",
-    medicalInsurance: "N/A",
-    specialNeeds: "N/A",
-    medicalFiles: ["N/A"],
-    insuranceFiles: ["N/A"]
+  const handleTabChange = (path) => {
+    navigate(path, { 
+      state: { residentId: residentData?.resident?._id },
+      replace: true // Use replace to prevent adding to history stack
+    });
   };
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <PageContainer>
@@ -250,22 +252,12 @@ const MedicalInfoPage = () => {
           <Title>Resident Info</Title>
           
           <NavigationTabs>
-            <Tab onClick={() => navigate('/admin/info/personal', { 
-              state: { residentId } 
-            })}>Personal</Tab>
+            <Tab onClick={() => handleTabChange('/admin/info/personal')}>Personal</Tab>
             <Tab active>Medical</Tab>
-            <Tab onClick={() => navigate('/admin/info/diet', { 
-              state: { residentId } 
-            })}>Diet</Tab>
-            <Tab onClick={() => navigate('/admin/info/room', { 
-              state: { residentId } 
-            })}>Room</Tab>
-            <Tab onClick={() => navigate('/admin/info/guardian', { 
-              state: { residentId } 
-            })}>Guardian</Tab>
-            <Tab onClick={() => navigate('/admin/info/financial', { 
-              state: { residentId } 
-            })}>Financial</Tab>
+            <Tab onClick={() => handleTabChange('/admin/info/diet')}>Diet</Tab>
+            <Tab onClick={() => handleTabChange('/admin/info/room')}>Room</Tab>
+            <Tab onClick={() => handleTabChange('/admin/info/guardian')}>Guardian</Tab>
+            <Tab onClick={() => handleTabChange('/admin/info/financial')}>Financial</Tab>
           </NavigationTabs>
         </TopContent>
         <ActionBar>
@@ -277,39 +269,39 @@ const MedicalInfoPage = () => {
         <InfoContainer>
           <InfoGroup>
             <Label>Blood Group: </Label>
-            <Value>{resident?.medicalRecord?.blood_group || medicalInfo.blood_group}</Value>
+            <Value>{residentData?.medicalRecord?.blood_group || 'N/A'}</Value>
           </InfoGroup>
 
           <InfoGroup>
             <Label>Medical History: </Label>
-            <Value>{resident?.medicalRecord?.medical_history || medicalInfo.medicalHistory}</Value>
+            <Value>{residentData?.medicalRecord?.medical_history || 'N/A'}</Value>
           </InfoGroup>
 
           <InfoGroup>
             <Label>Current Medication: </Label>
             <Value>
-              {resident?.medicalRecord?.current_medication?.join(', ') || medicalInfo.currentMedication}
+              {residentData?.medicalRecord?.current_medication?.join(', ') || 'N/A'}
             </Value>
           </InfoGroup>
 
           <InfoGroup>
             <Label>Primary Physician Name: </Label>
-            <Value>{resident?.medicalRecord?.physician_name || medicalInfo.primaryPhysicianName}</Value>
+            <Value>{residentData?.medicalRecord?.physician_name || 'N/A'}</Value>
           </InfoGroup>
 
           <InfoGroup>
             <Label>Primary Physician Contact: </Label>
-            <Value>{resident?.medicalRecord?.physician_contact_number || medicalInfo.primaryPhysicianContact}</Value>
+            <Value>{residentData?.medicalRecord?.physician_contact_number || 'N/A'}</Value>
           </InfoGroup>
 
           <InfoGroup>
             <Label>Medical Insurance: </Label>
-            <Value>{resident?.medicalRecord?.insurance_details || medicalInfo.medicalInsurance}</Value>
+            <Value>{residentData?.medicalRecord?.insurance_details || 'N/A'}</Value>
           </InfoGroup>
 
           <InfoGroup>
             <Label>Special Needs: </Label>
-            <Value>{resident?.medicalRecord?.special_needs || medicalInfo.specialNeeds}</Value>
+            <Value>{residentData?.medicalRecord?.special_needs || 'N/A'}</Value>
           </InfoGroup>
         </InfoContainer>
 
@@ -317,19 +309,14 @@ const MedicalInfoPage = () => {
           <FileSection>
             <SectionTitle>Medical Files:</SectionTitle>
             <FileList>
-              {resident?.medicalRecord?.medical_files_url?.length > 0 
-                ? resident.medicalRecord.medical_files_url.map((file, index) => (
+              {residentData?.medicalRecord?.medical_files_url?.length > 0 
+                ? residentData.medicalRecord.medical_files_url.map((file, index) => (
                     <FileItem key={index}>
                       <FaFilePdf />
                       {file}
                     </FileItem>
                   ))
-                : medicalInfo.medicalFiles.map((file, index) => (
-                    <FileItem key={index}>
-                      <FaFilePdf />
-                      {file}
-                    </FileItem>
-                  ))
+                : <Value>No files uploaded</Value>
               }
             </FileList>
           </FileSection>

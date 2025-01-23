@@ -6,6 +6,7 @@ import AdminNavbar from '../../../components/admin/AdminNavbar';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FaEdit, FaCircle } from 'react-icons/fa';
 import axios from 'axios';
+import { useResident } from '../../../context/ResidentContext';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -83,23 +84,33 @@ const Value = styled.span`
   margin-left: 8px;
 `;
 
-const RadioGroup = styled.div`
+const StyledRadioGroup = styled.div`
   display: flex;
   gap: 2rem;
   margin-left: 8px;
 `;
 
-const RadioItem = styled.div`
+const StyledRadioItem = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: ${props => props.isSelected ? '#B1CF86' : '#FFFFFF'};
+  color: ${props => props.selected ? '#B1CF86' : '#FFFFFF'};
 `;
 
-const RadioIcon = styled(FaCircle)`
-  color: ${props => props.isSelected ? '#B1CF86' : '#FFFFFF'};
+const StyledRadioIcon = styled(FaCircle)`
+  color: ${props => props.selected ? '#B1CF86' : '#FFFFFF'};
   font-size: 0.8rem;
 `;
+
+const RadioItem = ({ isSelected, children, ...props }) => (
+  <StyledRadioItem selected={isSelected} {...props}>
+    {children}
+  </StyledRadioItem>
+);
+
+const RadioIcon = ({ isSelected, ...props }) => (
+  <StyledRadioIcon selected={isSelected} {...props} />
+);
 
 const Title = styled.h1`
   font-family: 'Italiana', serif;
@@ -148,50 +159,14 @@ const Tab = styled.button`
 const FinancialInfoPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const residentId = location.state?.residentId || localStorage.getItem('currentResidentId');
-  const [resident, setResident] = useState(null);
-  const [loading, setLoading] = useState(true);
-
+  const { residentData, loading, setCurrentResidentId, currentResidentId } = useResident();
+ 
   useEffect(() => {
     if (location.state?.residentId) {
       localStorage.setItem('currentResidentId', location.state.residentId);
     }
   }, [location.state?.residentId]);
 
-  useEffect(() => {
-    const fetchResidentData = async () => {
-      console.log('\n=== Starting Financial Info Page Data Load ===');
-      console.log('1. Resident ID:', residentId);
-      
-      if (!residentId) {
-        console.log('❌ No resident ID found, using fallback data');
-        setLoading(false);
-        return;
-      }
-      
-      try {
-        console.log('2. Fetching resident data...');
-        const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:5000/api/residents/${residentId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
-        console.log('3. API Response:', response.data);
-
-        if (response.data.success) {
-          const residentData = response.data.data;
-          console.log('4. Financial Data:', residentData.financialRecord);
-          setResident(residentData);
-        }
-      } catch (error) {
-        console.error('Error fetching resident:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchResidentData();
-  }, [residentId]);
 
   // Fallback data if no resident data is available
   const financialInfo = {
@@ -204,14 +179,21 @@ const FinancialInfoPage = () => {
     navigate('/admin/registration/financial', { 
       state: { 
         isEditMode: true,
-        residentId,
+        residentId: currentResidentId,  // Changed from currentResidentId to residentId
         returnPath: '/admin/info/financial'
       } 
     });
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <PageContainer>
+        <AdminNavbar />
+        <div style={{ marginTop: '80px', textAlign: 'center', color: '#FFFFFF' }}>
+          Loading...
+        </div>
+      </PageContainer>
+    );
   }
 
   return (
@@ -223,19 +205,19 @@ const FinancialInfoPage = () => {
           
           <NavigationTabs>
             <Tab onClick={() => navigate('/admin/info/personal', { 
-              state: { residentId } 
+              state: { currentResidentId } 
             })}>Personal</Tab>
             <Tab onClick={() => navigate('/admin/info/medical', { 
-              state: { residentId } 
+              state: { currentResidentId } 
             })}>Medical</Tab>
             <Tab onClick={() => navigate('/admin/info/diet', { 
-              state: { residentId } 
+              state: { currentResidentId } 
             })}>Diet</Tab>
             <Tab onClick={() => navigate('/admin/info/room', { 
-              state: { residentId } 
+              state: { currentResidentId } 
             })}>Room</Tab>
             <Tab onClick={() => navigate('/admin/info/guardian', { 
-              state: { residentId } 
+              state: { currentResidentId } 
             })}>Guardian</Tab>
             <Tab active>Financial</Tab>
           </NavigationTabs>
@@ -249,26 +231,26 @@ const FinancialInfoPage = () => {
         <InfoContainer>
           <InfoGroup>
             <Label>Payment Preference: </Label>
-            <RadioGroup>
-              <RadioItem isSelected={resident?.financialRecord?.payment_preference === "Sponsored"}>
-                <RadioIcon isSelected={resident?.financialRecord?.payment_preference === "Sponsored"} />
+            <StyledRadioGroup>
+              <RadioItem isSelected={residentData?.payment_preference === "Sponsored"}>
+                <RadioIcon isSelected={residentData?.financialRecord?.payment_preference === "Sponsored"} />
                 Sponsored
               </RadioItem>
-              <RadioItem isSelected={resident?.financialRecord?.payment_preference === "Subscription"}>
-                <RadioIcon isSelected={resident?.financialRecord?.payment_preference === "Subscription"} />
+              <RadioItem isSelected={residentData?.financialRecord?.payment_preference === "Subscription"}>
+                <RadioIcon isSelected={residentData?.financialRecord?.payment_preference === "Subscription"} />
                 Subscription
               </RadioItem>
-            </RadioGroup>
+            </StyledRadioGroup>
           </InfoGroup>
 
           <InfoGroup>
             <Label>Account Number: </Label>
-            <Value>{resident?.financialRecord?.account_number || financialInfo.account_number}</Value>
+            <Value>{residentData?.financialRecord?.account_number || financialInfo.account_number}</Value>
           </InfoGroup>
 
           <InfoGroup>
             <Label>Payment Details: </Label>
-            <Value>{resident?.financialRecord?.payment_details || financialInfo.payment_details}</Value>
+            <Value>{residentData?.financialRecord?.payment_details || financialInfo.payment_details}</Value>
           </InfoGroup>
         </InfoContainer>
       </MainContent>

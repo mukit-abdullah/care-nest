@@ -6,6 +6,7 @@ import ResidentsTable from '../../components/admin/ResidentsTable';
 import colors from '../../theme/colors';
 import { typography, fonts } from '../../theme/typography';
 import { useNavigate } from 'react-router-dom';
+import { useResidentRegistration } from '../../context/ResidentRegistrationContext';
 
 const DashboardContainer = styled.div`
   display: flex;
@@ -91,6 +92,14 @@ const TableCell = styled.td`
 
 const DashboardPage = () => {
   const navigate = useNavigate();
+  const { resetRegistrationData } = useResidentRegistration();
+
+  const handleAddResident = () => {
+    // Reset any existing registration data before starting new registration
+    resetRegistrationData();
+    navigate('/admin/registration/personal');
+  };
+
   return (
     <>
       <AdminNavbar />
@@ -101,8 +110,8 @@ const DashboardPage = () => {
             <DashboardStats />
           </StatsWrapper>
           <ResidentsTable />
+          <AddButton onClick={handleAddResident}>+</AddButton>
         </Content>
-        <AddButton onClick={() => navigate('/admin/registration/personal')}>+</AddButton>
       </DashboardContainer>
     </>
   );

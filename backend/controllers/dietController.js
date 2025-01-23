@@ -4,7 +4,7 @@ const Diet = require('../models/Diet');
 exports.getAllDiets = async (req, res) => {
     try {
         const diets = await Diet.find()
-            .populate('resident_id', 'name');
+            .populate('resident_id', 'name status');
 
         res.status(200).json({
             success: true,

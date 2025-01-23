@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import colors from '../../theme/colors';
 import { typography, fonts } from '../../theme/typography';
 import { FaSearch } from 'react-icons/fa';
+import axios from 'axios';
+import moment from 'moment';
 
 const TableContainer = styled.div`
   width: 80%;
@@ -180,56 +182,34 @@ const PageButton = styled.button`
 const TransactionTable = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const itemsPerPage = 10;
 
-  // Sample data - replace with actual data from database
-  const transactions = [
-    {
-      id: 1,
-      name: 'Rahat Rahman',
-      date: '08.06.2024 6:45 pm',
-      amount: '10,000',
-      method: 'Bkash',
-      trxId: 'SD8T61YFD'
-    },
-    {
-      id: 2,
-      name: 'Sadman Hossain',
-      date: '12.06.2024 8:43 pm',
-      amount: '15,000',
-      method: 'Bkash',
-      trxId: 'URNY6K1S8'
-    },
-    {
-      id: 3,
-      name: 'Arnab Banik',
-      date: '16.11.2024 3:15 pm',
-      amount: '20,000',
-      method: 'Bkash',
-      trxId: 'WX7PL0V2Z'
-    },
-    {
-      id: 4,
-      name: 'Kashem Mia',
-      date: '28.08.2024 8:39 pm',
-      amount: '2',
-      method: 'Bkash',
-      trxId: 'BB80LHS3G'
-    },
-    {
-      id: 5,
-      name: 'Mukit Abdullah',
-      date: '28.08.2024 7:46 am',
-      amount: '40,000',
-      method: 'Bkash',
-      trxId: 'BB80LHS3G'
-    }
-  ];
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await axios.get('/api/donations');
+        // Sort transactions by date in ascending order
+        const sortedTransactions = response.data.sort((a, b) => 
+          new Date(a.createdAt) - new Date(b.createdAt)
+        );
+        setTransactions(sortedTransactions);
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to fetch transactions');
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
 
   // Filter transactions based on search term
   const filteredTransactions = transactions.filter(transaction =>
-    transaction.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    transaction.trxId.toLowerCase().includes(searchTerm.toLowerCase())
+    transaction.donor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    transaction.transactionId.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Get current transactions
@@ -242,6 +222,32 @@ const TransactionTable = () => {
 
   const pageCount = Math.ceil(filteredTransactions.length / itemsPerPage);
 
+  if (loading) {
+    return (
+      <TableContainer>
+        <TableHeader>
+          <h2>Transaction History</h2>
+        </TableHeader>
+        <TableWrapper>
+          <div style={{ padding: '20px', textAlign: 'center', color: '#fff' }}>Loading...</div>
+        </TableWrapper>
+      </TableContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <TableContainer>
+        <TableHeader>
+          <h2>Transaction History</h2>
+        </TableHeader>
+        <TableWrapper>
+          <div style={{ padding: '20px', textAlign: 'center', color: '#ff6b6b' }}>{error}</div>
+        </TableWrapper>
+      </TableContainer>
+    );
+  }
+
   return (
     <TableContainer>
       <TableHeader>
@@ -253,7 +259,7 @@ const TransactionTable = () => {
           <SearchBar>
             <input
               type="text"
-              placeholder="Search..."
+              placeholder="Search by name or transaction ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -268,25 +274,26 @@ const TransactionTable = () => {
               <TableHeaderCell>SL</TableHeaderCell>
               <TableHeaderCell>Name</TableHeaderCell>
               <TableHeaderCell>Date/Time</TableHeaderCell>
-              <TableHeaderCell>Amount</TableHeaderCell>
+              <TableHeaderCell>Amount (BDT)</TableHeaderCell>
               <TableHeaderCell>Method</TableHeaderCell>
               <TableHeaderCell>TrxID</TableHeaderCell>
             </tr>
           </thead>
           <tbody>
             {currentTransactions.map((transaction, index) => (
-              <TableRow key={transaction.id}>
-                <TableCell>{transaction.id}</TableCell>
-                <TableCell>{transaction.name}</TableCell>
-                <TableCell>{transaction.date}</TableCell>
-                <TableCell>{transaction.amount}</TableCell>
-                <TableCell>{transaction.method}</TableCell>
-                <TableCell>{transaction.trxId}</TableCell>
+              <TableRow key={transaction._id}>
+                <TableCell>{indexOfFirstItem + index + 1}</TableCell>
+                <TableCell>{transaction.isAnonymous ? 'Anonymous' : transaction.donor.name}</TableCell>
+                <TableCell>{moment(transaction.createdAt).format('DD.MM.YYYY h:mm a')}</TableCell>
+                <TableCell>{transaction.amount.toLocaleString()}</TableCell>
+                <TableCell>{transaction.paymentMethod}</TableCell>
+                <TableCell>{transaction.transactionId}</TableCell>
               </TableRow>
             ))}
           </tbody>
         </Table>
       </TableWrapper>
+      
       <PaginationContainer>
         <PageInfo>
           Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredTransactions.length)} of {filteredTransactions.length} entries

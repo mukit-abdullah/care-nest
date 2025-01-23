@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { colors } from '../../theme/colors';
 import { typography, fonts } from '../../theme/typography';
@@ -134,6 +134,12 @@ const MealRow = styled.div`
   }
 `;
 
+const UnderlinedMealRow = styled(MealRow)`
+  border-bottom: 1px solid rgba(210, 230, 181, 0.3);
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+`;
+
 const TotalSection = styled.div`
   display: flex;
   justify-content: space-between;
@@ -187,6 +193,163 @@ const GrandTotalSection = styled.div`
 `;
 
 const MealPage = () => {
+  const [dietData, setDietData] = useState({
+    vegetarian: {
+      total: 0,
+      spicy: 0,
+      nonSpicy: 0,
+      hard: 0,
+      soft: 0
+    },
+    nonvegetarian: {
+      total: 0,
+      spicy: 0,
+      nonSpicy: 0,
+      hard: 0,
+      soft: 0
+    },
+    vegan: {
+      total: 0,
+      spicy: 0,
+      nonSpicy: 0,
+      hard: 0,
+      soft: 0
+    }
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchDietData = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch('http://localhost:5000/api/diets', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          const errorData = await response.text();
+          console.error('Server response:', errorData);
+          throw new Error(`Failed to fetch diet data: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('API Response:', data);
+
+        // Process the diet data
+        const processedData = {
+          vegetarian: {
+            total: 0,
+            spicy: 0,
+            nonSpicy: 0,
+            hard: 0,
+            soft: 0
+          },
+          nonvegetarian: {
+            total: 0,
+            spicy: 0,
+            nonSpicy: 0,
+            hard: 0,
+            soft: 0
+          },
+          vegan: {
+            total: 0,
+            spicy: 0,
+            nonSpicy: 0,
+            hard: 0,
+            soft: 0
+          }
+        };
+
+        // Get the diets array from the nested structure
+        const diets = data.data || [];
+        console.log('Processed diets array:', diets);
+
+        // Process each diet record
+        diets.forEach(diet => {
+          // Skip if resident is not active
+          if (!diet.resident_id || diet.resident_id.status !== 'active') {
+            console.log('Skipping inactive/missing resident:', diet.resident_id?._id);
+            return;
+          }
+
+          // Convert Non-Vegetarian to nonvegetarian for object key compatibility
+          const category = diet.dietary_preference.toLowerCase().replace(/-/g, '').replace(/\s+/g, '');
+          console.log('Processing active resident diet:', { 
+            residentId: diet.resident_id._id,
+            residentName: diet.resident_id.name,
+            status: diet.resident_id.status,
+            category 
+          });
+
+          if (processedData[category]) {
+            processedData[category].total++;
+
+            if (diet.food_category === 'Spicy') {
+              processedData[category].spicy++;
+            } else {
+              processedData[category].nonSpicy++;
+            }
+
+            if (diet.food_texture === 'Hard') {
+              processedData[category].hard++;
+            } else {
+              processedData[category].soft++;
+            }
+          }
+        });
+
+        // Multiply all counts by 3 for daily meals
+        Object.keys(processedData).forEach(category => {
+          Object.keys(processedData[category]).forEach(key => {
+            processedData[category][key] *= 3;
+          });
+        });
+
+        console.log('Final processed data:', processedData);
+        setDietData(processedData);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching diet data:', err);
+        setError('Failed to load meal data');
+        setLoading(false);
+      }
+    };
+
+    fetchDietData();
+  }, []);
+
+  if (loading) {
+    return (
+      <PageContainer>
+        <AdminNavbar />
+        <Content>
+          <Title>Loading meal data...</Title>
+        </Content>
+      </PageContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageContainer>
+        <AdminNavbar />
+        <Content>
+          <Title>{error}</Title>
+        </Content>
+      </PageContainer>
+    );
+  }
+
+  const grandTotal = Object.values(dietData).reduce(
+    (sum, category) => sum + category.total,
+    0
+  );
+
   return (
     <>
       <AdminNavbar />
@@ -200,30 +363,30 @@ const MealPage = () => {
                 <h2>Vegetarian</h2>
               </CategoryHeader>
               <ResidentCount>
-                <div className="number">12</div>
+                <div className="number">{dietData.vegetarian.total / 3}</div>
                 <div className="label">Vegetarian Residents</div>
               </ResidentCount>
               <MealGrid>
                 <MealRow>
                   <span className="meal-type">Spicy Meal</span>
-                  <span className="meal-count">9</span>
+                  <span className="meal-count">{dietData.vegetarian.spicy}</span>
                 </MealRow>
-                <MealRow>
+                <UnderlinedMealRow>
                   <span className="meal-type">Non-Spicy Meal</span>
-                  <span className="meal-count">9</span>
-                </MealRow>
+                  <span className="meal-count">{dietData.vegetarian.nonSpicy}</span>
+                </UnderlinedMealRow>
                 <MealRow>
                   <span className="meal-type">Hard Meal</span>
-                  <span className="meal-count">9</span>
+                  <span className="meal-count">{dietData.vegetarian.hard}</span>
                 </MealRow>
                 <MealRow>
                   <span className="meal-type">Soft Meal</span>
-                  <span className="meal-count">9</span>
+                  <span className="meal-count">{dietData.vegetarian.soft}</span>
                 </MealRow>
               </MealGrid>
               <TotalSection>
                 <span className="total-label">Vegetarian Meals</span>
-                <span className="total-count">36</span>
+                <span className="total-count">{dietData.vegetarian.total}</span>
               </TotalSection>
             </MealSection>
 
@@ -233,30 +396,30 @@ const MealPage = () => {
                 <h2>Non-Vegetarian</h2>
               </CategoryHeader>
               <ResidentCount>
-                <div className="number">12</div>
+                <div className="number">{dietData.nonvegetarian.total / 3}</div>
                 <div className="label">Non-Vegetarian Residents</div>
               </ResidentCount>
               <MealGrid>
                 <MealRow>
                   <span className="meal-type">Spicy Meal</span>
-                  <span className="meal-count">9</span>
+                  <span className="meal-count">{dietData.nonvegetarian.spicy}</span>
                 </MealRow>
-                <MealRow>
+                <UnderlinedMealRow>
                   <span className="meal-type">Non-Spicy Meal</span>
-                  <span className="meal-count">9</span>
-                </MealRow>
+                  <span className="meal-count">{dietData.nonvegetarian.nonSpicy}</span>
+                </UnderlinedMealRow>
                 <MealRow>
                   <span className="meal-type">Hard Meal</span>
-                  <span className="meal-count">9</span>
+                  <span className="meal-count">{dietData.nonvegetarian.hard}</span>
                 </MealRow>
                 <MealRow>
                   <span className="meal-type">Soft Meal</span>
-                  <span className="meal-count">9</span>
+                  <span className="meal-count">{dietData.nonvegetarian.soft}</span>
                 </MealRow>
               </MealGrid>
               <TotalSection>
                 <span className="total-label">Non-Vegetarian Meals</span>
-                <span className="total-count">36</span>
+                <span className="total-count">{dietData.nonvegetarian.total}</span>
               </TotalSection>
             </MealSection>
 
@@ -266,36 +429,36 @@ const MealPage = () => {
                 <h2>Vegan</h2>
               </CategoryHeader>
               <ResidentCount>
-                <div className="number">11</div>
+                <div className="number">{dietData.vegan.total / 3}</div>
                 <div className="label">Vegan Residents</div>
               </ResidentCount>
               <MealGrid>
                 <MealRow>
                   <span className="meal-type">Spicy Meal</span>
-                  <span className="meal-count">9</span>
+                  <span className="meal-count">{dietData.vegan.spicy}</span>
                 </MealRow>
-                <MealRow>
+                <UnderlinedMealRow>
                   <span className="meal-type">Non-Spicy Meal</span>
-                  <span className="meal-count">9</span>
-                </MealRow>
+                  <span className="meal-count">{dietData.vegan.nonSpicy}</span>
+                </UnderlinedMealRow>
                 <MealRow>
                   <span className="meal-type">Hard Meal</span>
-                  <span className="meal-count">9</span>
+                  <span className="meal-count">{dietData.vegan.hard}</span>
                 </MealRow>
                 <MealRow>
                   <span className="meal-type">Soft Meal</span>
-                  <span className="meal-count">6</span>
+                  <span className="meal-count">{dietData.vegan.soft}</span>
                 </MealRow>
               </MealGrid>
               <TotalSection>
                 <span className="total-label">Vegan Meals</span>
-                <span className="total-count">33</span>
+                <span className="total-count">{dietData.vegan.total}</span>
               </TotalSection>
             </MealSection>
           </CategoryContainer>
           <GrandTotalSection>
             <span className="total-label">Total Meals</span>
-            <span className="total-count">105</span>
+            <span className="total-count">{grandTotal}</span>
           </GrandTotalSection>
         </Content>
       </PageContainer>

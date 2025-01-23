@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import colors from '../../../theme/colors';
+//import colors from '../../../theme/colors';
 import { typography, fonts } from '../../../theme/typography';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FaEdit } from 'react-icons/fa';
-import axios from 'axios';
+//import axios from 'axios';
+import { useResident } from '../../../context/ResidentContext';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -131,8 +132,7 @@ const GuardianInfoPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const residentId = location.state?.residentId || localStorage.getItem('currentResidentId');
-  const [resident, setResident] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { residentData, loading, fetchResident, updateResidentSection } = useResident();
 
   useEffect(() => {
     if (location.state?.residentId) {
@@ -141,44 +141,21 @@ const GuardianInfoPage = () => {
   }, [location.state?.residentId]);
 
   useEffect(() => {
-    const fetchResidentData = async () => {
-      console.log('\n=== Starting Guardian Info Page Data Load ===');
-      console.log('1. Resident ID:', residentId);
-      
-      if (!residentId) {
-        console.log('❌ No resident ID found, using fallback data');
-        setLoading(false);
-        return;
-      }
-      
-      try {
-        console.log('2. Fetching resident data...');
-        const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:5000/api/residents/${residentId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+    if (!residentData && residentId) {
+      fetchResident(residentId);
+    }
+  }, [residentId, residentData, fetchResident]);
 
-        console.log('3. API Response:', response.data);
+  // Update local state if we get updated data from navigation
+  useEffect(() => {
+    if (location.state?.updatedGuardian) {
+      updateResidentSection('guardian', location.state.updatedGuardian);
+    }
+  }, [location.state?.updatedGuardian, updateResidentSection]);
 
-        if (response.data.success) {
-          const residentData = response.data.data;
-          console.log('4. Guardian Data:', residentData.guardian);
-          setResident(residentData);
-        }
-      } catch (error) {
-        console.error('Error fetching resident:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchResidentData();
-  }, [residentId]);
-
-  // Fallback data if no resident data is available
   const guardianInfo = {
-    guardian_name: "N/A",
-    guardian_relationship: "N/A",
+    name: "N/A",
+    relationship: "N/A",
     guardian_contact_number: "N/A",
     guardian_address: "N/A"
   };
@@ -229,30 +206,44 @@ const GuardianInfoPage = () => {
       </TopSection>
       
       <MainContent>
+        {location.state?.success && (
+          <SuccessMessage>
+            {location.state.message}
+          </SuccessMessage>
+        )}
         <InfoContainer>
           <InfoGroup>
             <Label>Guardian Name: </Label>
-            <Value>{resident?.guardian?.name || guardianInfo.guardian_name}</Value>
+            <Value>{residentData?.guardian?.name || guardianInfo.name}</Value>
           </InfoGroup>
 
           <InfoGroup>
             <Label>Relationship to Resident: </Label>
-            <Value>{resident?.guardian?.relationship || guardianInfo.guardian_relationship}</Value>
+            <Value>{residentData?.guardian?.relationship || guardianInfo.relationship}</Value>
           </InfoGroup>
 
           <InfoGroup>
             <Label>Guardian Contact Number: </Label>
-            <Value>{resident?.guardian?.guardian_contact_number || guardianInfo.guardian_contact_number}</Value>
+            <Value>{residentData?.guardian?.guardian_contact_number || guardianInfo.guardian_contact_number}</Value>
           </InfoGroup>
 
           <InfoGroup>
             <Label>Guardian Address: </Label>
-            <Value>{resident?.guardian?.guardian_address || guardianInfo.guardian_address}</Value>
+            <Value>{residentData?.guardian?.guardian_address || guardianInfo.guardian_address}</Value>
           </InfoGroup>
         </InfoContainer>
       </MainContent>
     </PageContainer>
   );
 };
+
+const SuccessMessage = styled.div`
+  background-color: #4CAF50;
+  color: white;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+  text-align: center;
+`;
 
 export default GuardianInfoPage;

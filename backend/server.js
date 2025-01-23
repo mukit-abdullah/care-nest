@@ -20,6 +20,9 @@ const guardianRoutes = require('./routes/guardian');
 const medicalRecordRoutes = require('./routes/medicalRecord');
 const dietRoutes = require('./routes/diet');
 const financialRecordRoutes = require('./routes/financialRecord');
+const donationRoutes = require('./routes/donations');
+const residentApplicationsRoute = require('./routes/residentApplications');
+const uploadRoutes = require('./routes/upload');
 
 // Connect to database
 connectDB();
@@ -42,14 +45,30 @@ if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Rate limiting
-const limiter = rateLimit({
-    windowMs: process.env.RATE_LIMIT_WINDOW_MS, // 15 minutes
-    max: process.env.RATE_LIMIT_MAX_REQUESTS // limit each IP to 100 requests per windowMs
+const authLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000, // 5 minutes
+    max: 5, // limit each IP to 5 requests per windowMs
+    message: { 
+        success: false, 
+        message: 'Too many login attempts. Please wait 5 minutes and try again.' 
+    },
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    handler: (req, res) => {
+        res.status(429).json({ 
+            success: false, 
+            message: 'Too many login attempts. Please wait 5 minutes and try again.',
+            retryAfter: Math.ceil(req.rateLimit.resetTime - Date.now()) / 1000
+        });
+    }
 });
 
-// Apply rate limiting to all routes
-app.use(limiter);
+// Apply rate limiting to auth routes only
+app.use('/api/admin/login', authLimiter);
 
 // Set static folder
 app.use(express.static(path.join(__dirname, 'public')));
@@ -57,11 +76,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Mount routers
 app.use('/api/admin', adminRoutes);
 app.use('/api/residents', residentRoutes);
+app.use('/api/resident-applications', residentApplicationsRoute);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/guardians', guardianRoutes);
 app.use('/api/medical-records', medicalRecordRoutes);
 app.use('/api/diets', dietRoutes);
 app.use('/api/financial-records', financialRecordRoutes);
+app.use('/api/donations', donationRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Error handler
 const errorHandler = require('./middleware/error');
