@@ -34,6 +34,7 @@ import DietInfoPage from './pages/admin/ResidentInfo/DietInfoPage';
 import RoomInfoPage from './pages/admin/ResidentInfo/RoomInfoPage';
 import GuardianInfoPage from './pages/admin/ResidentInfo/GuardianInfoPage';
 import FinancialInfoPage from './pages/admin/ResidentInfo/FinancialInfoPage';
+import ResidentApplicationPage from './pages/ResidentApplicationPage';
 import { AdminProvider } from './context/AdminContext';
 import { ResidentRegistrationProvider } from './context/ResidentRegistrationContext';
 import { ResidentProvider } from './context/ResidentContext';
@@ -181,6 +182,7 @@ function App() {
                 <Route path="/activities" element={<ActivitiesPage />} />
                 <Route path="/donation" element={<DonationPage />} />
                 <Route path="/payment" element={<PaymentPage />} />
+                <Route path="/join" element={<ResidentApplicationPage />} />
                 
                 {/* Login Route - Protected from logged in users */}
                 <Route 

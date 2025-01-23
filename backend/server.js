@@ -21,6 +21,7 @@ const medicalRecordRoutes = require('./routes/medicalRecord');
 const dietRoutes = require('./routes/diet');
 const financialRecordRoutes = require('./routes/financialRecord');
 const donationRoutes = require('./routes/donations');
+const residentApplicationsRoute = require('./routes/residentApplications');
 
 // Connect to database
 connectDB();
@@ -71,6 +72,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Mount routers
 app.use('/api/admin', adminRoutes);
 app.use('/api/residents', residentRoutes);
+app.use('/api/resident-applications', residentApplicationsRoute);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/guardians', guardianRoutes);
 app.use('/api/medical-records', medicalRecordRoutes);

@@ -57,7 +57,7 @@ const JoinUs = () => {
   const navigate = useNavigate();
 
   const handleJoinClick = () => {
-    navigate('/join'); // You'll need to create this route and page
+    navigate('/join');
   };
 
   return (
