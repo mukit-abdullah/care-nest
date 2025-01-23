@@ -4,6 +4,8 @@ import styled from 'styled-components';
 const ContactSection = styled.section`
   padding: 80px 20px;
   background-color: #0F1914;
+  padding-top: 180px;
+
 `;
 
 const Container = styled.div`

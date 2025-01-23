@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const GallerySection = styled.section`
   padding: 80px 20px;
   background-color: #0F1914;
+  padding-top: 180px;
 `;
 
 const Title = styled.h2`

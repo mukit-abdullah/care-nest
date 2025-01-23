@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const ServicesSection = styled.section`
   padding: 80px 20px;
   background-color: #0F1914;
+  
 `;
 
 const SectionTitle = styled.h2`
@@ -22,6 +23,7 @@ const ServicesGrid = styled.div`
   gap: 30px;
   max-width: 1200px;
   margin: 0 auto;
+  
 `;
 
 const ServiceCard = styled.div`
