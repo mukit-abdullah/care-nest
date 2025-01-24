@@ -425,7 +425,7 @@ const MedicalPage = () => {
       <AdminNavbar />
       <TopSection>
         <TopContent>
-          <Title>{isEditMode ? 'Edit Medical Information' : 'Resident Registration'}</Title>
+          <Title>{isEditMode ? 'Update Info' : 'Resident Registration'}</Title>
           
           {!isEditMode && (
             <NavigationTabs>

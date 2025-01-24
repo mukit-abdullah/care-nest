@@ -450,7 +450,7 @@ const DietPage = () => {
       <AdminNavbar />
       <TopSection>
         <TopContent>
-          <Title>{isEditMode ? 'Update Diet Information' : 'Resident Registration'}</Title>
+          <Title>{isEditMode ? 'Update Info' : 'Resident Registration'}</Title>
           
           {!isEditMode && (
             <NavigationTabs>

@@ -345,7 +345,7 @@ const GuardianPage = () => {
       <AdminNavbar />
       <TopSection>
         <TopContent>
-          <Title>{isEditMode ? 'Update Guardian Info' : 'Resident Registration'}</Title>
+          <Title>{isEditMode ? 'Update Info' : 'Resident Registration'}</Title>
           
           {!isEditMode && (
             <NavigationTabs>

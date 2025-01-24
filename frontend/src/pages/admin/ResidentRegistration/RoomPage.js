@@ -465,7 +465,7 @@ const RoomPage = () => {
       <AdminNavbar />
       <TopSection>
         <TopContent>
-          <Title>{isEditMode ? 'Update Room Information' : 'Resident Registration'}</Title>
+          <Title>{isEditMode ? 'Update Info' : 'Resident Registration'}</Title>
           
           {errors.alert && (
             <ErrorAlert>
