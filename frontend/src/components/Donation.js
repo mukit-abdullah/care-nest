@@ -83,7 +83,7 @@ const StatCircle = styled.div`
   align-items: center;
   background: ${props => props.gradient};
   border: 3px solid #D2E6B5;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 15px 14px 15px rgba(0, 0, 0, 0.7);
   transition: transform 0.3s ease;
 
   &:hover {
@@ -109,17 +109,19 @@ const StatCircle = styled.div`
 
 const StatLabel = styled.div`
   position: absolute;
-  top: -30px;
+  top: -40px;
   width: 100%;
   text-align: center;
   color: #D2E6B5;
   font-size: 1rem;
   font-weight: bold;
+  opacity: 50%;
+  transition: opacity 0.3s ease;
 `;
 
 const StatValue = styled.div`
   color: #0A2A22;
-  font-size: 1.25rem;
+  font-size: 1.02rem;
   font-weight: bold;
   text-align: center;
 `;
@@ -127,8 +129,11 @@ const StatValue = styled.div`
 const Donation = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState({
-    topDonorName: '',
-    topDonorAmount: 0,
+    topDonors: [
+      { name: '', amount: 0 },
+      { name: '', amount: 0 },
+      { name: '', amount: 0 }
+    ],
     totalDonations: 0
   });
 
@@ -138,25 +143,23 @@ const Donation = () => {
         const response = await axios.get('/api/donations');
         const donations = response.data;
         
-        // Calculate statistics
+        // Calculate total donations
         const totalDonations = donations.reduce((sum, donation) => sum + donation.amount, 0);
         
-        // Find top donor
-        let topDonor = { name: 'No donations yet', amount: 0 };
-        if (donations.length > 0) {
-          const maxDonation = donations.reduce((max, donation) => 
-            donation.amount > max.amount ? donation : max, 
-            donations[0]
-          );
-          topDonor = {
-            name: maxDonation.isAnonymous ? 'Anonymous' : maxDonation.donor.name,
-            amount: maxDonation.amount
-          };
+        // Sort donations by amount in descending order and get top 3
+        const sortedDonations = [...donations].sort((a, b) => b.amount - a.amount);
+        const topThreeDonors = sortedDonations.slice(0, 3).map(donation => ({
+          name: donation.isAnonymous ? 'Anonymous' : donation.donor.name,
+          amount: donation.amount
+        }));
+
+        // Ensure we always have 3 entries even if there are fewer donations
+        while (topThreeDonors.length < 3) {
+          topThreeDonors.push({ name: 'No donor yet', amount: 0 });
         }
         
         setStats({
-          topDonorName: topDonor.name,
-          topDonorAmount: topDonor.amount,
+          topDonors: topThreeDonors,
           totalDonations: totalDonations
         });
       } catch (error) {
@@ -186,16 +189,18 @@ const Donation = () => {
 
         <StatisticsContainer>
           <StatCircle gradient="linear-gradient(135deg, #D2E6B5 0%, #8EB15C 100%)">
-            <StatLabel>Top Donor</StatLabel>
-            <StatValue>{stats.topDonorName}</StatValue>
+            <StatLabel>Our Top Donors</StatLabel>
+            <StatValue>{stats.topDonors[0].name}</StatValue>
+            <StatValue style={{ fontSize: '0.9rem' }}>{stats.topDonors[0].amount.toLocaleString()} BDT</StatValue>
           </StatCircle>
           <StatCircle gradient="linear-gradient(135deg, #B1CF86 0%, #6B8A44 100%)">
-            <StatLabel>Donation</StatLabel>
-            <StatValue>{stats.topDonorAmount.toLocaleString()} BDT</StatValue>
+            <StatValue>{stats.topDonors[1].name}</StatValue>
+            <StatValue style={{ fontSize: '0.9rem' }}>{stats.topDonors[1].amount.toLocaleString()} BDT</StatValue>
           </StatCircle>
           <StatCircle gradient="linear-gradient(135deg, #8EB15C 0%, #4C6130 100%)">
-            <StatLabel>Total Donation</StatLabel>
-            <StatValue>{stats.totalDonations.toLocaleString()} BDT</StatValue>
+            
+            <StatValue>{stats.topDonors[2].name}</StatValue>
+            <StatValue style={{ fontSize: '0.9rem' }}>{stats.topDonors[2].amount.toLocaleString()} BDT</StatValue>
           </StatCircle>
         </StatisticsContainer>
       </Container>
