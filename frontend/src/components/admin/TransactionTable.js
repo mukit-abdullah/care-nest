@@ -18,7 +18,7 @@ const TableHeader = styled.div`
   align-items: center;
   padding: 0.5rem 1.5rem;
   background-color: #A0C172;
-  color: ${colors.text.light};
+  color: ${colors.background};
   font-family: 'Istok Web', sans-serif;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
@@ -57,7 +57,7 @@ const SearchSection = styled.div`
 `;
 
 const SearchIcon = styled.span`
-  color: ${colors.text.light};
+  color: ${colors.background};
   font-size: 0.9rem;
 `;
 
@@ -69,10 +69,10 @@ const SearchBar = styled.div`
     font-size: 0.85rem;
     width: 200px;
     background-color: ${colors.primary.green3};
-    color: ${colors.text.light};
+    color: ${colors.background};
 
     &::placeholder {
-      color: ${colors.text.light};
+      color: ${colors.background};
       opacity: 0.7;
     }
 
@@ -86,7 +86,7 @@ const SearchBar = styled.div`
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
-  background-color: ${colors.primary.green3};
+  background-color: ${colors.primary.green3} ;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   overflow: hidden;
@@ -99,7 +99,7 @@ const TableHeaderCell = styled.th`
   background-color: ${colors.primary.green1};
   font-family: 'Istok Web', sans-serif;
   ${typography.body1};
-  font-weight: 700;
+  font-weight: 600;
   position: sticky;
   top: 0;
   z-index: 1;
@@ -120,6 +120,7 @@ const TableCell = styled.td`
   ${typography.body1};
   border-bottom: 2px solid #B1CF86;
   border-right: 2px solid #B1CF86;
+  
   
   &:last-child {
     border-right: none;

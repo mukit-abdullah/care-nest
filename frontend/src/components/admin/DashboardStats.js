@@ -25,7 +25,7 @@ const StatCard = styled.div`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
   h3 {
-    color: ${colors.text.dark};
+    color: ${colors.background};
     font-family: 'Istok Web', sans-serif;
     font-size: 1.2rem;
     text-align: center;
@@ -33,7 +33,7 @@ const StatCard = styled.div`
   }
 
   p {
-    color: ${colors.text.dark};
+    color: ${colors.background};
     font-family: 'Istok Web', sans-serif;
     font-size: 1.2rem;
     font-weight: bold;

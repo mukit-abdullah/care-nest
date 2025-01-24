@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../assets/CareNestLogo.png';
 
 const HeaderContainer = styled.header`
-  background-color: #0F1914;
+  background-color: black;
   padding: 15px 40px;
   position: fixed;
   width: 100%;
@@ -25,7 +25,7 @@ const Logo = styled.img`
 const BackToHome = styled.button`
   background: none;
   border: none;
-  color: #B4D434;
+  color: #D2E6B5;
   font-size: 1rem;
   cursor: pointer;
   padding: 8px 16px;
@@ -34,7 +34,7 @@ const BackToHome = styled.button`
   font-family: 'Istok Web', sans-serif;
 
   &:hover {
-    background-color: rgba(180, 212, 52, 0.1);
+    background-color: rgba(256, 256, 256, 0.1);
   }
 `;
 

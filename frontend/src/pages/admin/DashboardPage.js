@@ -29,7 +29,6 @@ const Title = styled.h1`
   color: ${colors.primary.green5};
   font-family: ${fonts.primary};
   font-size: 2rem;
-  
   padding: 2rem;
   text-align: center;
   width: 100%;

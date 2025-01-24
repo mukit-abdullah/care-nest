@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const FooterContainer = styled.footer`
   background-color: black;
@@ -97,6 +97,25 @@ const MapContainer = styled.div`
 
 const Footer = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const scrollToSection = (sectionId) => {
+    if (location.pathname !== '/') {
+      navigate('/');
+      // Wait for navigation to complete before scrolling
+      setTimeout(() => {
+        const section = document.getElementById(sectionId);
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    } else {
+      const section = document.getElementById(sectionId);
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   const handleLoginClick = () => {
     navigate('/login');
@@ -106,16 +125,15 @@ const Footer = () => {
     <FooterContainer id="footer">
       <FooterContent>
         <FooterSection>
-          <h3>About CareNest</h3>
+          <h3>CareNest</h3>
           <p>Providing exceptional care and comfort for seniors in a warm, home-like environment.</p>
           <h3></h3><br></br>
           <h3>Contact Info</h3>
-          <ul>
-            <li>123 Care Street</li>
-            <li>Comfort City, CC 12345</li>
-            <li>Phone: +1 (555) 123-4567</li>
-            <li>Email: info@carenest.com</li>
-          </ul>
+          <p>
+            <i className="fas fa-map-marker-alt"></i> 123 Care Street<br />
+            <i className="fas fa-phone"></i> +1 (555) 123-4567<br />
+            <i className="fas fa-envelope"></i> info@carenest.com
+          </p>
           <SocialLinks>
             <a href="#" aria-label="Facebook"><i className="fab fa-facebook"></i></a>
             <a href="#" aria-label="Instagram"><i className="fab fa-instagram"></i></a>
@@ -127,18 +145,17 @@ const Footer = () => {
         <FooterSection style={{ paddingLeft: '30%' }}>
           <h3>Quick Links</h3>
           <ul>
-            <li><a href="#home">Home</a></li>
-            <li><a href="#services">Services</a></li>
-            <li><a href="#about">About Us</a></li>
-            <li><a href="#gallery">Gallery</a></li>
-            <li><a href="#testimonials">Testimonials</a></li>
-            <li><a href="#donation">Donation</a></li>
-            <li><a href="#contact">Contact Us</a></li>
+            <li><a onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ cursor: 'pointer' }}>Home</a></li>
+            <li><a onClick={() => scrollToSection('services')} style={{ cursor: 'pointer' }}>Services</a></li>
+            <li><a onClick={() => scrollToSection('about')} style={{ cursor: 'pointer' }}>About Us</a></li>
+            <li><a onClick={() => scrollToSection('gallery')} style={{ cursor: 'pointer' }}>Gallery</a></li>
+            <li><a onClick={() => scrollToSection('testimonials')} style={{ cursor: 'pointer' }}>Testimonials</a></li>
+            <li><a onClick={() => scrollToSection('donation')} style={{ cursor: 'pointer' }}>Donation</a></li>
+            <li><a onClick={() => scrollToSection('join')} style={{ cursor: 'pointer' }}>Join Us</a></li>
           </ul>
         </FooterSection>
 
         <FooterSection>
-          
           <MapContainer>
             <iframe 
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.1!2d-73.9!3d40.7!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zM40zMCcwMC4wIk4gNzPCsDU0JzAwLjAiVw!5e0!3m2!1sen!2sus!4v1234567890"

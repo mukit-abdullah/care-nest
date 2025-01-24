@@ -4,6 +4,7 @@ import LoginHeader from '../components/LoginHeader';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { loginAdmin } from '../services/authService';
 import { useAdmin } from '../context/AdminContext';
+import colors from '../theme/colors';
 
 const PageContainer = styled.div`
   background-color: #0F1914;
@@ -22,14 +23,14 @@ const LoginContainer = styled.div`
 const Title = styled.h1`
   font-family: 'Playfair Display', serif;
   font-size: 3rem;
-  color: #B4D434;
+  color: ${colors.primary.green5}; 
   margin-bottom: 10px;
 `;
 
 const Subtitle = styled.h2`
   font-family: 'Playfair Display', serif;
   font-size: 2.5rem;
-  color: #B4D434;
+  color: ${colors.primary.green5};
   margin-bottom: 50px;
 `;
 
@@ -41,7 +42,7 @@ const FormGroup = styled.div`
 const Label = styled.label`
   display: block;
   font-size: 1.2rem;
-  color: #B4D434;
+  color: ${colors.primary.green3};
   margin-bottom: 10px;
 `;
 
@@ -50,7 +51,7 @@ const Input = styled.input`
   padding: 15px;
   border: none;
   border-radius: 10px;
-  background-color: #D9FFB3;
+  background-color: ${colors.primary.green4};
   color: #0A2A22;
   font-size: 1rem;
   
@@ -61,7 +62,7 @@ const Input = styled.input`
 `;
 
 const LoginButton = styled.button`
-  background-color: #D2E6B5;
+  background-color: #B1CF86;
   color: #0A2A22;
   padding: 10px 25px;
   border: none;
@@ -72,11 +73,11 @@ const LoginButton = styled.button`
   transition: background-color 0.3s;
 
   &:hover {
-    background-color: #9CBF2D;
+    background-color: #9DBF70;
   }
 
   &:disabled {
-    background-color: #cccccc;
+    background-color: #B1CF86;
     cursor: not-allowed;
   }
 `;

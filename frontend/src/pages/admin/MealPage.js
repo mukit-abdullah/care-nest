@@ -63,10 +63,11 @@ const CategoryHeader = styled.div`
   height: 3.5rem;
   
   h2 {
-    color: #1F7148;
+    color: ${colors.background};
     font-family: 'Istok Web' ;
     font-size: 1.5rem;
     font-weight: 600;
+    
   }
 `;
 
@@ -368,24 +369,24 @@ const MealPage = () => {
               </ResidentCount>
               <MealGrid>
                 <MealRow>
-                  <span className="meal-type">Spicy Meal</span>
+                  <span className="meal-type">Spicy</span>
                   <span className="meal-count">{dietData.vegetarian.spicy}</span>
                 </MealRow>
                 <UnderlinedMealRow>
-                  <span className="meal-type">Non-Spicy Meal</span>
+                  <span className="meal-type">Non-Spicy</span>
                   <span className="meal-count">{dietData.vegetarian.nonSpicy}</span>
                 </UnderlinedMealRow>
                 <MealRow>
-                  <span className="meal-type">Hard Meal</span>
+                  <span className="meal-type">Hard</span>
                   <span className="meal-count">{dietData.vegetarian.hard}</span>
                 </MealRow>
                 <MealRow>
-                  <span className="meal-type">Soft Meal</span>
+                  <span className="meal-type">Soft</span>
                   <span className="meal-count">{dietData.vegetarian.soft}</span>
                 </MealRow>
               </MealGrid>
               <TotalSection>
-                <span className="total-label">Vegetarian Meals</span>
+                <span className="total-label">Vegetarian</span>
                 <span className="total-count">{dietData.vegetarian.total}</span>
               </TotalSection>
             </MealSection>
@@ -401,24 +402,24 @@ const MealPage = () => {
               </ResidentCount>
               <MealGrid>
                 <MealRow>
-                  <span className="meal-type">Spicy Meal</span>
+                  <span className="meal-type">Spicy</span>
                   <span className="meal-count">{dietData.nonvegetarian.spicy}</span>
                 </MealRow>
                 <UnderlinedMealRow>
-                  <span className="meal-type">Non-Spicy Meal</span>
+                  <span className="meal-type">Non-Spicy</span>
                   <span className="meal-count">{dietData.nonvegetarian.nonSpicy}</span>
                 </UnderlinedMealRow>
                 <MealRow>
-                  <span className="meal-type">Hard Meal</span>
+                  <span className="meal-type">Hard</span>
                   <span className="meal-count">{dietData.nonvegetarian.hard}</span>
                 </MealRow>
                 <MealRow>
-                  <span className="meal-type">Soft Meal</span>
+                  <span className="meal-type">Soft</span>
                   <span className="meal-count">{dietData.nonvegetarian.soft}</span>
                 </MealRow>
               </MealGrid>
               <TotalSection>
-                <span className="total-label">Non-Vegetarian Meals</span>
+                <span className="total-label">Non-Vegetarian</span>
                 <span className="total-count">{dietData.nonvegetarian.total}</span>
               </TotalSection>
             </MealSection>
@@ -434,24 +435,24 @@ const MealPage = () => {
               </ResidentCount>
               <MealGrid>
                 <MealRow>
-                  <span className="meal-type">Spicy Meal</span>
+                  <span className="meal-type">Spicy</span>
                   <span className="meal-count">{dietData.vegan.spicy}</span>
                 </MealRow>
                 <UnderlinedMealRow>
-                  <span className="meal-type">Non-Spicy Meal</span>
+                  <span className="meal-type">Non-Spicy</span>
                   <span className="meal-count">{dietData.vegan.nonSpicy}</span>
                 </UnderlinedMealRow>
                 <MealRow>
-                  <span className="meal-type">Hard Meal</span>
+                  <span className="meal-type">Hard</span>
                   <span className="meal-count">{dietData.vegan.hard}</span>
                 </MealRow>
                 <MealRow>
-                  <span className="meal-type">Soft Meal</span>
+                  <span className="meal-type">Soft</span>
                   <span className="meal-count">{dietData.vegan.soft}</span>
                 </MealRow>
               </MealGrid>
               <TotalSection>
-                <span className="total-label">Vegan Meals</span>
+                <span className="total-label">Vegan</span>
                 <span className="total-count">{dietData.vegan.total}</span>
               </TotalSection>
             </MealSection>
