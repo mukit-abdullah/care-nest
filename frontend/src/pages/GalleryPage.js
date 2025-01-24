@@ -1,6 +1,22 @@
 import React from 'react';
 import styled from 'styled-components';
 import Header from '../components/Header';
+import img1 from '../assets/images/Gallery/IMG 1.jpg';
+import img2 from '../assets/images/Gallery/IMG 2.jpg';
+import img3 from '../assets/images/Gallery/IMG 3.jpg';
+import img4 from '../assets/images/Gallery/IMG 4.jpg';
+import img5 from '../assets/images/Gallery/IMG 5.jpg';
+import img6 from '../assets/images/Gallery/IMG 6.jpg';
+import img7 from '../assets/images/Gallery/IMG 7.jpg';
+import img8 from '../assets/images/Gallery/IMG 8.jpg';
+import img9 from '../assets/images/Gallery/IMG 9.jpg';
+import img10 from '../assets/images/Gallery/IMG 10.jpg';
+import img11 from '../assets/images/Gallery/IMG 11.jpg';
+import img12 from '../assets/images/Gallery/IMG 12.jpg';
+import img13 from '../assets/images/Gallery/IMG 13.jpg';
+import img14 from '../assets/images/Gallery/IMG 14.jpg';
+import img15 from '../assets/images/Gallery/IMG 15.jpg';
+import img16 from '../assets/images/Gallery/IMG 16.jpg';
 
 const GalleryPageContainer = styled.div`
   background-color: #0F1914;
@@ -51,85 +67,84 @@ const Image = styled.img`
 
 const galleryImages = [
   {
-    src: '/images/gallery1.jpg',
-    alt: 'Group of elderly residents enjoying social activities',
-    category: 'Social Activities'
+    src: img1,
+    alt: 'Care Nest Facility View 1',
+    category: 'Facility'
   },
   {
-    src: '/images/gallery2.jpg',
-    alt: 'Residents playing board games together',
-    category: 'Recreation'
+    src: img2,
+    alt: 'Care Nest Facility View 2',
+    category: 'Facility'
   },
   {
-    src: '/images/gallery3.jpg',
-    alt: 'Medical checkup with caring staff',
-    category: 'Healthcare'
-  },
-  {
-    src: '/images/gallery4.jpg',
-    alt: 'Nurse assisting elderly resident',
-    category: 'Care Services'
-  },
-  // Duplicate the images to fill the grid
-  {
-    src: '/images/gallery1.jpg',
-    alt: 'Group of elderly residents enjoying social activities',
-    category: 'Social Activities'
-  },
-  {
-    src: '/images/gallery2.jpg',
-    alt: 'Residents playing board games together',
-    category: 'Recreation'
-  },
-  {
-    src: '/images/gallery3.jpg',
-    alt: 'Medical checkup with caring staff',
-    category: 'Healthcare'
-  },
-  {
-    src: '/images/gallery4.jpg',
-    alt: 'Nurse assisting elderly resident',
+    src: img3,
+    alt: 'Resident Care Services 1',
     category: 'Care Services'
   },
   {
-    src: '/images/gallery1.jpg',
-    alt: 'Group of elderly residents enjoying social activities',
-    category: 'Social Activities'
-  },
-  {
-    src: '/images/gallery2.jpg',
-    alt: 'Residents playing board games together',
-    category: 'Recreation'
-  },
-  {
-    src: '/images/gallery3.jpg',
-    alt: 'Medical checkup with caring staff',
-    category: 'Healthcare'
-  },
-  {
-    src: '/images/gallery4.jpg',
-    alt: 'Nurse assisting elderly resident',
+    src: img4,
+    alt: 'Resident Care Services 2',
     category: 'Care Services'
   },
   {
-    src: '/images/gallery1.jpg',
-    alt: 'Group of elderly residents enjoying social activities',
-    category: 'Social Activities'
+    src: img5,
+    alt: 'Social Activities 1',
+    category: 'Activities'
   },
   {
-    src: '/images/gallery2.jpg',
-    alt: 'Residents playing board games together',
-    category: 'Recreation'
+    src: img6,
+    alt: 'Social Activities 2',
+    category: 'Activities'
   },
   {
-    src: '/images/gallery3.jpg',
-    alt: 'Medical checkup with caring staff',
+    src: img7,
+    alt: 'Medical Care 1',
     category: 'Healthcare'
   },
   {
-    src: '/images/gallery4.jpg',
-    alt: 'Nurse assisting elderly resident',
-    category: 'Care Services'
+    src: img8,
+    alt: 'Medical Care 2',
+    category: 'Healthcare'
+  },
+  {
+    src: img9,
+    alt: 'Dining Experience 1',
+    category: 'Dining'
+  },
+  {
+    src: img10,
+    alt: 'Dining Experience 2',
+    category: 'Dining'
+  },
+  {
+    src: img11,
+    alt: 'Recreation Activities 1',
+    category: 'Recreation'
+  },
+  {
+    src: img12,
+    alt: 'Recreation Activities 2',
+    category: 'Recreation'
+  },
+  {
+    src: img13,
+    alt: 'Accommodation View 1',
+    category: 'Accommodation'
+  },
+  {
+    src: img14,
+    alt: 'Accommodation View 2',
+    category: 'Accommodation'
+  },
+  {
+    src: img15,
+    alt: 'Garden Area 1',
+    category: 'Outdoor'
+  },
+  {
+    src: img16,
+    alt: 'Garden Area 2',
+    category: 'Outdoor'
   }
 ];
 

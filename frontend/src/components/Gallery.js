@@ -1,6 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import img1 from '../assets/images/Gallery/IMG 1.jpg';
+import img2 from '../assets/images/Gallery/IMG 2.jpg';
+import img3 from '../assets/images/Gallery/IMG 3.jpg';
+import img4 from '../assets/images/Gallery/IMG 4.jpg';
+
 
 const GallerySection = styled.section`
   padding: 80px 20px;
@@ -64,10 +69,10 @@ const ViewMoreButton = styled.button`
 `;
 
 const galleryImages = [
-  { src: '/images/gallery1.jpg', alt: 'Residents enjoying activities' },
-  { src: '/images/gallery2.jpg', alt: 'Dining area' },
-  { src: '/images/gallery3.jpg', alt: 'Garden area' },
-  { src: '/images/gallery4.jpg', alt: 'Medical care' }
+  { src: img1, alt: 'Care Nest Gallery Image 1' },
+  { src: img2, alt: 'Care Nest Gallery Image 2' },
+  { src: img3, alt: 'Care Nest Gallery Image 3' },
+  { src: img4, alt: 'Care Nest Gallery Image 4' }
 ];
 
 const Gallery = () => {

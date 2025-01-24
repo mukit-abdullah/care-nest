@@ -86,8 +86,8 @@ app.use('/api/donations', donationRoutes);
 app.use('/api/upload', uploadRoutes);
 
 // Error handler
-const errorHandler = require('./middleware/error');
-app.use(errorHandler);
+// const errorHandler = require('./middleware/error');
+// app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 

@@ -1,6 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import accommodationImage from '../assets/images/Landing Page/Accomodation.jpg';
+import medicalImage from '../assets/images/Landing Page/Medical Checkup.jpg';
+import personalCareImage from '../assets/images/Landing Page/Personal care and nursing.jpg';
+import activitiesImage from '../assets/images/Landing Page/Interactive activiries.jpg';
 
 const ServicesSection = styled.section`
   padding: 80px 20px;
@@ -86,28 +90,30 @@ const services = [
   {
     title: 'Accommodation',
     description: 'Comfortable and secure living spaces designed for seniors',
-    image: '/images/accommodation.jpg',
+    image: accommodationImage,
     path: '/accommodation'
   },
   {
     title: 'Medical Care',
     description: '24/7 medical support and regular health checkups',
-    image: '/images/medical.jpg',
+    image: medicalImage,
     path: '/medical-care'
   },
   {
     title: 'Healthy Meals',
     description: 'Nutritious and customized meal plans for residents',
-    image: '/images/meals.jpg',
+    image: personalCareImage,
     path: '/personal-care'
   },
   {
     title: 'Social Activities',
     description: 'Engaging activities and community events',
-    image: '/images/activities.jpg',
+    image: activitiesImage,
     path: '/activities'
   }
 ];
+
+
 
 const Services = () => {
   const navigate = useNavigate();
@@ -120,14 +126,14 @@ const Services = () => {
 
   return (
     <ServicesSection id="services">
-      <SectionTitle>Services</SectionTitle>
+      <SectionTitle>Our Services</SectionTitle>
       <ServicesGrid>
         {services.map((service, index) => (
           <ServiceCard key={index}>
             <ServiceImage src={service.image} alt={service.title} />
             <ServiceTitle>{service.title}</ServiceTitle>
             <ServiceDescription>{service.description}</ServiceDescription>
-            <Button onClick={() => handleInquire(service)}>Inquire More</Button>
+            <Button onClick={() => handleInquire(service)}>Learn More</Button>
           </ServiceCard>
         ))}
       </ServicesGrid>

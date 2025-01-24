@@ -1,9 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
+import heroImage from '../assets/images/Landing Page/HERO SECTION.jpg';
 
 const HeroContainer = styled.div`
   min-height: 100vh;
-  background-color: #0F1914;
+  background: linear-gradient(rgba(15, 25, 20, 0.85), rgba(15, 25, 20, 0.85)),
+    url('${heroImage}') no-repeat center center;
+  background-size: cover;
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import aboutUsImage from '../assets/images/Landing Page/about us.jpg';
 
 const AboutSection = styled.section`
   padding: 80px 20px;
@@ -65,7 +66,7 @@ const AboutUs = () => {
           </Description>
         </Content>
         <ImageContainer>
-          <img src="/images/about-us.jpg" alt="Caring staff with senior resident" />
+          <img src={aboutUsImage} alt="Caring staff with senior resident" />
         </ImageContainer>
       </Container>
     </AboutSection>
