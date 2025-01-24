@@ -4,8 +4,7 @@ import styled from 'styled-components';
 import { useResidentRegistration } from '../../../context/ResidentRegistrationContext';
 import { useResident } from '../../../context/ResidentContext';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
-import colors from '../../../theme/colors';
-import { typography, fonts } from '../../../theme/typography';
+import { fonts } from '../../../theme/typography';
 import axios from 'axios';
 
 const PageContainer = styled.div`

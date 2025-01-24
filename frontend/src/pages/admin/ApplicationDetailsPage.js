@@ -7,7 +7,7 @@ import { typography, fonts } from '../../theme/typography';
 
 const Container = styled.div`
   padding: 2rem;
-  margin-top: 60px;
+  margin-top: 20px;
 `;
 
 const Title = styled.h1`
@@ -19,7 +19,7 @@ const Title = styled.h1`
 `;
 
 const Section = styled.div`
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(210, 230, 181, 0.1);
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -28,7 +28,7 @@ const Section = styled.div`
 
 const SectionTitle = styled.h2`
   ${typography.h2}
-  color: ${colors.text.dark};
+  color: ${colors.primary.green1};
   margin-bottom: 1rem;
 `;
 
@@ -36,14 +36,15 @@ const Field = styled.div`
   margin-bottom: 1rem;
 
   label {
-    font-weight: 600;
-    color: ${colors.text.dark};
+    font-weight: 700;
+    color: ${colors.primary.green3};
     display: block;
+    font-size: 1.1rem;
     margin-bottom: 0.5rem;
   }
 
   span {
-    color: ${colors.text.regular};
+    color: ${colors.text.light};
   }
 `;
 

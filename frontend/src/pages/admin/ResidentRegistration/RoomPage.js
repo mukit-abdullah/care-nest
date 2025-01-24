@@ -4,10 +4,8 @@ import styled from 'styled-components';
 import { useResidentRegistration } from '../../../context/ResidentRegistrationContext';
 import { useResident } from '../../../context/ResidentContext';
 import AdminNavbar from '../../../components/admin/AdminNavbar';
-import colors from '../../../theme/colors';
-import { typography, fonts } from '../../../theme/typography';
+import { fonts } from '../../../theme/typography';
 import axios from 'axios';
-import { getAdminToken } from '../../../services/authService';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -227,7 +225,7 @@ const RoomPage = () => {
   const location = useLocation();
   const { isEditMode, residentId, returnPath } = location.state || {};
   const { residentData: registrationData, updateResidentData: updateRegistrationData } = useResidentRegistration();
-  const { residentData, updateResidentSection } = useResident();
+  const { updateResidentSection } = useResident();
 
   const [errors, setErrors] = useState({});
 

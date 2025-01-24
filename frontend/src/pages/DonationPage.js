@@ -4,6 +4,8 @@ import Header from '../components/Header';
 import { FaUniversity, FaMoneyBillWave } from 'react-icons/fa';
 import { GiPenguin } from 'react-icons/gi';
 import { useNavigate } from 'react-router-dom';
+import logo from '../assets/CareNestLogo.png';
+import colors from '../theme/colors';
 
 const PageContainer = styled.div`
   background-color: #0F1914;
@@ -20,8 +22,8 @@ const ContentContainer = styled.div`
 `;
 
 const Logo = styled.img`
-  width: 200px;
-  height: 200px;
+  
+  height: 100px;
   margin-bottom: 40px;
 `;
 
@@ -59,8 +61,8 @@ const DonationButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 15px;
-  padding: 20px;
+  gap: 12px;
+  padding: 15px;
   background-color: #8EB15C;
   border: none;
   border-radius: 50px;
@@ -69,11 +71,13 @@ const DonationButton = styled.button`
   font-family: 'istok-web';
   font-weight: bold;
   cursor: pointer;
+  margin-left: 60px;
+  width: 75%;
   transition: transform 0.2s ease, background-color 0.2s ease;
 
   &:hover {
     transform: scale(1.02);
-    background-color: #D2E6B5;
+    background-color: ${colors.primary.green2};
   }
 
   svg {
@@ -104,7 +108,7 @@ const DonationPage = () => {
       <Header />
       <PageContainer>
         <ContentContainer>
-          <Logo src="/images/logo.png" alt="Care Nest Logo" />
+          <Logo src={logo} />
           <Title>Donate to</Title>
           <OrganizationName>Care Nest</OrganizationName>
           <Subtitle>Help Homeless Peoples</Subtitle>

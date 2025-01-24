@@ -4,9 +4,10 @@ import Header from '../components/Header';
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 import axios from 'axios';
+import colors from '../theme/colors';
 
 const PageContainer = styled.div`
-  background-color: #0A2A22;
+  background-color: ${colors.background};
   color: #ffffff;
   min-height: 100vh;
   padding-top: 80px;
@@ -94,7 +95,7 @@ const SubmitButton = styled.button`
   transition: background-color 0.2s ease;
 
   &:hover {
-    background-color: #D2E6B5;
+    background-color: ${colors.primary.green3};
   }
 `;
 
