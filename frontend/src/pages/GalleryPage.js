@@ -34,7 +34,7 @@ const Title = styled.h1`
 
 const GalleryGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   gap: 24px;
   max-width: 1200px;
   margin: 0 auto;
@@ -48,6 +48,7 @@ const GalleryItem = styled.div`
   aspect-ratio: 1;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease;
+  border: 2px solid rgba(256, 256, 256, 0.5);
 
   &:hover {
     transform: translateY(-5px);

@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import heroImage from '../assets/images/Landing Page/HERO SECTION.jpg';
+import colors from '../theme/colors';
 
 const HeroContainer = styled.div`
-  min-height: 100vh;
-  background: linear-gradient(rgba(15, 25, 20, 0.85), rgba(15, 25, 20, 0.85)),
+  min-height: 90vh;
+  background: linear-gradient(rgba(15, 25, 20, 0.30), rgba(15, 25, 20, 1)),
     url('${heroImage}') no-repeat center center;
   background-size: cover;
   display: flex;
@@ -12,7 +13,7 @@ const HeroContainer = styled.div`
   align-items: center;
   justify-content: flex-end;
   text-align: center;
-  padding-bottom: 8rem;
+  padding-bottom: 9rem;
 `;
 
 const HeroContent = styled.div`
@@ -28,7 +29,7 @@ const WelcomeText = styled.div`
 
 const BrandName = styled.div`
   font-family: 'Istok Web';
-  color: #B1CF86;
+  color: ${colors.primary.green1};
   font-size: 8rem;
   margin: 0.5rem 0 2rem;
 `;

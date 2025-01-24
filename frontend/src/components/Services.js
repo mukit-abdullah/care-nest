@@ -10,12 +10,13 @@ import colors from '../theme/colors';
 const ServicesSection = styled.section`
   padding: 80px 20px;
   background-color: #0F1914;
+  padding-top: 150px
   
 `;
 
 const SectionTitle = styled.h2`
   text-align: center;
-  font-size: 4.5rem;
+  font-size: 3.5rem;
   color: #D2E6B5;
   margin-bottom: 50px;
   font-family: 'istok web';
@@ -25,8 +26,8 @@ const SectionTitle = styled.h2`
 const ServicesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 30px;
-  max-width: 1200px;
+  gap: 60px;
+  max-width: 1350px;
   margin: 0 auto;
   
 `;
@@ -101,13 +102,13 @@ const services = [
     path: '/medical-care'
   },
   {
-    title: 'Healthy Meals',
+    title: 'Personal Care',
     description: 'Nutritious and customized meal plans for residents',
     image: personalCareImage,
     path: '/personal-care'
   },
   {
-    title: 'Social Activities',
+    title: 'Interactive Activities',
     description: 'Engaging activities and community events',
     image: activitiesImage,
     path: '/activities'
