@@ -46,7 +46,7 @@ const NavLink = styled.div`
   font-size: 1rem;
   font-weight: 500;
   transition: color 0.3s ease;
-  padding: 5px 10px;
+  padding: 5px 6px;
   position: relative;
   cursor: pointer;
 

@@ -5,6 +5,7 @@ import accommodationImage from '../assets/images/Landing Page/Accomodation.jpg';
 import medicalImage from '../assets/images/Landing Page/Medical Checkup.jpg';
 import personalCareImage from '../assets/images/Landing Page/Personal care and nursing.jpg';
 import activitiesImage from '../assets/images/Landing Page/Interactive activiries.jpg';
+import colors from '../theme/colors';
 
 const ServicesSection = styled.section`
   padding: 80px 20px;
@@ -69,7 +70,7 @@ const ServiceDescription = styled.p`
 `;
 
 const Button = styled.button`
-  background-color: #B1CF86;
+  background-color: ${colors.primary.green3};
   color: #0A2A22;
   border: none;
   padding: 10px 20px;
@@ -82,7 +83,7 @@ const Button = styled.button`
   text-align: center;
 
   &:hover {
-    background-color: #9DBF70;
+    background-color: ${colors.primary.green1};
   }
 `;
 

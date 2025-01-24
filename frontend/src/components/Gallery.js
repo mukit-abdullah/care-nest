@@ -5,6 +5,7 @@ import img1 from '../assets/images/Gallery/IMG 1.jpg';
 import img2 from '../assets/images/Gallery/IMG 2.jpg';
 import img3 from '../assets/images/Gallery/IMG 3.jpg';
 import img4 from '../assets/images/Gallery/IMG 4.jpg';
+import colors from '../theme/colors';
 
 
 const GallerySection = styled.section`
@@ -52,7 +53,7 @@ const ViewMoreButton = styled.button`
   display: block;
   margin: 40px auto 0;
   padding: 10px 25px;
-  background-color: #B1CF86;
+  background-color: ${colors.primary.green3};
   font-weight: bold;
   color: #black;
   border: none;
@@ -63,7 +64,7 @@ const ViewMoreButton = styled.button`
   transition: all 0.3s ease;
 
   &:hover {
-    background-color: #9DBF70;
+    background-color: ${colors.primary.green1};
     transform: translateY(-2px);
   }
 `;

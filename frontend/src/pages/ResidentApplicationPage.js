@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import colors from '../theme/colors';
 
 const PageContainer = styled.div`
   padding: 120px 20px 60px;
@@ -19,7 +20,7 @@ const FormContainer = styled.div`
 `;
 
 const Title = styled.h2`
-  color: #D2E6B5;
+  color: ${colors.text.light};
   font-size: 2.5rem;
   margin-bottom: 30px;
   text-align: center;
@@ -31,7 +32,7 @@ const Section = styled.div`
 `;
 
 const SectionTitle = styled.h3`
-  color: #D2E6B5;
+  color: ${colors.primary.green5};
   font-size: 1.5rem;
   margin-bottom: 20px;
   border-bottom: 2px solid #D2E6B5;
@@ -115,7 +116,7 @@ const Select = styled.select`
 const SubmitButton = styled.button`
   background-color: #D2E6B5;
   color: #0A2A22;
-  padding: 15px 40px;
+  padding: 10px 25px;
   border: none;
   border-radius: 30px;
   font-size: 1.2rem;
@@ -123,7 +124,7 @@ const SubmitButton = styled.button`
   cursor: pointer;
   transition: all 0.3s ease;
   display: block;
-  margin: 40px auto 0;
+  margin: 50px auto 0;
 
   &:hover {
     background-color: #8EB15C;

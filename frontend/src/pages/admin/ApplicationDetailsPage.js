@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styled from 'styled-components';
 import colors from '../../theme/colors';
-import { typography } from '../../theme/typography';
+import { typography, fonts } from '../../theme/typography';
 
 const Container = styled.div`
   padding: 2rem;
@@ -11,13 +11,15 @@ const Container = styled.div`
 `;
 
 const Title = styled.h1`
-  ${typography.h1}
-  color: ${colors.text.dark};
+  color: ${colors.primary.green5};
+  font-family: ${fonts.primary};
+  font-size: 2rem;
+  text-align: center;
   margin-bottom: 2rem;
 `;
 
 const Section = styled.div`
-  background: ${colors.primary.green5};
+  background: rgba(0, 0, 0, 0.1);
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

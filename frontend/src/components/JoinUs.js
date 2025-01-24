@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import colors from '../theme/colors';
 
 const JoinSection = styled.section`
   padding: 80px 20px;
@@ -36,8 +37,8 @@ const Subtitle = styled.p`
 `;
 
 const JoinButton = styled.button`
-  padding: 15px 40px;
-  background-color: #D2E6B5;
+  padding: 10px 25px;
+  background-color: ${colors.primary.green3};
   color: #0A2A22;
   border: none;
   border-radius: 30px;
@@ -48,7 +49,7 @@ const JoinButton = styled.button`
   margin-top: 20px;
 
   &:hover {
-    background-color: #8EB15C;
+    background-color: ${colors.primary.green1};
     transform: translateY(-2px);
   }
 `;

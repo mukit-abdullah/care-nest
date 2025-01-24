@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import colors from '../theme/colors';
 
 const DonationSection = styled.section`
   padding: 80px 20px;
@@ -51,17 +52,18 @@ const Description = styled.p`
 
 const DonateButton = styled.button`
   padding: 10px 25px;
-  background-color: #D2E6B5;
+  background-color: ${colors.primary.green3};
   color: black;
   border: none;
   border-radius: 20px;
   font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 
   &:hover {
-    background-color: #B1CF86;
+    background-color: ${colors.primary.green1};
+    transform: translateY(-2px);
   }
 `;
 
