@@ -79,6 +79,7 @@ const EventCard = styled.div`
   border-radius: 15px;
   overflow: hidden;
   height: 100%;
+  border: 2px solid rgba(256, 256, 256, 0.5);
 `;
 
 const EventImage = styled.img`
@@ -124,6 +125,7 @@ const RecreationalImage = styled.img`
   height: 300px;
   object-fit: cover;
   border-radius: 15px;
+  border: 3px solid rgba(256, 256, 256, 0.5);
 `;
 
 const RecreationalDescription = styled.p`

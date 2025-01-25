@@ -22,6 +22,7 @@ const ImageSliderContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  
 `;
 
 const ImageSlider = styled.div`
@@ -31,6 +32,7 @@ const ImageSlider = styled.div`
   overflow: hidden;
   border-radius: 15px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  border: 2.2px solid rgba(256, 256, 256, 0.9);
 `;
 
 const SlideImage = styled.img`
@@ -56,6 +58,7 @@ const Dot = styled.div`
   background-color: ${props => props.active ? '#D2E6B5' : 'rgba(210, 230, 181, 0.3)'};
   cursor: pointer;
   transition: background-color 0.3s ease;
+  
   
   &:hover {
     transform: scale(1.2);

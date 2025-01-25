@@ -45,6 +45,7 @@ const ImageContainer = styled.div`
     width: 100%;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(256, 256, 256, 0.5);
   }
 `;
 

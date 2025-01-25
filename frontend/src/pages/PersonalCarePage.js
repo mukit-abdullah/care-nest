@@ -60,7 +60,7 @@ const SectionTitle = styled.h2`
 const ServicesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 40px;
+  gap: 60px;
   margin: 40px 0;
 
   @media (max-width: 768px) {
@@ -72,6 +72,7 @@ const ServiceCard = styled.div`
   background: rgba(255, 255, 255, 0.05);
   border-radius: 15px;
   overflow: hidden;
+  border: 2px solid rgba(256, 256, 256, 0.5);
 `;
 
 const ServiceImage = styled.img`

@@ -43,6 +43,7 @@ const ServiceCard = styled.div`
   overflow: hidden;
   justify-content: center;
   align-items: center;
+  border: 1px solid rgba(256, 256, 256, 0.5);
 
   &:hover {
     transform: translateY(-5px);
@@ -102,7 +103,7 @@ const services = [
     path: '/medical-care'
   },
   {
-    title: 'Personal Care & Nursing',
+    title: 'Personal Care',
     description: 'Nutritious and customized meal plans for residents',
     image: personalCareImage,
     path: '/personal-care'
@@ -123,6 +124,7 @@ const Services = () => {
   const handleInquire = (service) => {
     if (service.path) {
       navigate(service.path);
+      window.scrollTo(0, 0);
     }
   };
 
@@ -135,7 +137,7 @@ const Services = () => {
             <ServiceImage src={service.image} alt={service.title} />
             <ServiceTitle>{service.title}</ServiceTitle>
             <ServiceDescription>{service.description}</ServiceDescription>
-            <Button onClick={() => handleInquire(service)}>Learn More</Button>
+            <Button onClick={() => handleInquire(service)}>Inquire Now</Button>
           </ServiceCard>
         ))}
       </ServicesGrid>

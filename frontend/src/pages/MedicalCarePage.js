@@ -73,6 +73,7 @@ const ServiceCard = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 15px;
+  border: 1px solid rgba(256, 256, 256, 0.5);
 `;
 
 const IconWrapper = styled.div`
@@ -134,8 +135,8 @@ const DoctorDescription = styled.p`
 
 const DoctorImage = styled.img`
   width: 100%;
-  max-width: 400px;
-  height: auto;
+  max-width: 250px;
+  height: 300px;
   border-radius: 15px;
   margin: ${props => props.align === 'right' ? '0 0 0 auto' : '0 auto 0 0'};
 `;
@@ -201,9 +202,9 @@ const MedicalCarePage = () => {
           
           <DoctorCard>
             <DoctorInfo align="left">
-              <DoctorName>Dr. Sarah Mitchell</DoctorName>
+              <DoctorName>Dr. Sarah Khatun</DoctorName>
               <DoctorDescription>
-                Dr. Sarah Mitchell brings over 15 years of experience in geriatric care. 
+                Dr. Sarah Khatun brings over 15 years of experience in geriatric care. 
                 Specializing in elderly healthcare and chronic disease management, she ensures 
                 our residents receive comprehensive medical attention tailored to their individual needs.
               </DoctorDescription>
@@ -214,7 +215,7 @@ const MedicalCarePage = () => {
           <DoctorCard imageRight>
             <DoctorImage src={drM1Image} alt="Dr. James Anderson" align="left" />
             <DoctorInfo align="right">
-              <DoctorName>Dr. James Anderson</DoctorName>
+              <DoctorName>Dr. Jamil Hossain</DoctorName>
               <DoctorDescription>
                 With extensive experience in internal medicine and geriatric care, Dr. Anderson 
                 specializes in managing complex medical conditions and preventive care for elderly 
@@ -225,9 +226,9 @@ const MedicalCarePage = () => {
 
           <DoctorCard>
             <DoctorInfo align="left">
-              <DoctorName>Dr. Michael Roberts</DoctorName>
+              <DoctorName>Dr. Khalid Roberts</DoctorName>
               <DoctorDescription>
-                Dr. Roberts is our specialist in geriatric psychiatry and cognitive health. 
+                Dr. Khalid is our specialist in geriatric psychiatry and cognitive health. 
                 With his expertise in mental health care for elderly patients, he provides 
                 essential support for residents dealing with cognitive and emotional challenges.
               </DoctorDescription>

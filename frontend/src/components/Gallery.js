@@ -35,6 +35,7 @@ const GalleryItem = styled.div`
   overflow: hidden;
   border-radius: 10px;
   aspect-ratio: 1;
+  border: 2px solid rgba(256, 256, 256, 0.5);
 
   &:hover img {
     transform: scale(1.1);

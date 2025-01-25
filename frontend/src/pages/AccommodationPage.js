@@ -71,6 +71,7 @@ const RoomCard = styled.div`
   background: rgba(255, 255, 255, 0.05);
   border-radius: 15px;
   overflow: hidden;
+  border: 2px solid rgba(256, 256, 256, 0.5);
 `;
 
 const RoomImage = styled.img`
@@ -117,6 +118,7 @@ const CommonAreaImage = styled.img`
   height: 300px;
   object-fit: cover;
   border-radius: 15px;
+  border: 2px solid rgba(256, 256, 256, 0.5);
 `;
 
 const CommonAreaDescription = styled.p`
