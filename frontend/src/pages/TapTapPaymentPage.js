@@ -192,7 +192,7 @@ const PaymentPage = () => {
         },
         amount: Number(formData.amount),
         currency: 'BDT',
-        paymentMethod: 'Bank Account',
+        paymentMethod: 'TapTap Send',
         transactionId: generateTransactionId(),
         isAnonymous: formData.isAnonymous,
         message: formData.message || ''

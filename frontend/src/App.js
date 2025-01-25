@@ -18,6 +18,8 @@ import PersonalCarePage from './pages/PersonalCarePage';
 import ActivitiesPage from './pages/ActivitiesPage';
 import DonationPage from './pages/DonationPage';
 import PaymentPage from './pages/PaymentPage';
+import BkashPaymentPage from './pages/BkashPaymentPage';
+import TapTapPaymentPage from './pages/TapTapPaymentPage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/admin/DashboardPage';
 import MealPage from './pages/admin/MealPage';
@@ -183,6 +185,8 @@ function App() {
                 <Route path="/activities" element={<ActivitiesPage />} />
                 <Route path="/donation" element={<DonationPage />} />
                 <Route path="/payment" element={<PaymentPage />} />
+                <Route path="/bkash-payment" element={<BkashPaymentPage />} />
+                <Route path="/taptap-payment" element={<TapTapPaymentPage />} />
                 <Route path="/join" element={<ResidentApplicationPage />} />
                 
                 {/* Login Route - Protected from logged in users */}

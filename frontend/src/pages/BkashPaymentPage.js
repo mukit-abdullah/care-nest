@@ -192,7 +192,7 @@ const PaymentPage = () => {
         },
         amount: Number(formData.amount),
         currency: 'BDT',
-        paymentMethod: 'Bank Account',
+        paymentMethod: 'Bkash Account',
         transactionId: generateTransactionId(),
         isAnonymous: formData.isAnonymous,
         message: formData.message || ''

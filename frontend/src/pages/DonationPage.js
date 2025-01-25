@@ -114,12 +114,12 @@ const DonationPage = () => {
           <Subtitle>Help Homeless Peoples</Subtitle>
 
           <DonationOptions>
-            <DonationButton>
+            <DonationButton onClick={() => navigate('/bkash-payment')}>
               <FaMoneyBillWave size={24} />
               Donate With <BkashText>Bkash</BkashText>
             </DonationButton>
 
-            <DonationButton>
+            <DonationButton onClick={() => navigate('/taptap-payment')}>
               <GiPenguin size={24} />
               Donate With <TaptapText>Taptap Send</TaptapText>
             </DonationButton>
