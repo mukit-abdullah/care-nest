@@ -1,6 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 import Header from '../components/Header';
+import topSectionImage from '../assets/images/ServicesImage/Accomodation/Top Section.jpg';
+import privateRoomImage from '../assets/images/ServicesImage/Accomodation/Private room.jpeg';
+import sharedRoomImage from '../assets/images/ServicesImage/Accomodation/Shared room.jpg';
+import outdoorSpaceImage from '../assets/images/ServicesImage/Accomodation/Outdoor Space.jpg';
+import gardenImage from '../assets/images/ServicesImage/Accomodation/Garden.jpeg';
+import commonArea1Image from '../assets/images/ServicesImage/Accomodation/Common Area 01.jpeg';
+import commonArea2Image from '../assets/images/ServicesImage/Accomodation/Common Area 02.jpeg';
 
 const PageContainer = styled.div`
   background-color: #0F1914;
@@ -125,10 +132,7 @@ const AccommodationPage = () => {
       <Header />
       <PageContainer>
         <HeroSection>
-          <HeroImage 
-            src="/images/accommodation-hero.jpg" 
-            alt="Elderly residents enjoying common area"
-          />
+          <HeroImage src={topSectionImage} alt="Care Nest Accommodation Facilities" />
         </HeroSection>
 
         <ContentSection>
@@ -142,7 +146,7 @@ const AccommodationPage = () => {
           <SectionTitle>Indoor</SectionTitle>
           <RoomGrid>
             <RoomCard>
-              <RoomImage src="/images/private-room.jpg" alt="Private Room" />
+              <RoomImage src={privateRoomImage} alt="Private Room at Care Nest" />
               <RoomContent>
                 <RoomTitle>Private Rooms</RoomTitle>
                 <RoomDescription>
@@ -154,13 +158,13 @@ const AccommodationPage = () => {
             </RoomCard>
 
             <RoomCard>
-              <RoomImage src="/images/shared-room.jpg" alt="Shared Room" />
+              <RoomImage src={sharedRoomImage} alt="Shared Room at Care Nest" />
               <RoomContent>
                 <RoomTitle>Shared Rooms</RoomTitle>
                 <RoomDescription>
-                  At Care Nest, our shared rooms provide a comfortable living space where residents can enjoy companionship 
-                  while maintaining individual privacy. Each shared room is designed with accessibility features and includes 
-                  separate spaces for personal belongings, fostering a sense of community and support.
+                  Our shared rooms offer a social living environment while maintaining privacy and comfort. 
+                  Each resident has their own dedicated space within the room, complete with storage solutions 
+                  and access to shared amenities. These rooms are perfect for those who prefer companionship.
                 </RoomDescription>
               </RoomContent>
             </RoomCard>
@@ -169,25 +173,25 @@ const AccommodationPage = () => {
           <SectionTitle>Outdoor</SectionTitle>
           <RoomGrid>
             <RoomCard>
-              <RoomImage src="/images/outdoor-spaces.jpg" alt="Outdoor Spaces" />
+              <RoomImage src={outdoorSpaceImage} alt="Care Nest Outdoor Recreational Spaces" />
               <RoomContent>
                 <RoomTitle>Outdoor Spaces</RoomTitle>
                 <RoomDescription>
-                  At Care Nest, our beautifully landscaped outdoor spaces offer residents a unique environment for relaxation 
-                  and recreation. With gardens, walking paths, and seating areas, these spaces provide opportunities for fresh air, 
-                  gentle exercise, and peaceful moments in a serene setting.
+                  Our well-maintained outdoor spaces provide the perfect setting for relaxation and social activities. 
+                  With comfortable seating areas, walking paths, and shaded spots, residents can enjoy fresh air and 
+                  natural surroundings in a safe and accessible environment.
                 </RoomDescription>
               </RoomContent>
             </RoomCard>
 
             <RoomCard>
-              <RoomImage src="/images/garden.jpg" alt="Garden" />
+              <RoomImage src={gardenImage} alt="Care Nest Therapeutic Garden" />
               <RoomContent>
                 <RoomTitle>Garden</RoomTitle>
                 <RoomDescription>
-                  At Care Nest, our meticulously maintained gardens offer residents a tranquil retreat where they can connect 
-                  with nature. These serene outdoor spaces feature walking paths, seating areas, and a variety of flowers and plants, 
-                  providing the perfect setting for relaxation, gentle exercise, and socializing with fellow residents.
+                  Our therapeutic garden is a peaceful sanctuary where residents can connect with nature. 
+                  The garden features raised flower beds, sensory plants, and quiet corners for meditation. 
+                  It's a perfect space for gardening activities or simply enjoying the outdoors.
                 </RoomDescription>
               </RoomContent>
             </RoomCard>
@@ -196,13 +200,23 @@ const AccommodationPage = () => {
           <SectionTitle>Common Areas</SectionTitle>
           <CommonAreasSection>
             <CommonAreasGrid>
-              <CommonAreaImage src="/images/common-area1.jpg" alt="Common Area" />
-              <CommonAreaImage src="/images/common-area2.jpg" alt="Common Area" />
+              <div>
+                <CommonAreaImage src={commonArea1Image} alt="Care Nest Common Area Lounge" />
+                <CommonAreaDescription>
+                  Our spacious common lounges are designed for comfort and social interaction. 
+                  These well-furnished spaces provide the perfect setting for residents to relax, 
+                  read, watch TV, or engage in group activities with fellow residents.
+                </CommonAreaDescription>
+              </div>
+              <div>
+                <CommonAreaImage src={commonArea2Image} alt="Care Nest Community Space" />
+                <CommonAreaDescription>
+                  The community spaces feature comfortable seating arrangements and modern amenities, 
+                  creating a warm and inviting atmosphere where residents can gather, socialize, 
+                  and participate in various recreational activities.
+                </CommonAreaDescription>
+              </div>
             </CommonAreasGrid>
-            <CommonAreaDescription>
-              Residents have access to beautifully furnished common areas, including lounges, dining rooms, and gardens, 
-              encouraging socialization and recreational activities.
-            </CommonAreaDescription>
           </CommonAreasSection>
         </ContentSection>
       </PageContainer>

@@ -1,6 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 import Header from '../components/Header';
+import topSectionImage from '../assets/images/ServicesImage/Interactive Activities/Top Section.jpg';
+import indoorGamesImage from '../assets/images/ServicesImage/Interactive Activities/Indoor Games.jpeg';
+import yogaImage from '../assets/images/ServicesImage/Interactive Activities/Yoga Session.jpg';
+import gardeningImage from '../assets/images/ServicesImage/Interactive Activities/Gardening Activities.jpg';
+import morningWalkImage from '../assets/images/ServicesImage/Interactive Activities/Morning Walk.jpg';
+import recreationalImage from '../assets/images/ServicesImage/Interactive Activities/Recreational Activities.jpg';
+import groupActivitiesImage from '../assets/images/ServicesImage/Interactive Activities/Group Activities.jpeg';
 
 const PageContainer = styled.div`
   background-color: #0F1914;
@@ -135,8 +142,8 @@ const ActivitiesPage = () => {
       <PageContainer>
         <HeroSection>
           <HeroImage 
-            src="/images/activities-hero.jpg" 
-            alt="Staff interacting with resident"
+            src={topSectionImage} 
+            alt="Interactive Activities at Care Nest"
           />
         </HeroSection>
 
@@ -147,7 +154,7 @@ const ActivitiesPage = () => {
             <SectionTitle>Events</SectionTitle>
             <EventsGrid>
               <EventCard>
-                <EventImage src="/images/indoor-games.jpg" alt="Indoor Games" />
+                <EventImage src={indoorGamesImage} alt="Engaging Indoor Games at Care Nest" />
                 <EventContent>
                   <ActivityTitle>Indoor Games</ActivityTitle>
                   <ActivityDescription>
@@ -159,7 +166,7 @@ const ActivitiesPage = () => {
               </EventCard>
 
               <EventCard>
-                <EventImage src="/images/yoga.jpg" alt="Yoga Session" />
+                <EventImage src={yogaImage} alt="Therapeutic Yoga Sessions at Care Nest" />
                 <EventContent>
                   <ActivityTitle>Yoga</ActivityTitle>
                   <ActivityDescription>
@@ -171,7 +178,7 @@ const ActivitiesPage = () => {
               </EventCard>
 
               <EventCard>
-                <EventImage src="/images/gardening.jpg" alt="Gardening Activity" />
+                <EventImage src={gardeningImage} alt="Therapeutic Gardening Activities at Care Nest" />
                 <EventContent>
                   <ActivityTitle>Gardening</ActivityTitle>
                   <ActivityDescription>
@@ -183,7 +190,7 @@ const ActivitiesPage = () => {
               </EventCard>
 
               <EventCard>
-                <EventImage src="/images/morning-walk.jpg" alt="Morning Walk" />
+                <EventImage src={morningWalkImage} alt="Refreshing Morning Walks at Care Nest" />
                 <EventContent>
                   <ActivityTitle>Morning Walk</ActivityTitle>
                   <ActivityDescription>
@@ -199,14 +206,8 @@ const ActivitiesPage = () => {
           <RecreationalSection>
             <SectionTitle>Recreational Activities</SectionTitle>
             <RecreationalImages>
-              <RecreationalImage 
-                src="/images/recreational1.jpg" 
-                alt="Indoor recreational activities"
-              />
-              <RecreationalImage 
-                src="/images/recreational2.jpg" 
-                alt="Group activities"
-              />
+              <RecreationalImage src={recreationalImage} alt="Engaging Recreational Activities at Care Nest" />
+              <RecreationalImage src={groupActivitiesImage} alt="Group Activities and Social Engagement at Care Nest" />
             </RecreationalImages>
             <RecreationalDescription>
               Recreational activities at our care home include a variety of engaging options like arts and crafts, 

@@ -2,6 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import Header from '../components/Header';
 import { FaBrain, FaBell, FaHeartbeat, FaNotesMedical } from 'react-icons/fa';
+import topSectionImage from '../assets/images/ServicesImage/Medical Care/Top Section.jpg';
+import drF1Image from '../assets/images/ServicesImage/Medical Care/Dr F 01.jpeg';
+import drM1Image from '../assets/images/ServicesImage/Medical Care/Dr M 01.jpeg';
+import drM2Image from '../assets/images/ServicesImage/Medical Care/Dr M 02.jpeg';
 
 const PageContainer = styled.div`
   background-color: #0F1914;
@@ -142,7 +146,7 @@ const MedicalCarePage = () => {
       <Header />
       <PageContainer>
         <HeroSection>
-          <HeroImage src="/images/medical-care-hero.jpg" alt="Medical professionals at work" />
+          <HeroImage src={topSectionImage} alt="Professional Medical Care at Care Nest" />
         </HeroSection>
 
         <ContentSection>
@@ -193,36 +197,42 @@ const MedicalCarePage = () => {
             </ServiceCard>
           </ServicesGrid>
 
-          <DoctorsTitle>Our Dedicated Doctors Team</DoctorsTitle>
+          <DoctorsTitle>Our Medical Team</DoctorsTitle>
           
           <DoctorCard>
             <DoctorInfo align="left">
-              <DoctorName>Dr. Emily Carter</DoctorName>
+              <DoctorName>Dr. Sarah Mitchell</DoctorName>
               <DoctorDescription>
-                A renowned cardiologist specializing in preventive heart care and advanced cardiac imaging, with over 15 years of experience in treating heart diseases and conducting cutting-edge research on hypertension.
+                Dr. Sarah Mitchell brings over 15 years of experience in geriatric care. 
+                Specializing in elderly healthcare and chronic disease management, she ensures 
+                our residents receive comprehensive medical attention tailored to their individual needs.
               </DoctorDescription>
             </DoctorInfo>
-            <DoctorImage src="/images/doctor1.jpg" alt="Dr. Emily Carter" align="right" />
+            <DoctorImage src={drF1Image} alt="Dr. Sarah Mitchell" align="right" />
           </DoctorCard>
 
           <DoctorCard imageRight>
-            <DoctorImage src="/images/doctor2.jpg" alt="Dr. Arjun Patel" align="left" />
+            <DoctorImage src={drM1Image} alt="Dr. James Anderson" align="left" />
             <DoctorInfo align="right">
-              <DoctorName>Dr. Arjun Patel</DoctorName>
+              <DoctorName>Dr. James Anderson</DoctorName>
               <DoctorDescription>
-                An expert neurologist with a focus on neurodegenerative disorders, particularly Alzheimer's and Parkinson's disease, dedicated to patient care and advancing brain health through innovative treatments.
+                With extensive experience in internal medicine and geriatric care, Dr. Anderson 
+                specializes in managing complex medical conditions and preventive care for elderly 
+                patients, ensuring optimal health outcomes for our residents.
               </DoctorDescription>
             </DoctorInfo>
           </DoctorCard>
 
           <DoctorCard>
             <DoctorInfo align="left">
-              <DoctorName>Dr. Abir Hasan</DoctorName>
+              <DoctorName>Dr. Michael Roberts</DoctorName>
               <DoctorDescription>
-                A leading oncologist specializing in cancer immunotherapy and personalized treatment plans, committed to delivering compassionate care and advancing cancer research for better patient outcomes.
+                Dr. Roberts is our specialist in geriatric psychiatry and cognitive health. 
+                With his expertise in mental health care for elderly patients, he provides 
+                essential support for residents dealing with cognitive and emotional challenges.
               </DoctorDescription>
             </DoctorInfo>
-            <DoctorImage src="/images/doctor3.jpg" alt="Dr. Abir Hasan" align="right" />
+            <DoctorImage src={drM2Image} alt="Dr. Michael Roberts" align="right" />
           </DoctorCard>
         </ContentSection>
       </PageContainer>

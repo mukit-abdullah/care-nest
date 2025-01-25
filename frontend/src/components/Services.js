@@ -102,7 +102,7 @@ const services = [
     path: '/medical-care'
   },
   {
-    title: 'Personal Care',
+    title: 'Personal Care & Nursing',
     description: 'Nutritious and customized meal plans for residents',
     image: personalCareImage,
     path: '/personal-care'

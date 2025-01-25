@@ -1,6 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import Header from '../components/Header';
+import topSectionImage from '../assets/images/ServicesImage/Personal Care & Nursing/Top Section.jpg';
+import nursingImage from '../assets/images/ServicesImage/Personal Care & Nursing/Nursing.jpg';
+import laundryImage from '../assets/images/ServicesImage/Personal Care & Nursing/Laundry.jpeg';
+import securityImage from '../assets/images/ServicesImage/Personal Care & Nursing/Security.jpg';
+import houseKeepingImage from '../assets/images/ServicesImage/Personal Care & Nursing/House Keeping.jpg';
 
 const PageContainer = styled.div`
   background-color: #0F1914;
@@ -99,8 +104,8 @@ const PersonalCarePage = () => {
       <PageContainer>
         <HeroSection>
           <HeroImage 
-            src="/images/personal-care-hero.jpg" 
-            alt="Elderly resident reading a book"
+            src={topSectionImage} 
+            alt="Professional Personal Care & Nursing Services at Care Nest"
           />
         </HeroSection>
 
@@ -115,7 +120,7 @@ const PersonalCarePage = () => {
           <SectionTitle>Operational Services</SectionTitle>
           <ServicesGrid>
             <ServiceCard>
-              <ServiceImage src="/images/nursing.jpg" alt="Nursing care" />
+              <ServiceImage src={nursingImage} alt="Professional Nursing Care at Care Nest" />
               <ServiceContent>
                 <ServiceTitle>Nursing</ServiceTitle>
                 <ServiceDescription>
@@ -127,7 +132,7 @@ const PersonalCarePage = () => {
             </ServiceCard>
 
             <ServiceCard>
-              <ServiceImage src="/images/laundry.jpg" alt="Laundry service" />
+              <ServiceImage src={laundryImage} alt="Professional Laundry Services at Care Nest" />
               <ServiceContent>
                 <ServiceTitle>Laundry</ServiceTitle>
                 <ServiceDescription>
@@ -139,7 +144,7 @@ const PersonalCarePage = () => {
             </ServiceCard>
 
             <ServiceCard>
-              <ServiceImage src="/images/security.jpg" alt="Security system" />
+              <ServiceImage src={securityImage} alt="24/7 Security Services at Care Nest" />
               <ServiceContent>
                 <ServiceTitle>Security</ServiceTitle>
                 <ServiceDescription>
@@ -151,13 +156,13 @@ const PersonalCarePage = () => {
             </ServiceCard>
 
             <ServiceCard>
-              <ServiceImage src="/images/housekeeping.jpg" alt="Housekeeping service" />
+              <ServiceImage src={houseKeepingImage} alt="Professional Housekeeping Services at Care Nest" />
               <ServiceContent>
                 <ServiceTitle>House Keeping</ServiceTitle>
                 <ServiceDescription>
-                  At Care Nest, our housekeeping services ensure that residents' living spaces are clean, safe, 
-                  and well-maintained. Regular cleaning, laundry, and maintenance tasks are carried out by our 
-                  dedicated staff to provide a comfortable and hygienic environment for all residents.
+                  Our professional housekeeping team maintains a clean, hygienic, and comfortable living environment. 
+                  Daily cleaning, sanitization, and organization ensure our facilities meet the highest standards of 
+                  cleanliness and comfort for all residents.
                 </ServiceDescription>
               </ServiceContent>
             </ServiceCard>
