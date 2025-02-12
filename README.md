@@ -1,52 +1,87 @@
 # CareNest - Old Age Home Management System
 
-CareNest is a comprehensive web application designed to manage and streamline operations in old age homes. Built with React for the frontend and Node.js/Express for the backend, it offers a modern and intuitive interface for administrators and staff.
+CareNest is a comprehensive web application designed to manage and streamline operations in old age homes. It provides a complete solution for resident management, medical care, meal planning, and financial transactions.
 
-## Features
+## 🌟 Key Features
 
-### Admin Dashboard
-- Resident management with photo display
-- Quick stats overview (total residents, rooms, staff)
-- Add/Edit/Delete resident information
-- User-friendly interface with modern design
+### 👥 Resident Management
+- Complete resident registration system with multiple stages:
+  - Personal Information
+  - Medical History
+  - Dietary Requirements
+  - Room Assignment
+  - Guardian Details
+  - Financial Information
+- Detailed resident profiles
+- Application processing system for new residents
 
-### Meal Management
-- Track different meal categories:
-  - Vegetarian
-  - Non-Vegetarian
-  - Vegan
-- Monitor resident dietary preferences
-- Daily meal count tracking
-- Special meal type tracking (Spicy/Non-Spicy, Hard/Soft)
+### 🏥 Medical Care
+- Medical history tracking
+- Healthcare management
+- Medication schedules
+- Regular health check-ups
 
-### Transaction Management
-- Financial transaction tracking
-- Payment history
-- Expense management
+### 🍽️ Meal Management
+- Customized meal planning
+- Dietary preference tracking
+- Special meal facilities
 
-## Technology Stack
+### 💰 Financial Management
+- Multiple payment gateways :
+  - Bkash
+  - TapTap
+  - Bank Transfer
+- Donation system
+- Transaction history
+- Financial reporting
+
+### 🏠 Accommodation
+- Room management
+- Facility maintenance
+- Occupancy tracking
+
+### 🎯 Activities
+- Recreational activities
+- Events and celebrations
+- Social engagement programs
+
+## 💻 Technology Stack
 
 ### Frontend
-- React.js
-- Styled Components for styling
-- React Router for navigation
-- Modern UI/UX with responsive design
+- React.js with React Router for routing
+- Styled Components for modern, component-based styling
+- Axios for API communication
+- Context API for state management
+- Responsive design for all devices
 
 ### Backend
 - Node.js
-- Express.js
-- MongoDB for database
-- JWT for authentication
+- Express.js framework
+- MongoDB database
+- JWT authentication
+- RESTful API architecture
+- Mongoose for MongoDB object modeling
 
-## Getting Started
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v14 or higher)
+- MongoDB
+- npm or yarn package manager
+
+### Installation
 
 1. Clone the repository
 ```bash
-git clone [repository-url]
+git clone [https://github.com/mukit-abdullah/care-nest.git]
 ```
 
 2. Install dependencies
 ```bash
+# Install root dependencies
+npm install
+
 # Install frontend dependencies
 cd frontend
 npm install
@@ -56,45 +91,78 @@ cd ../backend
 npm install
 ```
 
-3. Start the development servers
-```bash
-# Start frontend
-cd frontend
-npm start
+3. Environment Setup
+Create `.env` files in both frontend and backend directories with necessary configurations.
 
-# Start backend
-cd ../backend
-npm start
+4. Start the application
+```bash
+# Start frontend only
+cd frontend
+npm run start
+
+# Start backend only
+cd backend
+npm run dev
 ```
 
-## Project Structure
+## 📁 Project Structure
 ```
 CareNest/
 ├── frontend/
 │   ├── src/
+│   │   ├── assets/
+│   │   │   └── images/
+│   │   │       ├── Gallery/
+│   │   │       ├── Landing Page/
+│   │   │       ├── ServicesImage/
+│   │   │       └── Testimonials/
 │   │   ├── components/
+│   │   │   ├── admin/
+│   │   │   ├── auth/
+│   │   │   ├── common/
+│   │   │   └── ...
+│   │   ├── context/
 │   │   ├── pages/
+│   │   │   ├── admin/
+│   │   │   │   ├── ResidentInfo/
+│   │   │   │   ├── ResidentRagistration/
+│   │   │   │   └── ...
+│   │   │   └── ...
+│   │   ├── services/
 │   │   ├── theme/
-│   │   └── App.js
+│   │   ├── utils/
+│   │   │── App.js
+│   │   └── ...
 │   └── package.json
-└── backend/
-    ├── src/
-    │   ├── routes/
-    │   ├── models/
-    │   └── controllers/
-    └── package.json
+├── backend/
+│   ├── config/
+│   ├── controllers/
+│   ├── db/
+│   ├── documentation/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── scripts/
+│   ├── server.js
+│   │── package.json
+│   │── config.js
+│   └── ...
+└── package.json
 ```
 
-## Contributing
+## 🔒 Security Features
+- JWT based authentication
+- Protected admin routes
+- Data encryption
+
+## 🤝 Contributing
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
+2. Create your feature branch (`git checkout -b feature/DemoFeature`)
+3. Commit your changes (`git commit -m 'Add some DemoFeature'`)
+4. Push to the branch (`git push origin feature/DemoFeature`)
 5. Open a Pull Request
 
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Acknowledgments
+## 👏 Acknowledgments
 - Thanks to all contributors who have helped shape CareNest
-- Special thanks to the open-source community for the tools and libraries used
+- Special thanks to the open-source community for their valuable contributions

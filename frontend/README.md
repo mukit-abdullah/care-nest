@@ -1,70 +1,149 @@
-# Getting Started with Create React App
+# CareNest Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The frontend application for CareNest - A comprehensive Old Age Home Management System built with React.
 
-## Available Scripts
+## 🚀 Features
 
-In the project directory, you can run:
+### 🏠 Public Pages
+- **Home Page**: Landing page with hero section, services overview, and testimonials
+- **Gallery**: Photo gallery showcasing facilities and activities
+- **Services**:
+  - Accommodation details
+  - Medical care services
+  - Personal care information
+  - Activities and programs
+- **Donation**: Integrated payment system with multiple gateways
+  - Bkash Payment
+  - TapTap Payment
 
-### `npm start`
+### 👤 Admin Dashboard
+- **Resident Management**:
+  - Multi-step registration process
+  - Resident information viewing and editing
+  - Application processing
+- **Meal Management**: Track and manage resident meals
+- **Transaction Management**: Financial tracking and reporting
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🛠️ Tech Stack
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **React 18**: Modern UI library for building user interfaces
+- **React Router v6**: For application routing and navigation
+- **Styled Components**: CSS-in-JS for component styling
+- **Axios**: HTTP client for API requests
+- **React Icons**: Icon library
+- **Google Maps API**: For location services
+- **Moment.js**: Date formatting and manipulation
 
-### `npm test`
+## 📁 Project Structure
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+src/
+├── components/         # Reusable UI components
+│   ├── Header/        # Navigation and header components
+│   ├── Hero/          # Landing page hero section
+│   ├── Services/      # Service section components
+│   └── ...
+├── pages/             # Page components
+│   ├── admin/         # Admin dashboard pages
+│   │   ├── DashboardPage
+│   │   ├── MealPage
+│   │   └── TransactionPage
+│   └── public/        # Public facing pages
+├── context/           # React Context providers
+├── hooks/             # Custom React hooks
+├── utils/             # Utility functions
+├── assets/            # Static assets (images, fonts)
+└── App.js             # Root component
+```
 
-### `npm run build`
+## 🚀 Getting Started
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Prerequisites
+- Node.js (v14 or higher)
+- npm or yarn
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Installation
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. Install dependencies:
+```bash
+npm install
+```
 
-### `npm run eject`
+2. Create `.env` file in the root directory:
+```env
+REACT_APP_API_URL=your_backend_url
+REACT_APP_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+3. Start the development server:
+```bash
+npm start
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+The app will be available at [http://localhost:3000](http://localhost:3000)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 📦 Available Scripts
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- `npm start`: Run development server
+- `npm build`: Build for production
+- `npm test`: Run tests
+- `npm run eject`: Eject from Create React App
 
-## Learn More
+## 🔒 Environment Variables
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+| Variable | Description |
+|----------|-------------|
+| REACT_APP_API_URL | Backend API URL |
+| REACT_APP_GOOGLE_MAPS_API_KEY | Google Maps API Key |
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 🎨 Styling
 
-### Code Splitting
+- Uses Styled Components for component-level styling
+- Responsive design for all screen sizes
+- Consistent color scheme and typography
+- Modern and clean UI design
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 🔐 Authentication
 
-### Analyzing the Bundle Size
+- JWT-based authentication
+- Protected routes for admin access
+- Persistent login state
+- Role-based access control
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 🌐 API Integration
 
-### Making a Progressive Web App
+- RESTful API consumption
+- Axios interceptors for request/response handling
+- Error handling and loading states
+- Data caching strategies
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## ⚡ Performance Optimization
 
-### Advanced Configuration
+- Code splitting with React.lazy
+- Image optimization
+- Lazy loading of components
+- Memoization of expensive computations
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 📱 Responsive Design
 
-### Deployment
+- Mobile-first approach
+- Breakpoints for different screen sizes
+- Touch-friendly interface
+- Optimized for tablets and desktop
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## 🧪 Testing
 
-### `npm run build` fails to minify
+The application includes:
+- Unit tests for components
+- Integration tests for user flows
+- Mock service workers for API testing
+- Snapshot testing
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 📚 Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
