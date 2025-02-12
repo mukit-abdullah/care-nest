@@ -175,6 +175,7 @@ CareNest is a university project, developed as a free and open-source initiative
 - Abdullah Al Mukit - amukit212099@bscse.uiu.ac.bd
 - Arnab Banik - arnab.banik299@gmail.com
 - Saikat Mahaldar - smahaldar212009@bscse.uiu.ac.bd
+
 We appreciate contributions from the open-source community! Feel free to fork, modify, and improve the project.
 
 ## 📝 License
