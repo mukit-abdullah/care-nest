@@ -74,7 +74,7 @@ CareNest is a comprehensive web application designed to manage and streamline op
 
 1. Clone the repository
 ```bash
-git clone [https://github.com/mukit-abdullah/care-nest.git]
+git clone https://github.com/mukit-abdullah/care-nest.git
 ```
 
 2. Install dependencies
@@ -125,13 +125,13 @@ CareNest/
 │   │   ├── pages/
 │   │   │   ├── admin/
 │   │   │   │   ├── ResidentInfo/
-│   │   │   │   ├── ResidentRagistration/
+│   │   │   │   ├── ResidentRegistration/
 │   │   │   │   └── ...
 │   │   │   └── ...
 │   │   ├── services/
 │   │   ├── theme/
 │   │   ├── utils/
-│   │   │── App.js
+│   │   ├── App.js
 │   │   └── ...
 │   └── package.json
 ├── backend/
@@ -144,8 +144,8 @@ CareNest/
 │   ├── routes/
 │   ├── scripts/
 │   ├── server.js
-│   │── package.json
-│   │── config.js
+│   ├── package.json
+│   ├── config.js
 │   └── ...
 └── package.json
 ```
@@ -166,3 +166,16 @@ CareNest/
 ## 👏 Acknowledgments
 - Thanks to all contributors who have helped shape CareNest
 - Special thanks to the open-source community for their valuable contributions
+
+## 👨‍💻 Developed By - Team ALT F4
+CareNest is a university project, developed as a free and open-source initiative by Team ALT F4.
+
+# 🚀 Team Members
+- Sadman Hossain - sadmanhossainwork@gmail.com
+- Abdullah Al Mukit - amukit212099@bscse.uiu.ac.bd
+- Arnab Banik - arnab.banik299@gmail.com
+- Saikat Mahaldar - smahaldar212009@bscse.uiu.ac.bd
+We appreciate contributions from the open-source community! Feel free to fork, modify, and improve the project.
+
+## 📝 License
+This project is licensed under the MIT License, allowing anyone to use, modify, and distribute it freely.
